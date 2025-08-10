@@ -173,6 +173,38 @@ const LifeXApp = () => {
       address: "118 Ponsonby Road, Auckland",
       hasOnlineBooking: true,
       bookingUrl: "https://www.opentable.com/cafe-supreme"
+    },
+    {
+      id: 2,
+      name: "Little Bird Unbakery",
+      type: "Healthy Breakfast & Brunch",
+      rating: 4.6,
+      reviews: 156,
+      distance: "0.5km",
+      price: "$$",
+      highlights: ["Healthy Options", "Quick Service", "Fresh"],
+      aiReason: "Specializes in healthy, fresh ingredients with quick service and laptop-friendly seating.",
+      phone: "09-555-0456",
+      assistant: 'lifex',
+      address: "27 Summerhill Drive, Auckland",
+      hasOnlineBooking: true,
+      bookingUrl: "https://www.opentable.com/little-bird"
+    },
+    {
+      id: 3,
+      name: "Depot Eatery",
+      type: "Modern NZ Cuisine",
+      rating: 4.9,
+      reviews: 89,
+      distance: "0.8km",
+      price: "$$$",
+      highlights: ["Award-winning", "Local Ingredients", "Fine Dining"],
+      aiReason: "Award-winning restaurant focusing on local ingredients and innovative NZ cuisine.",
+      phone: "09-555-0789",
+      assistant: 'lifex',
+      address: "36 Federal Street, Auckland CBD",
+      hasOnlineBooking: true,
+      bookingUrl: "https://www.opentable.com/depot-eatery"
     }
   ];
 
@@ -191,11 +223,31 @@ const LifeXApp = () => {
     
     setTimeout(() => {
       setIsTyping(false);
+      
+      // Determine which recommendations to show based on query
+      let recommendations = [];
+      const queryLower = query.toLowerCase();
+      
+      if (queryLower.includes('coffee') || queryLower.includes('work') || queryLower.includes('wifi')) {
+        recommendations = mockRecommendations.filter(r => r.type.includes('Coffee') || r.highlights.includes('Fast WiFi'));
+      } else if (queryLower.includes('food') || queryLower.includes('restaurant') || queryLower.includes('eat')) {
+        recommendations = mockRecommendations.filter(r => r.type.includes('Cuisine') || r.type.includes('Breakfast'));
+      } else if (queryLower.includes('healthy') || queryLower.includes('fresh')) {
+        recommendations = mockRecommendations.filter(r => r.highlights.includes('Healthy Options'));
+      } else {
+        // Default to showing 2-3 varied recommendations
+        recommendations = mockRecommendations.slice(0, 2);
+      }
+      
+      if (recommendations.length === 0) {
+        recommendations = [mockRecommendations[0]]; // Fallback
+      }
+      
       setMessages(prev => [...prev, {
         type: 'assistant',
-        content: "Here are some great recommendations for you:",
+        content: `I found ${recommendations.length} great ${queryLower.includes('coffee') ? 'coffee spots' : queryLower.includes('food') ? 'restaurants' : 'places'} for you:`,
         assistant: 'lifex',
-        recommendations: mockRecommendations.slice(0, 1)
+        recommendations: recommendations
       }]);
     }, 1500);
   };
@@ -290,14 +342,23 @@ const LifeXApp = () => {
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                         <button 
                           onClick={() => window.open(`tel:${rec.phone}`)}
-                          style={{
-                            ...styles.button,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.25rem',
-                            padding: '0.625rem 1rem',
-                          }}
+                                                  style={{
+                          ...styles.button,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.25rem',
+                          padding: '0.625rem 1rem',
+                        }}
+                        onMouseDown={(e) => {
+                          e.currentTarget.style.transform = 'scale(0.95)';
+                        }}
+                        onMouseUp={(e) => {
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
                         >
                           <Phone size={14} />
                           <span style={{ fontSize: '0.875rem' }}>Call Now</span>
@@ -759,19 +820,431 @@ const LifeXApp = () => {
           </div>
         )}
 
-        {/* 其他视图 */}
-        {currentView !== 'chat' && (
+        {/* Discover View */}
+        {currentView === 'discover' && (
           <div style={{ 
             height: '100%', 
-            background: 'linear-gradient(135deg, #fff7ed, #fed7aa, #fdba74)', 
-            padding: '1.5rem' 
+            background: 'linear-gradient(135deg, #fff7ed, #fed7aa, #fdba74)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
           }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', color: '#020029' }}>
-              {currentView === 'discover' && 'Discover'}
-              {currentView === 'booking' && 'My Bookings'} 
-              {currentView === 'profile' && 'Profile'}
-            </h2>
-            <p style={{ color: '#6b7280' }}>Coming soon...</p>
+            {/* Header */}
+            <div style={{ padding: '1.5rem', flexShrink: 0 }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#020029' }}>
+                Discover New Zealand
+              </h2>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                Explore trending places and hidden gems
+              </p>
+              
+              {/* Category Tabs */}
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                {['All', 'Coffee', 'Food', 'Activities', 'Services'].map((category, idx) => (
+                  <button
+                    key={idx}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      border: 'none',
+                      cursor: 'pointer',
+                      backgroundColor: idx === 0 ? '#f97316' : 'rgba(255, 255, 255, 0.8)',
+                      color: idx === 0 ? 'white' : '#6b7280',
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Content */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 1.5rem 1.5rem' }}>
+              {/* Trending Posts */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: '#020029' }}>Trending Now</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+                  {[
+                    {
+                      title: "Best Coffee Spots for Remote Work",
+                      description: "Cozy cafés with strong WiFi and laptop-friendly atmosphere",
+                      image: "linear-gradient(135deg, #f97316, #ea580c)",
+                      likes: "1.2k",
+                      author: "CoffeeExpert",
+                      category: "☕ Coffee"
+                    },
+                    {
+                      title: "Auckland's Hidden Food Gems",
+                      description: "Local favorites that tourists don't know about",
+                      image: "linear-gradient(135deg, #fbbf24, #f59e0b)",
+                      likes: "856",
+                      author: "FoodieNZ",
+                      category: "🍽️ Food"
+                    },
+                    {
+                      title: "Weekend Family Activities",
+                      description: "Fun activities to keep kids entertained while parents relax",
+                      image: "linear-gradient(135deg, #10b981, #059669)",
+                      likes: "743",
+                      author: "FamilyFun",
+                      category: "👨‍👩‍👧‍👦 Family"
+                    }
+                  ].map((post, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        borderRadius: '1rem',
+                        overflow: 'hidden',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      <div style={{
+                        height: '8rem',
+                        background: post.image,
+                        position: 'relative',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: '0.75rem',
+                          right: '0.75rem',
+                          background: 'rgba(255, 255, 255, 0.9)',
+                          borderRadius: '0.5rem',
+                          padding: '0.25rem 0.5rem',
+                          fontSize: '0.75rem',
+                          fontWeight: 500,
+                          color: '#374151'
+                        }}>
+                          {post.category}
+                        </div>
+                        <div style={{
+                          color: 'white',
+                          fontSize: '2rem',
+                          opacity: 0.3
+                        }}>
+                          📍
+                        </div>
+                      </div>
+                      <div style={{ padding: '1rem' }}>
+                        <h4 style={{ fontWeight: 600, color: '#111827', marginBottom: '0.5rem', fontSize: '1rem' }}>
+                          {post.title}
+                        </h4>
+                        <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
+                          {post.description}
+                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <div style={{
+                              width: '1.5rem',
+                              height: '1.5rem',
+                              background: post.image,
+                              borderRadius: '50%'
+                            }}></div>
+                            <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{post.author}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Heart size={14} style={{ color: '#f97316' }} />
+                            <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{post.likes}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Booking View */}
+        {currentView === 'booking' && (
+          <div style={{ 
+            height: '100%', 
+            background: 'linear-gradient(135deg, #fff7ed, #fed7aa, #fdba74)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}>
+            {/* Header */}
+            <div style={{ padding: '1.5rem', flexShrink: 0 }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#020029' }}>
+                My Bookings
+              </h2>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                Manage your appointments and reservations
+              </p>
+            </div>
+
+            {/* Content */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 1.5rem 1.5rem' }}>
+              {/* Upcoming Bookings */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: '#020029' }}>Upcoming</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {[
+                    {
+                      service: "Hair Appointment",
+                      provider: "Style Studio Auckland",
+                      date: "Jan 18, 2025",
+                      time: "2:30 PM",
+                      status: "confirmed",
+                      address: "Queen Street, Auckland"
+                    },
+                    {
+                      service: "House Cleaning",
+                      provider: "Sparkle Clean Co",
+                      date: "Jan 20, 2025",
+                      time: "10:00 AM",
+                      status: "pending",
+                      address: "Home Service"
+                    }
+                  ].map((booking, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        borderRadius: '1rem',
+                        padding: '1rem',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        border: booking.status === 'confirmed' ? '2px solid #10b981' : '2px solid #f59e0b'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                        <div>
+                          <h4 style={{ fontWeight: 600, color: '#111827', marginBottom: '0.25rem' }}>
+                            {booking.service}
+                          </h4>
+                          <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
+                            {booking.provider}
+                          </p>
+                          <p style={{ color: '#6b7280', fontSize: '0.75rem' }}>
+                            📍 {booking.address}
+                          </p>
+                        </div>
+                        <div style={{
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.75rem',
+                          fontWeight: 500,
+                          backgroundColor: booking.status === 'confirmed' ? '#d1fae5' : '#fef3c7',
+                          color: booking.status === 'confirmed' ? '#065f46' : '#92400e'
+                        }}>
+                          {booking.status}
+                        </div>
+                      </div>
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <Calendar size={16} style={{ color: '#f97316' }} />
+                          <span style={{ fontSize: '0.875rem', color: '#374151' }}>{booking.date}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <Clock size={16} style={{ color: '#f97316' }} />
+                          <span style={{ fontSize: '0.875rem', color: '#374151' }}>{booking.time}</span>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                        <button style={{
+                          ...styles.button,
+                          padding: '0.5rem 1rem',
+                          fontSize: '0.875rem'
+                        }}>
+                          Contact
+                        </button>
+                        <button style={{
+                          backgroundColor: '#fff7ed',
+                          color: '#c2410c',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '0.5rem',
+                          fontSize: '0.875rem',
+                          fontWeight: 500,
+                          border: 'none',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease'
+                        }}>
+                          Reschedule
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: '#020029' }}>Quick Book</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  {[
+                    { title: "Hair & Beauty", icon: "💇‍♀️", color: "#ec4899" },
+                    { title: "Home Services", icon: "🏠", color: "#3b82f6" },
+                    { title: "Health & Wellness", icon: "🏥", color: "#10b981" },
+                    { title: "Automotive", icon: "🚗", color: "#f59e0b" }
+                  ].map((service, idx) => (
+                    <button
+                      key={idx}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        borderRadius: '1rem',
+                        padding: '1rem',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        textAlign: 'center'
+                      }}
+                    >
+                      <div style={{
+                        fontSize: '1.5rem',
+                        marginBottom: '0.5rem'
+                      }}>
+                        {service.icon}
+                      </div>
+                      <p style={{
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        color: '#374151',
+                        margin: 0
+                      }}>
+                        {service.title}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Profile View */}
+        {currentView === 'profile' && (
+          <div style={{ 
+            height: '100%', 
+            background: 'linear-gradient(135deg, #fff7ed, #fed7aa, #fdba74)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}>
+            {/* Header */}
+            <div style={{ padding: '1.5rem', flexShrink: 0, textAlign: 'center' }}>
+              <div style={{
+                width: '4rem',
+                height: '4rem',
+                background: 'linear-gradient(135deg, #f97316, #ea580c)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 1rem',
+                boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)'
+              }}>
+                <User size={24} style={{ color: 'white' }} />
+              </div>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.25rem', color: '#020029' }}>
+                Welcome Back!
+              </h2>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                Kiwi Explorer • Auckland
+              </p>
+            </div>
+
+            {/* Content */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 1.5rem 1.5rem' }}>
+              {/* Stats */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                  {[
+                    { label: "Places Visited", value: "24", icon: "📍" },
+                    { label: "Reviews", value: "12", icon: "⭐" },
+                    { label: "Bookings", value: "8", icon: "📅" }
+                  ].map((stat, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        borderRadius: '1rem',
+                        padding: '1rem',
+                        textAlign: 'center',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                      }}
+                    >
+                      <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>
+                        {stat.icon}
+                      </div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#111827', marginBottom: '0.25rem' }}>
+                        {stat.value}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                        {stat.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Menu Items */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {[
+                    { title: "My Preferences", subtitle: "Customize your recommendations", icon: "⚙️" },
+                    { title: "Favorite Places", subtitle: "Your saved locations", icon: "❤️" },
+                    { title: "Booking History", subtitle: "Past appointments and visits", icon: "📋" },
+                    { title: "Reviews & Ratings", subtitle: "Your feedback on places", icon: "⭐" },
+                    { title: "Notifications", subtitle: "Manage your alerts", icon: "🔔" },
+                    { title: "Help & Support", subtitle: "Get assistance", icon: "❓" }
+                  ].map((item, idx) => (
+                    <button
+                      key={idx}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        borderRadius: '1rem',
+                        padding: '1rem',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <div style={{
+                        width: '2.5rem',
+                        height: '2.5rem',
+                        backgroundColor: '#fff7ed',
+                        borderRadius: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1.125rem'
+                      }}>
+                        {item.icon}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ fontWeight: 500, color: '#111827', marginBottom: '0.25rem', fontSize: '0.875rem' }}>
+                          {item.title}
+                        </h4>
+                        <p style={{ color: '#6b7280', fontSize: '0.75rem', margin: 0 }}>
+                          {item.subtitle}
+                        </p>
+                      </div>
+                      <div style={{ color: '#6b7280' }}>
+                        →
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -822,6 +1295,62 @@ const LifeXApp = () => {
           90% {
             transform: translate3d(0,-4px,0);
           }
+        }
+        
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+        }
+        
+        .fade-in {
+          animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        .slide-in {
+          animation: slideIn 0.5s ease-out forwards;
+        }
+        
+        .hover-lift {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .tap-effect {
+          transition: transform 0.1s ease;
+        }
+        
+        .tap-effect:active {
+          transform: scale(0.95);
         }
       `}</style>
     </div>
