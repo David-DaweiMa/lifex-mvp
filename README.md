@@ -2,6 +2,8 @@
 
 🥝 **AI-driven local service discovery platform for New Zealand**
 
+🚀 **Latest Update (v2.0)**: Complete UI overhaul with enhanced Chat, Discover, Booking, and Profile pages!
+
 ## Quick Start
 
 ```bash
