@@ -47,12 +47,13 @@ const TrendingPage: React.FC<TrendingPageProps> = ({
             ].map((tag, idx) => (
               <button
                 key={idx}
-                className="px-3 md:px-4 py-2 rounded-full transition-all whitespace-nowrap"
+                className="px-3 md:px-4 py-2 rounded-full transition-all whitespace-nowrap flex-shrink-0 text-xs md:text-sm"
                 style={{
                   background: tag.active ? darkTheme.neon.purple : darkTheme.background.card,
                   borderColor: tag.active ? darkTheme.neon.purple : darkTheme.background.glass,
                   color: tag.active ? 'white' : darkTheme.text.primary,
                   border: '1px solid',
+                  minWidth: 'fit-content',
                 }}
               >
                 {tag.label}
