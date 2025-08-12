@@ -68,6 +68,33 @@ async function handleConversation(data: {
       data.context
     );
     
+    // Check if the user is asking for recommendations
+    const messageLower = data.message.toLowerCase();
+    const isRecommendationRequest = messageLower.includes('recommend') || 
+                                   messageLower.includes('find') || 
+                                   messageLower.includes('show') || 
+                                   messageLower.includes('where') ||
+                                   messageLower.includes('coffee') ||
+                                   messageLower.includes('food') ||
+                                   messageLower.includes('restaurant') ||
+                                   messageLower.includes('café');
+    
+    if (isRecommendationRequest) {
+      // Get AI recommendations
+      const recommendations = await getAIRecommendations(
+        { query: data.message },
+        mockBusinesses
+      );
+      
+      return NextResponse.json({
+        success: true,
+        data: {
+          ...response,
+          recommendations: recommendations.recommendations
+        }
+      });
+    }
+    
     return NextResponse.json({
       success: true,
       data: response

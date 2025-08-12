@@ -1,11 +1,12 @@
 // src/components/LifeXApp.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Bell, MessageCircle, Zap, Camera, Calendar, User } from 'lucide-react';
 import { darkTheme, getResponsiveContainer } from '../lib/theme';
 import { ViewType, Message, Booking } from '../lib/types';
 import { mockBookings } from '../lib/mockData';
+import { chatService, ChatServiceResponse } from '../lib/chatService';
 
 // Import page components
 import ChatPage from './pages/ChatPage';
@@ -22,6 +23,7 @@ const LifeXApp: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [selectedServiceCategory, setSelectedServiceCategory] = useState('all');
   const [isTyping, setIsTyping] = useState(false);
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   
   // Data state
   const [messages, setMessages] = useState<Message[]>([
@@ -55,31 +57,48 @@ const LifeXApp: React.FC = () => {
   ];
 
   // Chat handlers
-  const handleUserQuery = (query: string) => {
+  const handleUserQuery = async (query: string) => {
     const userMessage: Message = { type: 'user', content: query };
     setMessages(prev => [...prev, userMessage]);
     setIsInConversation(true); // Switch to dedicated conversation mode
     setIsTyping(true);
     
-    setTimeout(() => {
+    try {
+      const response: ChatServiceResponse = await chatService.sendMessage(query);
+      
       setIsTyping(false);
+      
+      const assistantMessage: Message = {
+        type: 'assistant',
+        content: response.message,
+        assistant: 'lifex',
+        recommendations: response.recommendations
+      };
+      
+      setMessages(prev => [...prev, assistantMessage]);
+      setFollowUpQuestions(response.followUpQuestions || []);
+      
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setIsTyping(false);
+      
+      // Fallback message
       setMessages(prev => [...prev, {
         type: 'assistant',
-        content: "Here are some great recommendations for you:",
-        assistant: 'lifex',
-        recommendations: mockRecommendations.slice(0, 1)
+        content: "Sorry, I'm having trouble connecting right now. Please try again in a moment.",
+        assistant: 'lifex'
       }]);
-    }, 1500);
+    }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!chatInput.trim()) return;
-    handleUserQuery(chatInput);
+    await handleUserQuery(chatInput);
     setChatInput('');
   };
 
-  const handleQuickPrompt = (prompt: string) => {
-    handleUserQuery(prompt);
+  const handleQuickPrompt = async (prompt: string) => {
+    await handleUserQuery(prompt);
   };
 
   const handleBackToMain = () => {
@@ -166,6 +185,7 @@ const LifeXApp: React.FC = () => {
             onSendMessage={handleSendMessage}
             onQuickPrompt={handleQuickPrompt}
             onBackToMain={handleBackToMain}
+            followUpQuestions={followUpQuestions}
           />
         )}
 

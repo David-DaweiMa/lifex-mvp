@@ -1,202 +1,266 @@
-# GPT-5 Nano AI Setup Guide
+# LifeX AI 功能设置指南
 
-This guide will help you set up GPT-5 Nano (gpt-5-nano) integration for the LifeX application.
+## 概述
 
-## Prerequisites
+LifeX 集成了 OpenAI GPT-5 Nano 来提供智能聊天和推荐功能。AI 助手可以帮助用户发现新西兰的本地服务，提供个性化推荐，并回答相关问题。
 
-1. **OpenAI Account**: You need an OpenAI account with API access
-2. **API Credits**: Ensure you have sufficient credits for API calls
-3. **Node.js**: Version 18 or higher
+## 功能特性
 
-## Step 1: Get OpenAI API Key
+### 🤖 AI 聊天助手
+- 自然语言对话
+- 个性化推荐
+- 上下文理解
+- 后续问题建议
 
-1. Visit [OpenAI Platform](https://platform.openai.com/)
-2. Sign in or create an account
-3. Navigate to **API Keys** in the left sidebar
-4. Click **Create new secret key**
-5. Give it a name (e.g., "LifeX AI")
-6. Copy the generated key (keep it secure!)
+### 🎯 智能推荐系统
+- 基于用户偏好的推荐
+- 关键词匹配
+- 评分和评论分析
+- 实时可用性检查
 
-## Step 2: Configure Environment Variables
+### 💡 智能功能
+- 用户偏好提取
+- 对话历史管理
+- 多轮对话支持
+- 错误处理和回退机制
 
-1. Copy the example environment file:
-   ```bash
-   cp env.example .env.local
-   ```
+## 环境配置
 
-2. Edit `.env.local` and add your API key:
-   ```env
-   # OpenAI Configuration
-   OPENAI_API_KEY=sk-your-actual-api-key-here
-   OPENAI_MODEL=gpt-5-nano
-   
-   # Other configurations...
-   ```
+### 1. OpenAI API 密钥设置
 
-## Step 3: Test the Integration
+1. 访问 [OpenAI Platform](https://platform.openai.com/)
+2. 创建账户并获取 API 密钥
+3. 复制 `.env.example` 到 `.env.local`
+4. 设置你的 OpenAI API 密钥：
 
-1. **Test with Node.js script**:
-   ```bash
-   # Set your API key (Windows)
-   set OPENAI_API_KEY=your_api_key_here
-   
-   # Set your API key (Mac/Linux)
-   export OPENAI_API_KEY=your_api_key_here
-   
-   # Run the test
-   node test-ai.js
-   ```
-
-2. **Test with the application**:
-   ```bash
-   npm run dev
-   ```
-   Then visit http://localhost:3000 and try asking for recommendations.
-
-## Step 4: Verify AI Features
-
-The following features should now work with AI:
-
-### ✅ Intelligent Recommendations
-- Ask: "I need a coffee shop for remote work"
-- AI will analyze your query and provide personalized suggestions
-
-### ✅ Conversational Responses
-- Natural language interactions
-- Context-aware responses
-- Kiwi-style friendly tone
-
-### ✅ Business Reasoning
-- Personalized explanations for why businesses match your needs
-- Consideration of your preferences and requirements
-
-### ✅ Preference Learning
-- AI learns from your conversations
-- Remembers your preferences for future recommendations
-
-## API Usage and Costs
-
-### GPT-5 Nano Pricing (as of 2024)
-- **Input**: $0.15 per 1M tokens
-- **Output**: $0.60 per 1M tokens
-
-### Estimated Costs for LifeX
-- **Typical query**: ~500 tokens input, ~200 tokens output
-- **Cost per query**: ~$0.0002
-- **1000 queries**: ~$0.20
-
-### Cost Optimization Tips
-1. Use concise prompts
-2. Implement caching for similar queries
-3. Set reasonable `max_tokens` limits
-4. Monitor usage in OpenAI dashboard
-
-## Troubleshooting
-
-### Common Issues
-
-**❌ "API key not found"**
-- Check your `.env.local` file
-- Ensure the key starts with `sk-`
-- Restart your development server
-
-**❌ "Insufficient credits"**
-- Check your OpenAI account balance
-- Add credits to your account
-
-**❌ "Rate limit exceeded"**
-- Wait a few minutes before retrying
-- Consider implementing rate limiting
-
-**❌ "Model not found"**
-- Ensure you're using `gpt-5-nano`
-- Check if the model is available in your region
-
-### Debug Mode
-
-Enable debug logging by adding to your `.env.local`:
-```env
-DEBUG=openai:*
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-### Fallback System
+### 2. 可选配置
 
-If AI fails, the app automatically falls back to keyword-based recommendations. Check the browser console for error messages.
-
-## Production Deployment
-
-### Environment Variables for Production
-
-When deploying to Vercel or other platforms:
-
-1. **Vercel Dashboard**:
-   - Go to your project settings
-   - Add environment variables
-   - Set `OPENAI_API_KEY` and `OPENAI_MODEL`
-
-2. **Security**:
-   - Never commit API keys to version control
-   - Use environment variables in production
-   - Consider using API key rotation
-
-### Monitoring
-
-1. **OpenAI Dashboard**: Monitor usage and costs
-2. **Application Logs**: Check for AI errors
-3. **User Feedback**: Monitor recommendation quality
-
-## Advanced Configuration
-
-### Custom System Prompts
-
-Edit `src/lib/ai.ts` to customize the AI behavior:
-
-```typescript
-const SYSTEM_PROMPT = `Your custom prompt here...`;
-```
-
-### Model Selection
-
-You can switch between different models:
-
-```env
-# For faster, cheaper responses
-OPENAI_MODEL=gpt-4o-mini
-
-# For more capable responses
-OPENAI_MODEL=gpt-4o
-
-# For the latest model
+```bash
+# 指定 AI 模型（默认：gpt-5-nano）
 OPENAI_MODEL=gpt-5-nano
+
+# 其他环境变量
+NODE_ENV=development
 ```
 
-### Temperature Settings
+## API 端点
 
-Adjust creativity vs consistency:
+### POST /api/ai
 
+处理 AI 相关的请求，支持以下类型：
+
+#### 1. 对话请求
+```json
+{
+  "type": "conversation",
+  "data": {
+    "message": "用户消息",
+    "conversationHistory": [
+      {"role": "user", "content": "用户消息"},
+      {"role": "assistant", "content": "AI 回复"}
+    ],
+    "context": {
+      "userPreferences": ["family-friendly", "work-friendly"]
+    }
+  }
+}
+```
+
+#### 2. 推荐请求
+```json
+{
+  "type": "recommendations",
+  "data": {
+    "query": "推荐咖啡店",
+    "userPreferences": ["work-friendly", "quiet"],
+    "location": "Auckland",
+    "budget": "$$"
+  }
+}
+```
+
+#### 3. 推理请求
+```json
+{
+  "type": "reasoning",
+  "data": {
+    "business": {...},
+    "userQuery": "为什么推荐这个？",
+    "userPreferences": ["family-friendly"]
+  }
+}
+```
+
+## 使用示例
+
+### 基本聊天
 ```typescript
-// More creative responses
-temperature: 0.8
+import { chatService } from '@/lib/chatService';
 
-// More consistent responses  
-temperature: 0.3
+// 发送消息
+const response = await chatService.sendMessage("推荐一个适合工作的咖啡店");
+console.log(response.message); // AI 回复
+console.log(response.recommendations); // 推荐列表
+console.log(response.followUpQuestions); // 后续问题
 ```
 
-## Support
+### 获取推荐
+```typescript
+import { getAIRecommendations } from '@/lib/ai';
 
-If you encounter issues:
+const recommendations = await getAIRecommendations(
+  { query: "健康食品" },
+  availableBusinesses
+);
+```
 
-1. Check the [OpenAI Documentation](https://platform.openai.com/docs)
-2. Review error messages in browser console
-3. Test with the provided `test-ai.js` script
-4. Check your API key and credits
+## 回退机制
 
-## Next Steps
+当 OpenAI API 不可用时，系统会自动回退到：
 
-Once AI is working:
+1. **关键词匹配推荐** - 基于业务类型和标签
+2. **评分排序** - 按用户评分和评论数量
+3. **可用性检查** - 优先推荐营业中的商家
 
-1. **Add more business data** to `src/lib/recommendations.ts`
-2. **Customize prompts** for better recommendations
-3. **Implement caching** to reduce API calls
-4. **Add user preference storage** for better personalization
-5. **Integrate with real business APIs** for live data
+## 用户偏好提取
+
+系统会自动从对话中提取用户偏好：
+
+- **家庭友好** - family, kids, children
+- **工作友好** - work, laptop, wifi, quiet
+- **预算意识** - cheap, affordable, budget
+- **健康选择** - healthy, organic, vegan
+- **快速服务** - fast, quick, express
+- **本地特色** - local, authentic, kiwi
+
+## 错误处理
+
+### 常见错误及解决方案
+
+1. **API 密钥无效**
+   ```
+   错误：OpenAI API key not available
+   解决：检查 OPENAI_API_KEY 环境变量
+   ```
+
+2. **网络连接问题**
+   ```
+   错误：Failed to fetch
+   解决：检查网络连接和 API 端点
+   ```
+
+3. **模型不可用**
+   ```
+   错误：Model not found
+   解决：检查 OPENAI_MODEL 设置
+   ```
+
+## 性能优化
+
+### 1. 缓存策略
+- 对话历史本地存储
+- 用户偏好缓存
+- 推荐结果缓存
+
+### 2. 请求优化
+- 批量处理推荐请求
+- 智能上下文管理
+- 减少不必要的 API 调用
+
+### 3. 用户体验
+- 打字指示器
+- 渐进式加载
+- 错误重试机制
+
+## 开发调试
+
+### 启用调试日志
+```typescript
+// 在开发环境中启用详细日志
+if (process.env.NODE_ENV === 'development') {
+  console.log('AI Request:', request);
+  console.log('AI Response:', response);
+}
+```
+
+### 测试 AI 功能
+```bash
+# 启动开发服务器
+npm run dev
+
+# 测试 API 端点
+curl -X POST http://localhost:3000/api/ai \
+  -H "Content-Type: application/json" \
+  -d '{"type":"conversation","data":{"message":"推荐咖啡店"}}'
+```
+
+## 安全考虑
+
+1. **API 密钥保护**
+   - 永远不要在前端暴露 API 密钥
+   - 使用环境变量存储敏感信息
+   - 定期轮换 API 密钥
+
+2. **请求限制**
+   - 实施速率限制
+   - 监控 API 使用量
+   - 设置合理的超时时间
+
+3. **数据隐私**
+   - 不存储敏感用户信息
+   - 匿名化对话数据
+   - 遵守隐私法规
+
+## 故障排除
+
+### 问题：AI 不响应
+**检查清单：**
+- [ ] API 密钥是否正确设置
+- [ ] 网络连接是否正常
+- [ ] OpenAI 服务是否可用
+- [ ] 环境变量是否正确加载
+
+### 问题：推荐不准确
+**检查清单：**
+- [ ] 业务数据是否完整
+- [ ] 关键词匹配是否正确
+- [ ] 用户偏好是否正确提取
+- [ ] AI 模型是否合适
+
+### 问题：性能缓慢
+**检查清单：**
+- [ ] API 响应时间
+- [ ] 网络延迟
+- [ ] 缓存是否有效
+- [ ] 请求频率是否过高
+
+## 更新日志
+
+### v1.0.0
+- 初始 AI 集成
+- 基本聊天功能
+- 推荐系统
+- 用户偏好提取
+
+### 计划功能
+- 多语言支持
+- 语音输入
+- 图像识别
+- 高级推荐算法
+
+## 支持
+
+如果遇到问题，请：
+
+1. 检查本文档的故障排除部分
+2. 查看控制台错误日志
+3. 验证环境配置
+4. 联系开发团队
+
+---
+
+**注意：** 确保在生产环境中正确配置所有环境变量，并定期监控 AI API 的使用情况。

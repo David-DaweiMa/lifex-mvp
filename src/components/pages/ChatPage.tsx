@@ -13,6 +13,7 @@ interface ChatPageProps {
   onSendMessage: () => void;
   onQuickPrompt: (prompt: string) => void;
   onBackToMain: () => void;
+  followUpQuestions?: string[];
 }
 
 const ChatPage: React.FC<ChatPageProps> = ({
@@ -23,7 +24,8 @@ const ChatPage: React.FC<ChatPageProps> = ({
   isTyping,
   onSendMessage,
   onQuickPrompt,
-  onBackToMain
+  onBackToMain,
+  followUpQuestions = []
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -158,6 +160,32 @@ const ChatPage: React.FC<ChatPageProps> = ({
                 </div>
               </div>
             )}
+            
+            {/* Follow-up Questions */}
+            {!isTyping && followUpQuestions.length > 0 && (
+              <div className="mt-6">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-lifex-purple">
+                    <span className="text-white text-sm md:text-lg font-bold">💡</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm md:text-base text-text-secondary mb-3">You might also want to ask:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {followUpQuestions.map((question, index) => (
+                        <button
+                          key={index}
+                          onClick={() => onQuickPrompt(question)}
+                          className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 bg-dark-card border border-dark-glass text-text-primary hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
+                        >
+                          {question}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             <div ref={messagesEndRef} />
           </div>
         </div>
