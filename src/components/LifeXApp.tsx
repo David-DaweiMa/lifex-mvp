@@ -170,10 +170,7 @@ const LifeXApp: React.FC = () => {
         )}
 
         {currentView === 'trending' && (
-          <TrendingPage
-            selectedServiceCategory={selectedServiceCategory}
-            setSelectedServiceCategory={setSelectedServiceCategory}
-          />
+          <TrendingPage />
         )}
 
         {currentView === 'discover' && (
