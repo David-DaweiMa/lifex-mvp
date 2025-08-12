@@ -85,7 +85,7 @@ const BookingPage: React.FC<BookingPageProps> = ({
               <button
                 key={idx}
                 onClick={() => setSelectedFilter(tab.label)}
-                className="px-3 md:px-4 py-2 rounded-full transition-all whitespace-nowrap"
+                className="px-3 md:px-4 py-2 rounded-full transition-all whitespace-nowrap flex-shrink-0 text-xs md:text-sm w-20 md:w-24"
                 style={{
                   background: tab.active ? darkTheme.neon.purple : darkTheme.background.card,
                   borderColor: tab.active ? darkTheme.neon.purple : darkTheme.background.glass,

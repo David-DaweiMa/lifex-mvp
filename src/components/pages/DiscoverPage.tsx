@@ -35,7 +35,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
               Discover
             </h2>
             <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
-              Local insights from Kiwi community & top-rated businesses
+              Local businesses & community insights
             </p>
           </div>
 
@@ -46,20 +46,20 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                 <button
                   key={category.id}
                   onClick={() => setSelectedServiceCategory(category.id)}
-                  className="p-3 md:p-4 rounded-xl border transition-all hover:scale-105"
+                  className="p-2 md:p-3 rounded-xl border transition-all hover:scale-105"
                   style={{
                     background: selectedServiceCategory === category.id ? `${category.color}20` : darkTheme.background.card,
                     borderColor: selectedServiceCategory === category.id ? `${category.color}40` : darkTheme.background.glass,
                   }}
                 >
-                  <div className="flex flex-col items-center gap-2">
+                  <div className="flex flex-col items-center gap-1 md:gap-2">
                     <category.icon 
-                      size={20} 
-                      className="md:w-6 md:h-6"
+                      size={18} 
+                      className="md:w-5 md:h-5"
                       style={{ color: selectedServiceCategory === category.id ? category.color : darkTheme.text.muted }} 
                     />
                     <span 
-                      className="text-xs md:text-sm font-medium text-center"
+                      className="text-xs font-medium text-center"
                       style={{ 
                         color: selectedServiceCategory === category.id ? category.color : darkTheme.text.muted 
                       }}
