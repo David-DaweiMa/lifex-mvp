@@ -1,10 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './src/**/*.{js,ts,jsx,tsx,mdx}',  // 更广泛的匹配
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     './src/lib/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
@@ -49,16 +50,63 @@ module.exports = {
   plugins: [],
   // 确保生产环境不会清除样式
   safelist: [
+    // 背景颜色
     'bg-lifex-purple',
-    'text-text-primary',
-    'text-text-secondary', 
-    'text-text-muted',
+    'bg-lifex-green',
+    'bg-lifex-cyan',
+    'bg-lifex-pink',
+    'bg-lifex-yellow',
+    'bg-lifex-blue',
+    'bg-lifex-red',
     'bg-dark-primary',
     'bg-dark-secondary',
     'bg-dark-card',
-    'border-dark-glass',
     'bg-gradient-primary',
     'bg-gradient-secondary',
-    'bg-gradient-background'
+    'bg-gradient-background',
+    
+    // 文本颜色
+    'text-text-primary',
+    'text-text-secondary', 
+    'text-text-muted',
+    'text-lifex-purple',
+    'text-lifex-green',
+    'text-lifex-cyan',
+    'text-lifex-pink',
+    'text-lifex-yellow',
+    'text-lifex-blue',
+    'text-lifex-red',
+    
+    // 边框颜色
+    'border-dark-glass',
+    'border-lifex-purple',
+    'border-lifex-green',
+    'border-lifex-cyan',
+    'border-lifex-pink',
+    'border-lifex-yellow',
+    'border-lifex-blue',
+    'border-lifex-red',
+    
+    // 悬停状态
+    'hover:bg-lifex-purple',
+    'hover:bg-lifex-green',
+    'hover:bg-lifex-cyan',
+    'hover:bg-lifex-pink',
+    'hover:bg-lifex-yellow',
+    'hover:bg-lifex-blue',
+    'hover:bg-lifex-red',
+    'hover:text-lifex-purple',
+    'hover:text-lifex-green',
+    'hover:text-lifex-cyan',
+    'hover:text-lifex-pink',
+    'hover:text-lifex-yellow',
+    'hover:text-lifex-blue',
+    'hover:text-lifex-red',
+    
+    // 响应式类
+    'xs:',
+    'tablet:',
+    'laptop:',
+    'desktop:',
   ]
 }

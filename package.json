@@ -9,10 +9,15 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "clean": "rm -rf .next out",
+    "build:analyze": "ANALYZE=true npm run build",
+    "deploy": "npm run clean && npm run build",
+    "postbuild": "echo 'Build completed successfully!'"
   },
   "dependencies": {
     "@supabase/supabase-js": "latest",
+    "critters": "^0.0.25",
     "lucide-react": "^0.539.0",
     "next": "^15.4.6",
     "openai": "^4.28.0",
@@ -30,5 +35,9 @@
     "prettier": "latest",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
 }
