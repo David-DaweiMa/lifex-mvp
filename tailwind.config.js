@@ -1,9 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}',  // 更广泛的匹配
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
@@ -46,4 +47,18 @@ module.exports = {
     },
   },
   plugins: [],
+  // 确保生产环境不会清除样式
+  safelist: [
+    'bg-lifex-purple',
+    'text-text-primary',
+    'text-text-secondary', 
+    'text-text-muted',
+    'bg-dark-primary',
+    'bg-dark-secondary',
+    'bg-dark-card',
+    'border-dark-glass',
+    'bg-gradient-primary',
+    'bg-gradient-secondary',
+    'bg-gradient-background'
+  ]
 }
