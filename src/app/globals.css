@@ -3,60 +3,57 @@
 @tailwind utilities;
 
 :root {
-  --lifex-orange: #FF7710;
-  --lifex-dark: #020029;
+  --lifex-purple: #a855f7;
+  --lifex-dark: #0a0a0a;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 body {
   color: var(--lifex-dark);
-  background: linear-gradient(to bottom right, #fff7ed, #fed7aa, #fdba74);
-}
-
-/* Mobile-specific optimizations */
-@layer utilities {
-  .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  .safe-area-top {
-    padding-top: env(safe-area-inset-top);
-  }
-}
-
-/* Mobile viewport fixes */
-@supports (padding: max(0px)) {
-  .safe-area-bottom {
-    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
-  }
-  
-  .safe-area-top {
-    padding-top: max(0.5rem, env(safe-area-inset-top));
-  }
-}
-
-/* Prevent zoom on input focus on iOS */
-@media screen and (max-width: 768px) {
-  input, select, textarea {
-    font-size: 16px !important;
-  }
-}
-
-/* Smooth scrolling for mobile */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Better touch targets */
-button, [role="button"] {
-  min-height: 44px;
-  min-width: 44px;
-}
-
-html, body {
-  height: 100%;
-}
-
-.min-h-screen {
+  background: linear-gradient(135deg, #0a0a0a, #1a1a1a, #111);
   min-height: 100vh;
-  min-height: -webkit-fill-available;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  html {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  input, textarea, select {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}
+
+/* Touch improvements */
+@media (hover: none) and (pointer: coarse) {
+  button:hover {
+    transform: none;
+  }
+}
+
+/* Dark mode scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #a855f7;
+  border-radius: 2px;
 }
