@@ -100,7 +100,7 @@ const LifeXApp: React.FC = () => {
 
   return (
     <div 
-      className="flex flex-col relative overflow-hidden"
+      className="flex flex-col relative overflow-hidden h-screen"
       style={containerStyle}
     >
       {/* Background decorations */}
@@ -115,7 +115,7 @@ const LifeXApp: React.FC = () => {
 
       {/* Header */}
       <div 
-        className="p-4 md:p-6 border-b"
+        className="p-4 md:p-6 border-b flex-shrink-0"
         style={{
           background: darkTheme.background.card,
           borderColor: darkTheme.background.glass,
@@ -196,9 +196,9 @@ const LifeXApp: React.FC = () => {
         {currentView === 'profile' && <ProfilePage />}
       </div>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation - Fixed */}
       <div 
-        className="p-2 md:p-3 border-t"
+        className="p-2 md:p-3 border-t flex-shrink-0"
         style={{
           background: darkTheme.background.card,
           borderColor: darkTheme.background.glass,

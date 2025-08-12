@@ -196,7 +196,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-gradient-background">
+    <div className="h-full overflow-y-auto bg-gradient-background pb-20">
       <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
         <div className="relative z-10 max-w-4xl mx-auto">
           {/* Welcome Message */}
@@ -216,27 +216,55 @@ const ChatPage: React.FC<ChatPageProps> = ({
             </div>
           </div>
 
-                     {/* Quick Prompts */}
-           <div className="mb-8 md:mb-12">
-             <h2 className="font-semibold mb-4 text-base md:text-lg text-text-primary">Quick Questions</h2>
-             <div className="space-y-3">
-               {quickPrompts.map((row, rowIdx) => (
-                 <div key={rowIdx} className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                   {row.map((prompt, idx) => (
-                     <button
-                       key={idx}
-                       onClick={() => onQuickPrompt(prompt)}
-                       className="px-3 py-2 rounded-full text-sm font-medium transition-all hover:scale-105 whitespace-nowrap flex-shrink-0 bg-dark-card border border-dark-glass text-text-primary hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
-                     >
-                       {prompt}
-                     </button>
-                   ))}
-                 </div>
-               ))}
-             </div>
-           </div>
+          {/* Chat Input - Moved above Quick Questions */}
+          <div className="mb-6 md:mb-8">
+            <div className="flex items-center gap-3">
+              <button className="p-2 rounded-lg hover:bg-white/5 transition-colors">
+                <Plus size={20} className="text-lifex-purple" />
+              </button>
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
+                  placeholder="Ask me anything about New Zealand..."
+                  className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors"
+                />
+              </div>
+              <button 
+                onClick={onSendMessage}
+                className="p-3 rounded-xl bg-lifex-purple text-white hover:bg-lifex-purple/90 transition-colors"
+              >
+                <Send size={18} />
+              </button>
+              <button className="p-3 rounded-xl border border-dark-glass hover:bg-white/5 transition-colors">
+                <Mic size={18} className="text-lifex-purple" />
+              </button>
+            </div>
+          </div>
 
-          {/* Recent Discoveries */}
+          {/* Quick Prompts - Reduced spacing */}
+          <div className="mb-6 md:mb-8">
+            <h2 className="font-semibold mb-3 text-base md:text-lg text-text-primary">Quick Questions</h2>
+            <div className="space-y-2">
+              {quickPrompts.map((row, rowIdx) => (
+                <div key={rowIdx} className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                  {row.map((prompt, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => onQuickPrompt(prompt)}
+                      className="px-3 py-2 rounded-full text-sm font-medium transition-all hover:scale-105 whitespace-nowrap flex-shrink-0 bg-dark-card border border-dark-glass text-text-primary hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Recent Discoveries - Added content */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-base md:text-lg text-text-primary">Recent Discoveries</h2>
@@ -244,7 +272,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                 See all
               </button>
             </div>
-            <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div className="flex gap-2 overflow-x-auto pb-2 mb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {['All', 'Food', 'Services', 'Activities'].map((category, idx) => (
                 <button
                   key={idx}
@@ -260,35 +288,23 @@ const ChatPage: React.FC<ChatPageProps> = ({
                 </button>
               ))}
             </div>
-          </div>
-
-          {/* Chat Input */}
-          <div className="fixed bottom-0 left-0 right-0 p-4 md:p-6 bg-dark-card border-t border-dark-glass">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center gap-3">
-                <button className="p-2 rounded-lg hover:bg-white/5 transition-colors">
-                  <Plus size={20} className="text-lifex-purple" />
-                </button>
-                <div className="flex-1 relative">
-                  <input
-                    type="text"
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
-                    placeholder="Ask me anything about New Zealand..."
-                    className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors"
-                  />
-                </div>
-                <button 
-                  onClick={onSendMessage}
-                  className="p-3 rounded-xl bg-lifex-purple text-white hover:bg-lifex-purple/90 transition-colors"
+            
+            {/* Added discovery content */}
+            <div className="space-y-3">
+              {recentDiscoveries.map((discovery, idx) => (
+                <div 
+                  key={idx}
+                  className="flex items-center gap-3 p-3 rounded-xl bg-dark-card border border-dark-glass cursor-pointer hover:bg-dark-secondary transition-colors"
                 >
-                  <Send size={18} />
-                </button>
-                <button className="p-3 rounded-xl border border-dark-glass hover:bg-white/5 transition-colors">
-                  <Mic size={18} className="text-lifex-purple" />
-                </button>
-              </div>
+                  <div className="text-2xl">{discovery.icon}</div>
+                  <div className="flex-1">
+                    <p className="text-sm text-text-primary">{discovery.text}</p>
+                  </div>
+                  <button className="text-lifex-purple hover:text-lifex-purple/80 transition-colors">
+                    <Sparkles size={16} />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>
