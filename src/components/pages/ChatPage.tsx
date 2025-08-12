@@ -245,9 +245,9 @@ const ChatPage: React.FC<ChatPageProps> = ({
           </div>
 
           {/* Quick Prompts - Reduced spacing */}
-          <div className="mb-6 md:mb-8">
-            <h2 className="font-semibold mb-3 text-base md:text-lg text-text-primary">Quick Questions</h2>
-            <div className="space-y-2">
+          <div className="mb-8 md:mb-10">
+            <h2 className="font-semibold mb-2 text-base md:text-lg text-text-primary">Quick Questions</h2>
+            <div className="space-y-1">
               {quickPrompts.map((row, rowIdx) => (
                 <div key={rowIdx} className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                   {row.map((prompt, idx) => (
@@ -277,13 +277,12 @@ const ChatPage: React.FC<ChatPageProps> = ({
               {['All', 'Food', 'Services', 'Activities'].map((category, idx) => (
                 <button
                   key={idx}
-                  className="px-4 py-2 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-all flex-shrink-0"
+                  className="px-4 py-2 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 w-20 md:w-24"
                   style={{
                     background: idx === 0 ? '#a855f7' : 'rgba(26, 26, 26, 0.8)',
                     borderColor: idx === 0 ? '#a855f7' : 'rgba(255, 255, 255, 0.05)',
                     color: idx === 0 ? 'white' : '#ffffff',
                     border: '1px solid',
-                    minWidth: 'fit-content',
                   }}
                 >
                   {category}
