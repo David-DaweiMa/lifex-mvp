@@ -1,6 +1,6 @@
 // src/components/pages/TrendingPage.tsx
 import React from 'react';
-import { TrendingUp, BarChart3, Filter, Eye, Plus, Heart, MessageCircle, MapPin } from 'lucide-react';
+import { TrendingUp, BarChart3, Eye, Plus, Heart, MessageCircle, MapPin } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
 import { trendingData, trendingPosts } from '../../lib/mockData';
 import { Category } from '../../lib/types';
@@ -25,7 +25,7 @@ const TrendingPage: React.FC<TrendingPageProps> = ({
       <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
         <div className="relative z-10 max-w-4xl mx-auto">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6 md:mb-8">
+          <div className="mb-6 md:mb-8">
             <div>
               <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
                 What's Trending
@@ -33,26 +33,6 @@ const TrendingPage: React.FC<TrendingPageProps> = ({
               <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
                 Discover what's hot in New Zealand right now
               </p>
-            </div>
-            <div className="flex gap-2">
-              <button 
-                className="p-2 rounded-lg border"
-                style={{
-                  background: darkTheme.background.card,
-                  borderColor: darkTheme.background.glass,
-                }}
-              >
-                <Filter size={16} className="md:w-5 md:h-5" style={{ color: darkTheme.neon.purple }} />
-              </button>
-              <button 
-                className="p-2 rounded-lg border"
-                style={{
-                  background: darkTheme.background.card,
-                  borderColor: darkTheme.background.glass,
-                }}
-              >
-                <BarChart3 size={16} className="md:w-5 md:h-5" style={{ color: darkTheme.neon.purple }} />
-              </button>
             </div>
           </div>
 
