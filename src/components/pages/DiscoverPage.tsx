@@ -46,20 +46,20 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                 <button
                   key={category.id}
                   onClick={() => setSelectedServiceCategory(category.id)}
-                  className="p-2 md:p-3 rounded-xl border transition-all hover:scale-105"
+                  className="p-2 md:p-3 rounded-xl border transition-all hover:scale-105 h-16 md:h-20"
                   style={{
                     background: selectedServiceCategory === category.id ? `${category.color}20` : darkTheme.background.card,
                     borderColor: selectedServiceCategory === category.id ? `${category.color}40` : darkTheme.background.glass,
                   }}
                 >
-                  <div className="flex flex-col items-center gap-1 md:gap-2">
+                  <div className="flex flex-col items-center justify-center gap-1 md:gap-2 h-full">
                     <category.icon 
-                      size={18} 
-                      className="md:w-5 md:h-5"
+                      size={16} 
+                      className="md:w-4 md:h-4"
                       style={{ color: selectedServiceCategory === category.id ? category.color : darkTheme.text.muted }} 
                     />
                     <span 
-                      className="text-xs font-medium text-center"
+                      className="text-xs font-medium text-center leading-tight"
                       style={{ 
                         color: selectedServiceCategory === category.id ? category.color : darkTheme.text.muted 
                       }}
