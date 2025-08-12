@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 
@@ -11,9 +11,15 @@ export const metadata: Metadata = {
   title: 'LifeX - AI-powered local discovery in New Zealand',
   description: 'Find the perfect local businesses in New Zealand with AI recommendations',
   keywords: 'New Zealand, local business, AI recommendations, Auckland',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-  themeColor: '#a855f7',
   manifest: '/manifest.json',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#a855f7',
 }
 
 export default function RootLayout({
@@ -24,7 +30,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
