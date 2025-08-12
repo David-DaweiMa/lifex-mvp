@@ -1,10 +1,12 @@
 import OpenAI from 'openai';
 import { Business } from './types';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize OpenAI client only if API key is available
+const openai = process.env.OPENAI_API_KEY 
+  ? new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
+  : null;
 
 // System prompt for LifeX AI assistant
 const SYSTEM_PROMPT = `You are LifeX, an AI assistant specialized in helping people discover amazing local services and experiences in New Zealand. You have deep knowledge of Kiwi culture, local businesses, and lifestyle preferences.
@@ -67,6 +69,12 @@ export async function getAIRecommendations(
   availableBusinesses: Business[]
 ): Promise<AIRecommendationResponse> {
   try {
+    // If no OpenAI client is available, use fallback
+    if (!openai) {
+      console.log('OpenAI API key not available, using fallback recommendations');
+      return getFallbackRecommendations(request, availableBusinesses);
+    }
+
     const userPrompt = `
 User Query: "${request.query}"
 ${request.userPreferences ? `User Preferences: ${request.userPreferences.join(', ')}` : ''}
@@ -139,6 +147,19 @@ export async function generateConversationalResponse(
   context?: { recommendations?: Business[]; userPreferences?: string[] }
 ): Promise<AIConversationResponse> {
   try {
+    // If no OpenAI client is available, use fallback
+    if (!openai) {
+      console.log('OpenAI API key not available, using fallback conversation response');
+      return {
+        message: "G'day! I'm LifeX, your AI companion for discovering amazing local services in New Zealand. What can I help you find today?",
+        followUpQuestions: [
+          "Best coffee shops for remote work?",
+          "Family-friendly restaurants?",
+          "Weekend activities in Auckland?"
+        ]
+      };
+    }
+
     const contextPrompt = context?.recommendations 
       ? `\nCurrent recommendations: ${JSON.stringify(context.recommendations, null, 2)}`
       : '';
@@ -196,6 +217,12 @@ export async function generateBusinessReasoning(
   userPreferences?: string[]
 ): Promise<string> {
   try {
+    // If no OpenAI client is available, use fallback
+    if (!openai) {
+      console.log('OpenAI API key not available, using fallback business reasoning');
+      return business.aiReason;
+    }
+
     const prompt = `
 Business: ${business.name} - ${business.type}
 Highlights: ${business.highlights.join(', ')}
