@@ -245,7 +245,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
           </div>
 
           {/* Quick Prompts - Reduced spacing */}
-          <div className="mb-8 md:mb-10">
+          <div className="mb-16 md:mb-20">
             <h2 className="font-semibold mb-2 text-base md:text-lg text-text-primary">Quick Questions</h2>
             <div className="space-y-1">
               {quickPrompts.map((row, rowIdx) => (
@@ -273,11 +273,11 @@ const ChatPage: React.FC<ChatPageProps> = ({
                 See all
               </button>
             </div>
-            <div className="flex gap-2 overflow-x-auto pb-2 mb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div className="flex gap-4 md:gap-6 overflow-x-auto pb-2 mb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {['All', 'Food', 'Services', 'Activities'].map((category, idx) => (
                 <button
                   key={idx}
-                  className="px-4 py-2 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 w-40 md:w-48"
+                  className="px-4 py-2 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 w-20 md:w-24"
                   style={{
                     background: idx === 0 ? '#a855f7' : 'rgba(26, 26, 26, 0.8)',
                     borderColor: idx === 0 ? '#a855f7' : 'rgba(255, 255, 255, 0.05)',
