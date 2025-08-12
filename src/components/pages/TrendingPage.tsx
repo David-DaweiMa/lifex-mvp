@@ -1,6 +1,6 @@
 // src/components/pages/TrendingPage.tsx
 import React from 'react';
-import { TrendingUp, BarChart3, Eye, Plus, Heart, MessageCircle, MapPin } from 'lucide-react';
+import { TrendingUp, Plus, Heart, MessageCircle, MapPin } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
 import { trendingData, trendingPosts } from '../../lib/mockData';
 import { Category } from '../../lib/types';
@@ -302,45 +302,6 @@ const TrendingPage: React.FC<TrendingPageProps> = ({
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Weekly Insights */}
-          <div className="mt-8">
-            <h3 className="font-semibold mb-4 flex items-center gap-2 text-base md:text-lg" style={{ color: darkTheme.text.primary }}>
-              <BarChart3 size={20} style={{ color: darkTheme.neon.blue }} />
-              Weekly Insights
-            </h3>
-            <div 
-              className="p-4 md:p-6 rounded-xl border"
-              style={{
-                background: `${darkTheme.neon.blue}10`,
-                borderColor: `${darkTheme.neon.blue}30`,
-              }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="font-semibold text-sm md:text-base" style={{ color: darkTheme.text.primary }}>
-                  Most Searched This Week
-                </h4>
-                <Eye size={14} className="md:w-4 md:h-4" style={{ color: darkTheme.neon.blue }} />
-              </div>
-              <div className="space-y-3">
-                {[
-                  { query: "Plant-based restaurants Auckland", searches: "2.4k" },
-                  { query: "Home cleaning services", searches: "1.8k" },
-                  { query: "Personal trainers near me", searches: "1.5k" },
-                  { query: "Emergency plumber", searches: "1.2k" }
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between">
-                    <span className="text-sm md:text-base" style={{ color: darkTheme.text.primary }}>
-                      {item.query}
-                    </span>
-                    <span className="text-sm font-medium" style={{ color: darkTheme.neon.blue }}>
-                      {item.searches}
-                    </span>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
