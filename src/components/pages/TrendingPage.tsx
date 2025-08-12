@@ -1,63 +1,84 @@
 // src/components/pages/TrendingPage.tsx
-import React from 'react';
-import { TrendingUp, Plus, Heart, MessageCircle, MapPin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { TrendingUp, Plus, Heart, MessageCircle, MapPin, Camera } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
 import { trendingData, trendingPosts } from '../../lib/mockData';
-import { Category } from '../../lib/types';
 
-interface TrendingPageProps {
-  selectedServiceCategory: string;
-  setSelectedServiceCategory: (category: string) => void;
-}
+const TrendingPage: React.FC = () => {
+  const [selectedCategory, setSelectedCategory] = useState('All Trends');
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
-const TrendingPage: React.FC<TrendingPageProps> = ({
-  selectedServiceCategory,
-  setSelectedServiceCategory
-}) => {
-  
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down and past initial 100px
+        setIsHeaderVisible(false);
+      } else {
+        // Scrolling up
+        setIsHeaderVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
   const getFilteredTrendingPosts = () => {
-    if (selectedServiceCategory === 'all') return trendingPosts;
-    return trendingPosts.filter(post => post.category === selectedServiceCategory);
+    if (selectedCategory === 'All Trends') {
+      return trendingPosts;
+    }
+    return trendingPosts.filter(post => post.category === selectedCategory.toLowerCase());
   };
 
   return (
     <div className="h-full overflow-y-auto pb-20" style={{ background: darkTheme.background.primary, WebkitOverflowScrolling: 'touch' }}>
       <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
         <div className="relative z-10 max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-6 md:mb-8">
-            <div>
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
-                What's Trending
-              </h2>
-              <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
-                Discover what's hot in New Zealand right now
-              </p>
+          {/* Header - Scrollable */}
+          <div 
+            className={`transition-transform duration-300 ease-in-out ${
+              isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
+            }`}
+          >
+            <div className="mb-6 md:mb-8">
+              <div>
+                <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
+                  What's Trending
+                </h2>
+                <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
+                  Discover what's hot in New Zealand right now
+                </p>
+              </div>
             </div>
-          </div>
 
-          {/* Trending Categories */}
-          <div className="flex gap-2 md:gap-3 text-sm mb-6 md:mb-8 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {[
-              { label: "All Trends", active: true },
-              { label: "Technology", active: false },
-              { label: "Food & Drink", active: false },
-              { label: "Lifestyle", active: false },
-              { label: "Business", active: false }
-            ].map((tag, idx) => (
-              <button
-                key={idx}
-                className="px-3 md:px-4 py-2 rounded-full transition-all whitespace-nowrap flex-shrink-0 text-xs md:text-sm w-24 md:w-28"
-                style={{
-                  background: tag.active ? darkTheme.neon.purple : darkTheme.background.card,
-                  borderColor: tag.active ? darkTheme.neon.purple : darkTheme.background.glass,
-                  color: tag.active ? 'white' : darkTheme.text.primary,
-                  border: '1px solid',
-                }}
-              >
-                {tag.label}
-              </button>
-            ))}
+            {/* Trending Categories */}
+            <div className="flex gap-2 md:gap-3 text-sm mb-6 md:mb-8 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {[
+                { label: "All Trends", active: true },
+                { label: "Technology", active: false },
+                { label: "Food & Drink", active: false },
+                { label: "Lifestyle", active: false },
+                { label: "Business", active: false }
+              ].map((tag, idx) => (
+                <button
+                  key={idx}
+                  className="px-3 md:px-4 py-2 rounded-full transition-all whitespace-nowrap flex-shrink-0 text-xs md:text-sm w-24 md:w-28"
+                  style={{
+                    background: tag.active ? darkTheme.neon.purple : darkTheme.background.card,
+                    borderColor: tag.active ? darkTheme.neon.purple : darkTheme.background.glass,
+                    color: tag.active ? 'white' : darkTheme.text.primary,
+                    border: '1px solid',
+                  }}
+                >
+                  {tag.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Content Layout - Pinterest/Small Red Book Style Two Column Grid */}
@@ -303,6 +324,16 @@ const TrendingPage: React.FC<TrendingPageProps> = ({
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Create Post Button - Floating Action Button */}
+          <div className="fixed bottom-24 right-4 md:right-6 z-50">
+            <button 
+              className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+              style={{ background: darkTheme.neon.purple }}
+            >
+              <Camera className="w-6 h-6 md:w-7 md:h-7 text-white" />
+            </button>
           </div>
         </div>
       </div>

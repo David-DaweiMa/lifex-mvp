@@ -277,7 +277,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
               {['All', 'Food', 'Services', 'Activities'].map((category, idx) => (
                 <button
                   key={idx}
-                  className="px-4 py-2 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 w-20 md:w-24"
+                  className="px-4 py-2 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 w-40 md:w-48"
                   style={{
                     background: idx === 0 ? '#a855f7' : 'rgba(26, 26, 26, 0.8)',
                     borderColor: idx === 0 ? '#a855f7' : 'rgba(255, 255, 255, 0.05)',

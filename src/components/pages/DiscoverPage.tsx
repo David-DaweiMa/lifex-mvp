@@ -1,5 +1,5 @@
 // src/components/pages/DiscoverPage.tsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, Camera, Star, Phone, MapPin, Sparkles } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
 import { discoverCategories, discoverContent, mockBusinesses } from '../../lib/mockData';
@@ -14,6 +14,28 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
   selectedServiceCategory,
   setSelectedServiceCategory
 }) => {
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down and past initial 100px
+        setIsHeaderVisible(false);
+      } else {
+        // Scrolling up
+        setIsHeaderVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
   
   const getFilteredContent = () => {
     if (selectedServiceCategory === 'all') return discoverContent;
@@ -29,46 +51,53 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
     <div className="h-full overflow-y-auto pb-20" style={{ background: darkTheme.background.primary, WebkitOverflowScrolling: 'touch' }}>
       <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
         <div className="relative z-10 max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="mb-6">
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
-              Discover
-            </h2>
-            <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
-              Local businesses & community insights
-            </p>
-          </div>
+          {/* Header - Scrollable */}
+          <div 
+            className={`transition-transform duration-300 ease-in-out ${
+              isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
+            }`}
+          >
+            {/* Header */}
+            <div className="mb-6">
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
+                Discover
+              </h2>
+              <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
+                Local businesses & community insights
+              </p>
+            </div>
 
-          {/* Categories */}
-          <div className="mb-6 md:mb-8">
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
-              {discoverCategories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedServiceCategory(category.id)}
-                  className="p-2 md:p-3 rounded-xl border transition-all hover:scale-105 h-16 md:h-20"
-                  style={{
-                    background: selectedServiceCategory === category.id ? `${category.color}20` : darkTheme.background.card,
-                    borderColor: selectedServiceCategory === category.id ? `${category.color}40` : darkTheme.background.glass,
-                  }}
-                >
-                  <div className="flex flex-col items-center justify-center gap-1 md:gap-2 h-full">
-                    <category.icon 
-                      size={16} 
-                      className="md:w-4 md:h-4"
-                      style={{ color: selectedServiceCategory === category.id ? category.color : darkTheme.text.muted }} 
-                    />
-                    <span 
-                      className="text-xs font-medium text-center leading-tight"
-                      style={{ 
-                        color: selectedServiceCategory === category.id ? category.color : darkTheme.text.muted 
-                      }}
-                    >
-                      {category.name}
-                    </span>
-                  </div>
-                </button>
-              ))}
+            {/* Categories */}
+            <div className="mb-6 md:mb-8">
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
+                {discoverCategories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedServiceCategory(category.id)}
+                    className="p-2 md:p-3 rounded-xl border transition-all hover:scale-105 h-16 md:h-20"
+                    style={{
+                      background: selectedServiceCategory === category.id ? `${category.color}20` : darkTheme.background.card,
+                      borderColor: selectedServiceCategory === category.id ? `${category.color}40` : darkTheme.background.glass,
+                    }}
+                  >
+                    <div className="flex flex-col items-center justify-center gap-1 md:gap-2 h-full">
+                      <category.icon 
+                        size={16} 
+                        className="md:w-4 md:h-4"
+                        style={{ color: selectedServiceCategory === category.id ? category.color : darkTheme.text.muted }} 
+                      />
+                      <span 
+                        className="text-xs font-medium text-center leading-tight"
+                        style={{ 
+                          color: selectedServiceCategory === category.id ? category.color : darkTheme.text.muted 
+                        }}
+                      >
+                        {category.name}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -411,35 +440,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
             </div>
           </div>
 
-          {/* Create Content Section */}
-          <div className="mt-8">
-            <div 
-              className="p-4 md:p-6 rounded-xl border text-center"
-              style={{
-                background: `${darkTheme.neon.purple}10`,
-                borderColor: `${darkTheme.neon.purple}30`,
-              }}
-            >
-              <div 
-                className="w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4"
-                style={{ background: darkTheme.neon.purple }}
-              >
-                <Camera className="w-6 h-6 md:w-8 md:h-8 text-white" />
-              </div>
-              <h4 className="font-medium text-base md:text-lg mb-2" style={{ color: darkTheme.text.primary }}>
-                Share Your Discovery
-              </h4>
-              <p className="text-sm md:text-base mb-4" style={{ color: darkTheme.text.secondary }}>
-                Found an amazing local spot? Share it with the LifeX community!
-              </p>
-              <button 
-                className="px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-all text-sm md:text-base"
-                style={{ background: darkTheme.neon.purple, color: 'white' }}
-              >
-                Create Post
-              </button>
-            </div>
-          </div>
+          {/* Create Content Section - Removed */}
         </div>
       </div>
 
