@@ -2,11 +2,20 @@ import OpenAI from 'openai';
 import { Business } from './types';
 
 // Initialize OpenAI client only if API key is available
-const openai = process.env.OPENAI_API_KEY 
+const hasApiKey = process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here';
+console.log('🔍 AI 初始化检查:');
+console.log('  - OPENAI_API_KEY 存在:', !!process.env.OPENAI_API_KEY);
+console.log('  - API 密钥有效:', hasApiKey);
+console.log('  - 当前模型:', process.env.OPENAI_MODEL || 'gpt-5-nano');
+
+const openai = hasApiKey
   ? new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     })
   : null;
+
+  // 模型配置：使用 GPT-5 Nano
+const AI_MODEL = 'gpt-5-nano';
 
 // System prompt for LifeX AI assistant
 const SYSTEM_PROMPT = `You are LifeX, an AI assistant specialized in helping people discover amazing local services and experiences in New Zealand. You have deep knowledge of Kiwi culture, local businesses, and lifestyle preferences.
@@ -99,24 +108,23 @@ Format your response as JSON:
 }
 `;
 
-    const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-5-nano',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT + BUSINESS_CONTEXT },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
+    // 使用 GPT-5 Nano (Responses API)
+    const response = await openai.responses.create({
+      model: AI_MODEL,
+      instructions: SYSTEM_PROMPT + BUSINESS_CONTEXT,
+      input: userPrompt
     });
-
-    const response = completion.choices[0]?.message?.content;
     
-    if (!response) {
+    console.log(`使用模型: ${AI_MODEL}`);
+
+    const responseText = response.output_text;
+    
+    if (!responseText) {
       throw new Error('No response from AI model');
     }
 
     // Parse JSON response
-    const parsedResponse = JSON.parse(response);
+    const parsedResponse = JSON.parse(responseText);
     
     // Map business IDs to actual business objects
     const recommendedBusinesses = availableBusinesses.filter(business => 
@@ -150,6 +158,46 @@ export async function generateConversationalResponse(
     // If no OpenAI client is available, use fallback
     if (!openai) {
       console.log('OpenAI API key not available, using fallback conversation response');
+      console.log('  - openai client is null');
+      console.log('  - hasApiKey:', process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here');
+      
+      // Improved fallback responses for different types of questions
+      const messageLower = userMessage.toLowerCase();
+      
+      if (messageLower.includes('天气') || messageLower.includes('weather')) {
+        return {
+          message: "G'day! I'd love to tell you about the weather, but I'm currently focused on helping you discover amazing places in New Zealand. For real-time weather info, you might want to check a weather app. But hey, whether it's sunny or rainy, I can help you find the perfect café, restaurant, or activity! What are you looking for today?",
+          followUpQuestions: [
+            "Best indoor activities for rainy days?",
+            "Sunny day outdoor activities?",
+            "Weather-friendly restaurants?"
+          ]
+        };
+      }
+      
+      if (messageLower.includes('你好') || messageLower.includes('hello') || messageLower.includes('hi')) {
+        return {
+          message: "G'day! I'm LifeX, your AI companion for discovering amazing local services in New Zealand. How can I help you find the best places today?",
+          followUpQuestions: [
+            "Best coffee shops for remote work?",
+            "Family-friendly restaurants?",
+            "Weekend activities in Auckland?"
+          ]
+        };
+      }
+      
+      if (messageLower.includes('新西兰') || messageLower.includes('new zealand') || messageLower.includes('kiwi')) {
+        return {
+          message: "New Zealand is absolutely stunning! From the beautiful landscapes to the friendly Kiwi culture, there's so much to explore. I'm here to help you discover the best local spots - whether it's amazing coffee shops, delicious restaurants, or exciting activities. What interests you most?",
+          followUpQuestions: [
+            "Best coffee culture spots?",
+            "Local Kiwi restaurants?",
+            "Must-visit attractions?"
+          ]
+        };
+      }
+      
+      // Default fallback
       return {
         message: "G'day! I'm LifeX, your AI companion for discovering amazing local services in New Zealand. What can I help you find today?",
         followUpQuestions: [
@@ -168,24 +216,22 @@ export async function generateConversationalResponse(
       ? `\nUser preferences: ${context.userPreferences.join(', ')}`
       : '';
 
-    const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-5-nano',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        ...conversationHistory,
-        { 
-          role: 'user', 
-          content: `User message: "${userMessage}"${contextPrompt}${preferencesPrompt}`
-        }
-      ],
-      temperature: 0.8,
-      max_tokens: 500,
+    // 使用 GPT-5 Nano (Responses API)
+    const gpt5Response = await openai.responses.create({
+      model: AI_MODEL,
+      instructions: SYSTEM_PROMPT,
+      input: `User message: "${userMessage}"${contextPrompt}${preferencesPrompt}`,
+      reasoning: { effort: 'low' }
     });
-
-    const response = completion.choices[0]?.message?.content;
     
+    let response = gpt5Response.output_text;
+    
+    console.log(`使用模型: ${AI_MODEL}`);
+
+    // 确保 response 有值
     if (!response) {
-      throw new Error('No response from AI model');
+      console.log('⚠️  AI 模型返回空响应，使用回退消息');
+      response = "I'm here to help you discover amazing places in New Zealand! What are you looking for today?";
     }
 
     return {
@@ -196,7 +242,21 @@ export async function generateConversationalResponse(
   } catch (error) {
     console.error('AI conversation error:', error);
     
-    // Fallback response
+    // Improved fallback response for errors
+    const messageLower = userMessage.toLowerCase();
+    
+    if (messageLower.includes('天气') || messageLower.includes('weather')) {
+      return {
+        message: "G'day! I'd love to tell you about the weather, but I'm currently focused on helping you discover amazing places in New Zealand. For real-time weather info, you might want to check a weather app. But hey, whether it's sunny or rainy, I can help you find the perfect café, restaurant, or activity! What are you looking for today?",
+        followUpQuestions: [
+          "Best indoor activities for rainy days?",
+          "Sunny day outdoor activities?",
+          "Weather-friendly restaurants?"
+        ]
+      };
+    }
+    
+    // Default fallback response
     return {
       message: "I'm here to help you discover amazing places in New Zealand! What are you looking for today?",
       followUpQuestions: [
@@ -237,17 +297,19 @@ Please provide a personalized explanation (2-3 sentences) of why this business w
 
 Response:`;
 
-    const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-5-nano',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.7,
-      max_tokens: 150,
+    // 使用 GPT-5 Nano (Responses API)
+    const gpt5Response = await openai.responses.create({
+      model: AI_MODEL,
+      instructions: SYSTEM_PROMPT,
+      input: prompt,
+      reasoning: { effort: 'low' }
     });
+    
+    const response = gpt5Response.output_text;
+    
+    console.log(`使用模型: ${AI_MODEL}`);
 
-    return completion.choices[0]?.message?.content || business.aiReason;
+    return response || business.aiReason;
 
   } catch (error) {
     console.error('AI reasoning error:', error);
