@@ -80,17 +80,12 @@ export async function registerUser(email: string, password: string, userData?: P
       };
     }
 
-    // 创建 Supabase 用户（包含用户元数据）
+    // 创建 Supabase 用户
     const { data: authData, error: authError } = await typedSupabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
-        data: {
-          username: userData?.username || null,
-          full_name: userData?.full_name || null,
-          user_type: userData?.user_type || 'customer'
-        }
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`
       }
     });
 
@@ -108,21 +103,26 @@ export async function registerUser(email: string, password: string, userData?: P
       };
     }
 
-    // 等待一小段时间让触发器执行
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // 获取自动创建的用户配置文件
+    // 直接创建用户配置文件
     const { data: profile, error: profileError } = await typedSupabase
       .from('user_profiles')
-      .select('*')
-      .eq('email', email)
+      .insert({
+        id: authData.user.id,
+        email: email,
+        username: userData?.username || null,
+        full_name: userData?.full_name || null,
+        user_type: userData?.user_type || 'customer',
+        is_verified: false, // 需要邮件确认
+        is_active: true
+      })
+      .select()
       .single();
 
-    if (profileError || !profile) {
-      console.error('获取用户配置文件失败:', profileError);
+    if (profileError) {
+      console.error('创建用户配置文件失败:', profileError);
       return {
         success: false,
-        error: '用户配置文件获取失败，请稍后重试'
+        error: `用户配置文件创建失败: ${profileError.message}`
       };
     }
 
