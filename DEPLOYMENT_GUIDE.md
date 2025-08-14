@@ -1,132 +1,119 @@
-# LifeX 部署指南 - 解决CSS样式丢失问题
+# LifeX MVP 部署指南
 
-## 问题描述
-部署后CSS样式丢失，页面显示为基础HTML结构，没有样式。
+## 🚀 Vercel 部署
 
-## 解决方案
+### 步骤 1: 准备环境变量
 
-### 1. 已修复的配置问题
+在 Vercel 项目设置中配置以下环境变量：
 
-#### Tailwind CSS 配置优化
-- ✅ 更新了 `tailwind.config.js` 的 `content` 路径
-- ✅ 添加了完整的 `safelist` 确保关键样式不被清除
-- ✅ 优化了自定义颜色和主题配置
-
-#### Next.js 配置优化
-- ✅ 简化了 `next.config.js` 配置
-- ✅ 移除了不兼容的选项
-- ✅ 添加了必要的安全头部配置
-
-#### CSS 文件优化
-- ✅ 更新了 `globals.css` 确保基础样式可用
-- ✅ 添加了 `@layer` 指令优化CSS结构
-- ✅ 添加了关键样式的备用定义
-
-### 2. 部署步骤
-
-#### 本地测试
-```bash
-# 清理之前的构建
-npm run clean
-
-# 安装依赖
-npm install
-
-# 构建项目
-npm run build
-
-# 测试生产构建
-npm run start
+#### 必需的环境变量：
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-#### Vercel 部署
-1. 推送代码到 GitHub
-2. 在 Vercel 中导入项目
-3. 配置环境变量（参考 `env.example`）
-4. 部署
-
-#### 其他平台部署
-1. 运行 `npm run build`
-2. 上传 `.next` 文件夹和 `package.json`
-3. 配置环境变量
-4. 运行 `npm start`
-
-### 3. 环境变量配置
-
-确保在部署平台设置以下环境变量：
-
-```bash
-# 必需的环境变量
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+#### 可选的环境变量（用于AI功能）：
+```
 OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=gpt-5-nano
+```
 
-# 可选的环境变量
-NEXT_PUBLIC_APP_URL=your_deployment_url
+#### 应用配置：
+```
+NEXT_PUBLIC_APP_URL=https://your-domain.vercel.app
 NODE_ENV=production
 ```
 
-### 4. 验证部署
+### 步骤 2: 获取 Supabase 配置
 
-部署后检查以下项目：
+1. 登录 [Supabase Dashboard](https://supabase.com/dashboard)
+2. 选择你的项目
+3. 进入 Settings > API
+4. 复制以下信息：
+   - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
+   - anon public key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-#### 样式检查
-- [ ] 页面背景是否为深色渐变
-- [ ] 文字颜色是否正确（白色/灰色）
-- [ ] 按钮和卡片是否有正确的背景色
-- [ ] 自定义颜色（紫色、绿色等）是否显示
+### 步骤 3: 配置 Vercel
 
-#### 功能检查
-- [ ] 所有页面路由是否正常
-- [ ] 导航是否工作
-- [ ] 响应式设计是否正常
+1. 连接 GitHub 仓库到 Vercel
+2. 在项目设置中添加环境变量
+3. 设置构建命令：`npm run build`
+4. 设置输出目录：`.next`
 
-### 5. 常见问题解决
+### 步骤 4: 部署
 
-#### 如果样式仍然丢失
-1. 检查浏览器控制台是否有CSS加载错误
-2. 确认 `.next/static/css/` 文件夹中有CSS文件
-3. 检查网络请求中CSS文件是否返回200状态码
+1. 推送代码到 GitHub
+2. Vercel 会自动触发部署
+3. 等待构建完成
 
-#### 如果构建失败
-1. 确保 Node.js 版本 >= 18.0.0
-2. 清理 `.next` 文件夹重新构建
-3. 检查 `package-lock.json` 是否最新
+## 🔧 环境变量配置
 
-#### 如果环境变量问题
-1. 确认所有必需的环境变量已设置
-2. 检查环境变量名称是否正确
-3. 重启部署服务
+### 本地开发 (.env.local)
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+OPENAI_API_KEY=your_openai_key
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NODE_ENV=development
+```
 
-### 6. 性能优化
+### 生产环境 (Vercel)
+在 Vercel 项目设置 > Environment Variables 中添加：
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `OPENAI_API_KEY` (可选)
+- `NEXT_PUBLIC_APP_URL`
 
-#### 已实施的优化
-- ✅ CSS 压缩和优化
-- ✅ 静态资源优化
-- ✅ 图片优化配置
-- ✅ 代码分割
+## 🛠️ 故障排除
 
-#### 进一步优化建议
-- 使用 CDN 加速静态资源
-- 启用 gzip 压缩
-- 配置缓存策略
+### 常见问题：
 
-### 7. 监控和维护
+1. **构建失败：supabaseUrl is required**
+   - 确保在 Vercel 中设置了 `NEXT_PUBLIC_SUPABASE_URL`
+   - 检查环境变量名称是否正确
 
-#### 部署后监控
-- 检查页面加载速度
-- 监控错误日志
-- 验证功能完整性
+2. **AI 功能不工作**
+   - 检查 `OPENAI_API_KEY` 是否设置
+   - 应用会在没有 AI 密钥时使用备用推荐
 
-#### 定期维护
-- 更新依赖包
-- 检查安全漏洞
-- 优化性能
+3. **认证问题**
+   - 确保 Supabase 项目配置正确
+   - 检查 RLS 策略是否启用
 
-## 联系支持
+### 调试步骤：
 
-如果仍然遇到问题：
-1. 检查构建日志
-2. 查看浏览器开发者工具
-3. 验证环境变量配置
-4. 确认部署平台设置
+1. 检查 Vercel 构建日志
+2. 验证环境变量是否正确设置
+3. 测试 Supabase 连接
+4. 检查数据库表是否存在
+
+## 📊 监控和维护
+
+### 性能监控：
+- 使用 Vercel Analytics
+- 监控 Supabase 使用量
+- 检查 OpenAI API 使用情况
+
+### 安全维护：
+- 定期更新依赖
+- 监控 Supabase 安全日志
+- 检查 RLS 策略
+
+## 🎯 生产环境检查清单
+
+- [ ] 环境变量配置完成
+- [ ] Supabase 项目设置正确
+- [ ] 数据库表创建完成
+- [ ] RLS 策略启用
+- [ ] 域名配置（可选）
+- [ ] SSL 证书（自动）
+- [ ] 性能测试通过
+- [ ] 功能测试完成
+
+## 📞 支持
+
+如果遇到部署问题：
+1. 检查 Vercel 构建日志
+2. 验证环境变量配置
+3. 测试本地构建：`npm run build`
+4. 联系技术支持

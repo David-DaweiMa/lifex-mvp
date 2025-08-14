@@ -1,9 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// 检查环境变量是否存在
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn('Supabase environment variables are missing. Some features may not work properly.');
+}
+
+// 创建Supabase客户端，如果环境变量缺失则使用空字符串（会在运行时处理）
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
+);
 
 // 数据库类型定义
 export interface Database {
@@ -341,4 +350,7 @@ export interface Database {
 }
 
 // 类型化的 Supabase 客户端
-export const typedSupabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const typedSupabase = createClient<Database>(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
+);
