@@ -7,12 +7,12 @@ export interface Message {
 }
 
 export interface Business {
-  id: number;
+  id: string;
   name: string;
   type: string;
   category: string;
   rating: number;
-  reviews: number;
+  review_count: number;
   distance: string;
   address: string;
   phone: string;
@@ -26,6 +26,21 @@ export interface Business {
   confidence?: number;
   latitude?: number;
   longitude?: number;
+  website?: string;
+  logo_url?: string;
+  cover_photo_url?: string;
+  external_id?: string;
+  google_maps_url?: string;
+  // 额外信息
+  descriptions?: any[];
+  menus?: any[];
+  photos?: any[];
+  reviews?: any[];
+  opening_hours?: string;
+  email?: string;
+  city?: string;
+  country?: string;
+  postal_code?: string;
 }
 
 export interface Booking {

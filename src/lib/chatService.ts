@@ -28,7 +28,7 @@ export class ChatService {
       });
 
       // Extract user preferences from conversation
-      this.userPreferences = extractUserPreferences(this.conversationHistory);
+      this.userPreferences = await extractUserPreferences(this.conversationHistory);
 
       // Call AI API
       const response = await fetch('/api/ai', {

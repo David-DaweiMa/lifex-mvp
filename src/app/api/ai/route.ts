@@ -1,165 +1,203 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  getAIRecommendations, 
-  generateConversationalResponse,
-  generateBusinessReasoning,
-  extractUserPreferences,
-  type AIRecommendationRequest,
-  type AIConversationResponse
-} from '@/lib/ai';
-import { mockBusinesses } from '@/lib/recommendations';
+import { generateConversationalResponse, getAIRecommendations } from '@/lib/ai';
+import { checkUserQuota, updateUserQuota, recordUsage } from '@/lib/quotaService';
+import { typedSupabase } from '@/lib/supabase';
+import { getAdForChat } from '@/lib/adService';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { type, data } = body;
+    const data = await request.json();
+    const { message, userId, sessionId } = data;
 
-    switch (type) {
-      case 'recommendations':
-        return await handleRecommendations(data);
-      
-      case 'conversation':
-        return await handleConversation(data);
-      
-      case 'reasoning':
-        return await handleReasoning(data);
-      
-      default:
-        return NextResponse.json(
-          { error: 'Invalid request type' },
-          { status: 400 }
-        );
+    if (!message || !userId) {
+      return NextResponse.json(
+        { error: '缺少必要参数' },
+        { status: 400 }
+      );
     }
-  } catch (error) {
-    console.error('AI API error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}
 
-async function handleRecommendations(data: AIRecommendationRequest) {
-  try {
-    const response = await getAIRecommendations(data, mockBusinesses);
-    
-    return NextResponse.json({
-      success: true,
-      data: response
-    });
-  } catch (error) {
-    console.error('Recommendations error:', error);
-    return NextResponse.json(
-      { error: 'Failed to get recommendations' },
-      { status: 500 }
-    );
-  }
-}
+    // 检查用户 Chat 配额
+    const chatQuota = await checkUserQuota(userId, 'chat');
+    if (!chatQuota.canUse) {
+      return NextResponse.json({
+        error: 'Chat 使用次数已达上限',
+        quota: {
+          remaining: chatQuota.remaining,
+          current: chatQuota.current,
+          max: chatQuota.max,
+          resetDate: chatQuota.resetDate
+        }
+      }, { status: 429 });
+    }
 
-async function handleConversation(data: {
-  message: string;
-  conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>;
-  context?: { recommendations?: any[]; userPreferences?: string[] };
-}) {
-  try {
-    const response = await generateConversationalResponse(
-      data.message,
-      data.conversationHistory,
-      data.context
-    );
-    
-    // Check if the user is asking for recommendations
-    const messageLower = data.message.toLowerCase();
-    const isRecommendationRequest = messageLower.includes('recommend') || 
-                                   messageLower.includes('find') || 
-                                   messageLower.includes('show') || 
+    // 获取用户信息
+    const { data: user, error: userError } = await typedSupabase
+      .from('user_profiles')
+      .select('user_type, location')
+      .eq('id', userId)
+      .single();
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: '用户信息获取失败' },
+        { status: 401 }
+      );
+    }
+
+    // 检查是否为推荐请求
+    const messageLower = message.toLowerCase();
+    const isRecommendationRequest = messageLower.includes('recommend') ||
+                                   messageLower.includes('find') ||
+                                   messageLower.includes('show') ||
                                    messageLower.includes('where') ||
                                    messageLower.includes('coffee') ||
                                    messageLower.includes('food') ||
                                    messageLower.includes('restaurant') ||
                                    messageLower.includes('café');
-    
+
+    let response;
+    let recommendations = null;
+    let adInfo = null;
+
     if (isRecommendationRequest) {
-      // Get AI recommendations
-      const recommendations = await getAIRecommendations(
-        { query: data.message },
-        mockBusinesses
+      // 处理推荐请求
+      const recommendationResult = await getAIRecommendations(
+        { query: message, userLocation: user.location },
+        null // 这里应该传入真实的商家数据
       );
       
-      return NextResponse.json({
-        success: true,
-        data: {
-          ...response,
-          recommendations: recommendations.recommendations
-        }
+      response = recommendationResult.explanation;
+      recommendations = recommendationResult.recommendations;
+
+      // 获取相关广告
+      adInfo = await getAdForChat({
+        userId,
+        userType: user.user_type,
+        context: message,
+        placementType: 'ai_response'
+      });
+
+    } else {
+      // 处理一般对话
+      const conversationResult = await generateConversationalResponse(message, {
+        userType: user.user_type,
+        userLocation: user.location
+      });
+      
+      response = conversationResult.message;
+
+      // 获取相关广告
+      adInfo = await getAdForChat({
+        userId,
+        userType: user.user_type,
+        context: message,
+        placementType: 'ai_response'
       });
     }
-    
-    return NextResponse.json({
-      success: true,
-      data: response
-    });
-  } catch (error) {
-    console.error('Conversation error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate response' },
-      { status: 500 }
-    );
-  }
-}
 
-async function handleReasoning(data: {
-  business: any;
-  userQuery: string;
-  userPreferences?: string[];
-}) {
-  try {
-    const reasoning = await generateBusinessReasoning(
-      data.business,
-      data.userQuery,
-      data.userPreferences
-    );
-    
-    return NextResponse.json({
-      success: true,
-      data: { reasoning }
-    });
-  } catch (error) {
-    console.error('Reasoning error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate reasoning' },
-      { status: 500 }
-    );
-  }
-}
+    // 保存聊天记录
+    const { error: chatError } = await typedSupabase
+      .from('chat_messages')
+      .insert({
+        user_id: userId,
+        session_id: sessionId || 'default',
+        message_type: 'user',
+        content: message,
+        created_at: new Date().toISOString()
+      });
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const query = searchParams.get('query');
-    
-    if (!query) {
-      return NextResponse.json(
-        { error: 'Query parameter is required' },
-        { status: 400 }
-      );
+    if (chatError) {
+      console.error('保存用户消息失败:', chatError);
     }
 
-    const response = await getAIRecommendations(
-      { query },
-      mockBusinesses
-    );
-    
+    // 保存 AI 回复
+    const { error: aiChatError } = await typedSupabase
+      .from('chat_messages')
+      .insert({
+        user_id: userId,
+        session_id: sessionId || 'default',
+        message_type: 'ai',
+        content: response,
+        metadata: {
+          recommendations,
+          followUpQuestions: isRecommendationRequest ? null : ['推荐一些餐厅', '今天天气如何？', '有什么活动推荐？'],
+          adInfo
+        },
+        is_ad_integrated: !!adInfo,
+        ad_info: adInfo,
+        created_at: new Date().toISOString()
+      });
+
+    if (aiChatError) {
+      console.error('保存 AI 回复失败:', aiChatError);
+    }
+
+    // 更新配额使用量
+    await updateUserQuota(userId, 'chat');
+    await recordUsage(userId, 'chat');
+
+    // 如果有广告，记录广告展示
+    if (adInfo) {
+      await recordAdImpression(adInfo.adId, userId, 'ai_response', {
+        chat_context: message,
+        user_type: user.user_type
+      });
+    }
+
     return NextResponse.json({
       success: true,
-      data: response
+      data: {
+        message: response,
+        recommendations,
+        followUpQuestions: isRecommendationRequest ? null : ['推荐一些餐厅', '今天天气如何？', '有什么活动推荐？'],
+        adInfo,
+        quota: {
+          remaining: chatQuota.remaining - 1,
+          current: chatQuota.current + 1,
+          max: chatQuota.max
+        }
+      }
     });
+
   } catch (error) {
-    console.error('AI GET error:', error);
+    console.error('Chat API error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: '服务暂时不可用' },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * 记录广告展示
+ */
+async function recordAdImpression(
+  adId: string,
+  userId: string,
+  placementType: string,
+  context: any
+): Promise<void> {
+  try {
+    await typedSupabase
+      .from('ad_impressions')
+      .insert({
+        ad_id: adId,
+        user_id: userId,
+        placement_type: placementType,
+        context,
+        created_at: new Date().toISOString()
+      });
+
+    // 更新广告展示次数 - 暂时注释掉，因为需要数据库函数支持
+    // await typedSupabase
+    //   .from('advertisements')
+    //   .update({
+    //     impressions: typedSupabase.rpc('increment_impressions', { ad_id: adId })
+    //   })
+    //   .eq('id', adId);
+
+  } catch (error) {
+    console.error('记录广告展示失败:', error);
   }
 }
 

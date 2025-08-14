@@ -1,9 +1,14 @@
 // src/components/pages/ProfilePage.tsx
-import React from 'react';
-import { User, Heart, BookOpen, Sparkles, BarChart3, Bell, Shield, Globe, HelpCircle, Settings, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { User, Heart, BookOpen, Sparkles, BarChart3, Bell, Shield, Globe, HelpCircle, Settings, ChevronRight, LogOut, Edit3 } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
+import { useAuth } from '../../lib/hooks/useAuth';
 
 const ProfilePage: React.FC = () => {
+  const router = useRouter();
+  const { user, logout, loading } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   const settingsItems = [
     { icon: Bell, label: "Notifications", desc: "Manage your alerts", color: darkTheme.neon.blue },
@@ -19,6 +24,74 @@ const ProfilePage: React.FC = () => {
     { icon: Sparkles, label: "AI Preferences", desc: "Customize recommendations", color: darkTheme.neon.yellow },
     { icon: BarChart3, label: "Activity Stats", desc: "View your insights", color: darkTheme.neon.green }
   ];
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      const result = await logout();
+      if (result.success) {
+        router.push('/auth/login');
+      }
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center" style={{ background: darkTheme.background.primary }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto mb-4" style={{ borderColor: darkTheme.neon.purple }}></div>
+          <p style={{ color: darkTheme.text.secondary }}>Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login prompt if not authenticated
+  if (!user) {
+    return (
+      <div className="h-full flex items-center justify-center" style={{ background: darkTheme.background.primary }}>
+        <div className="text-center max-w-md mx-auto px-6">
+          <div 
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+            style={{ background: darkTheme.neon.purple }}
+          >
+            <User className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
+            Sign in to LifeX
+          </h2>
+          <p className="text-sm mb-6" style={{ color: darkTheme.text.secondary }}>
+            Create an account to save favorites, track your activity, and get personalized recommendations
+          </p>
+          <div className="space-y-3">
+            <button
+              onClick={() => router.push('/auth/login')}
+              className="w-full py-3 px-4 rounded-lg font-medium transition-all"
+              style={{ background: darkTheme.neon.purple, color: 'white' }}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => router.push('/auth/register')}
+              className="w-full py-3 px-4 rounded-lg font-medium transition-all border"
+              style={{ 
+                background: darkTheme.background.card,
+                borderColor: darkTheme.background.glass,
+                color: darkTheme.text.primary
+              }}
+            >
+              Create Account
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const premiumFeatures = [
     "Unlimited AI recommendations",
@@ -39,6 +112,24 @@ const ProfilePage: React.FC = () => {
               borderColor: `${darkTheme.neon.purple}30`,
             }}
           >
+            <div className="flex justify-between items-start mb-4">
+              <button
+                onClick={() => router.push('/auth/profile/edit')}
+                className="p-2 rounded-lg transition-colors hover:bg-white/10"
+                style={{ color: darkTheme.text.muted }}
+              >
+                <Edit3 size={16} />
+              </button>
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="p-2 rounded-lg transition-colors hover:bg-white/10"
+                style={{ color: darkTheme.text.muted }}
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+            
             <div 
               className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center mx-auto mb-4"
               style={{ background: darkTheme.neon.purple }}
@@ -46,10 +137,13 @@ const ProfilePage: React.FC = () => {
               <User className="w-8 h-8 md:w-10 md:h-10 text-white" />
             </div>
             <h2 className="text-lg md:text-xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
-              Kiwi Explorer
+              {user.full_name || user.username || 'LifeX User'}
             </h2>
-            <p className="text-sm md:text-base mb-4" style={{ color: darkTheme.text.secondary }}>
-              LifeX member since January 2025
+            <p className="text-sm md:text-base mb-1" style={{ color: darkTheme.text.secondary }}>
+              {user.email}
+            </p>
+            <p className="text-xs mb-4" style={{ color: darkTheme.text.muted }}>
+              LifeX member since {new Date(user.created_at).toLocaleDateString()}
             </p>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>

@@ -16,7 +16,7 @@
     "postbuild": "echo 'Build completed successfully!'"
   },
   "dependencies": {
-    "@supabase/supabase-js": "latest",
+    "@supabase/supabase-js": "^2.55.0",
     "critters": "^0.0.25",
     "dotenv": "^17.2.1",
     "lucide-react": "^0.539.0",

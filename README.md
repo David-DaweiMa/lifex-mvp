@@ -1,224 +1,247 @@
-# LifeX - AI-Powered Local Discovery App
+# LifeX MVP - 新西兰本地生活平台
 
-LifeX is an AI-powered mobile application that helps users discover amazing local services and experiences in New Zealand. Built with Next.js, React, and powered by GPT-5 Nano for intelligent recommendations.
+## 项目概述
 
-## Features
+LifeX 是一个基于 AI 的新西兰本地生活推荐平台，集成了用户认证、配额管理、内嵌式广告和智能推荐系统。
 
-- 🤖 **AI-Powered Recommendations**: Uses GPT-5 Nano to provide personalized business recommendations
-- 🗺️ **Local Discovery**: Find coffee shops, restaurants, activities, and services in New Zealand
-- 💬 **Conversational Interface**: Natural language chat with AI assistant
-- 📱 **Mobile-First Design**: Optimized for mobile devices with beautiful UI
-- 🔄 **Smart Fallbacks**: Graceful degradation when AI is unavailable
-- 🎯 **Personalized Experience**: Learns user preferences and provides tailored suggestions
+## 功能特性
 
-## Tech Stack
+### 🎯 核心功能
+- **AI 智能对话**: 基于 GPT-5 Nano 的本地生活助手
+- **用户配额管理**: 按用户类型限制功能使用次数
+- **内嵌式广告**: 智能投放，融入内容流
+- **商家管理**: 支持商家注册、商品发布
+- **内容发布**: Trending 内容、产品展示
 
-- **Frontend**: Next.js 14, React, TypeScript
-- **Styling**: Tailwind CSS, Custom CSS animations
-- **AI**: OpenAI GPT-5 Nano (gpt-5-nano)
-- **Database**: Supabase (for future data persistence)
-- **Icons**: Lucide React
-- **Deployment**: Vercel-ready
+### 👥 用户类型
+- **Guest**: 游客用户（有限功能）
+- **Customer**: 普通用户
+- **Premium**: 高级用户
+- **Free Business**: 免费商家
+- **Professional Business**: 专业商家
+- **Enterprise Business**: 企业商家
 
-## Getting Started
+### 📊 配额系统
+每个用户类型都有不同的功能使用限制：
 
-### Prerequisites
+| 用户类型 | Chat (每日) | Trending (每月) | Ads (每月) | Products | Stores |
+|---------|-------------|----------------|------------|----------|---------|
+| Guest | 3 | 0 | 0 | 0 | 0 |
+| Customer | 10 | 5 | 1 | 0 | 0 |
+| Premium | 50 | 20 | 5 | 0 | 0 |
+| Free Business | 10 | 5 | 1 | 10 | 1 |
+| Professional Business | 100 | 50 | 20 | 50 | 3 |
+| Enterprise Business | 200 | 100 | 50 | 200 | 10 |
 
-- Node.js 18+ 
-- npm or yarn
-- OpenAI API key
+## 技术栈
 
-### Installation
+- **前端**: Next.js 15, React, TypeScript, Tailwind CSS
+- **后端**: Next.js API Routes
+- **数据库**: Supabase (PostgreSQL)
+- **AI**: OpenAI GPT-5 Nano
+- **认证**: Supabase Auth
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd lifex-mvp
-   ```
+## 快速开始
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+### 1. 环境配置
 
-3. **Set up environment variables**
-   ```bash
-   cp env.example .env.local
-   ```
-
-4. **Configure your environment variables**
-   ```env
-   # OpenAI Configuration
-   OPENAI_API_KEY=your_openai_api_key_here
-   OPENAI_MODEL=gpt-5-nano
-   
-   # Supabase Configuration (optional)
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
-   
-   # Application Configuration
-   NEXT_PUBLIC_APP_NAME=LifeX
-   NEXT_PUBLIC_APP_VERSION=0.1.0
-   ```
-
-5. **Get your OpenAI API key**
-   - Visit [OpenAI Platform](https://platform.openai.com/)
-   - Create an account or sign in
-   - Navigate to API Keys section
-   - Create a new API key
-   - Add it to your `.env.local` file
-
-6. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-
-7. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-## AI Integration
-
-### GPT-5 Nano Features
-
-The app uses GPT-5 Nano (gpt-5-nano) for:
-
-- **Intelligent Recommendations**: Analyzes user queries and provides personalized business suggestions
-- **Conversational Responses**: Natural language interactions with context awareness
-- **Business Reasoning**: Generates personalized explanations for why businesses match user needs
-- **Preference Learning**: Extracts and learns user preferences from conversations
-
-### AI Architecture
-
-```
-User Query → API Route → GPT-5 Nano → Structured Response → UI Update
-     ↓
-Fallback System (Keyword Matching) if AI fails
+复制环境变量文件：
+```bash
+cp env.example .env.local
 ```
 
-### API Endpoints
+配置以下环境变量：
+```env
+# OpenAI Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_MODEL=gpt-5-nano
 
-- `POST /api/ai` - Main AI endpoint
-  - `type: 'recommendations'` - Get AI-powered recommendations
-  - `type: 'conversation'` - Generate conversational responses
-  - `type: 'reasoning'` - Generate business reasoning
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-- `GET /api/ai?query=<search>` - Quick search endpoint
+# Application Configuration
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NODE_ENV=development
+```
 
-### System Prompts
+### 2. 数据库设置
 
-The AI is configured with specialized prompts for:
-- New Zealand culture and local knowledge
-- Business recommendation logic
-- Conversational tone with Kiwi charm
-- Preference understanding and personalization
+#### 2.1 创建 Supabase 项目
+1. 访问 [Supabase](https://supabase.com)
+2. 创建新项目
+3. 获取项目 URL 和匿名密钥
 
-## Project Structure
+#### 2.2 执行数据库脚本
+在 Supabase SQL 编辑器中执行 `database-schema.sql` 文件中的所有 SQL 语句。
+
+#### 2.3 配置 RLS 策略
+确保所有表都启用了 Row Level Security，并根据需要调整访问策略。
+
+### 3. 安装依赖
+
+```bash
+npm install
+```
+
+### 4. 启动开发服务器
+
+```bash
+npm run dev
+```
+
+访问 [http://localhost:3000](http://localhost:3000)
+
+## 测试系统
+
+### 1. 访问测试页面
+访问 [http://localhost:3000/test](http://localhost:3000/test) 查看系统测试页面。
+
+### 2. 测试 API 端点
+
+#### 检查测试 API 状态
+```bash
+curl http://localhost:3000/api/test
+```
+
+#### 测试配额系统
+```bash
+curl "http://localhost:3000/api/test?action=quota"
+```
+
+#### 测试用户系统
+```bash
+curl "http://localhost:3000/api/test?action=user"
+```
+
+### 3. 测试 Chat API
+
+```bash
+curl -X POST http://localhost:3000/api/ai \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "推荐一些奥克兰的咖啡店",
+    "userId": "your_user_id",
+    "sessionId": "test_session"
+  }'
+```
+
+## 项目结构
 
 ```
 src/
-├── app/                    # Next.js app directory
-│   ├── api/               # API routes
-│   │   └── ai/           # AI endpoints
-│   ├── globals.css       # Global styles
-│   ├── layout.tsx        # Root layout
-│   └── page.tsx          # Home page
-├── components/            # React components
-│   └── LifeXApp.tsx      # Main app component
-└── lib/                  # Utility libraries
-    ├── ai.ts             # AI service layer
-    ├── recommendations.ts # Business data & logic
-    ├── supabase.ts       # Database client
-    └── types.ts          # TypeScript definitions
+├── app/                    # Next.js App Router
+│   ├── api/               # API 路由
+│   │   ├── ai/           # AI 聊天 API
+│   │   └── test/         # 测试 API
+│   ├── test/             # 测试页面
+│   └── page.tsx          # 主页
+├── components/            # React 组件
+│   ├── pages/            # 页面组件
+│   └── LifeXApp.tsx      # 主应用组件
+├── lib/                   # 工具库
+│   ├── ai.ts             # AI 服务
+│   ├── authService.ts    # 认证服务
+│   ├── quotaService.ts   # 配额管理
+│   ├── adService.ts      # 广告服务
+│   └── supabase.ts       # Supabase 配置
+└── types/                # TypeScript 类型定义
 ```
 
-## Usage Examples
+## 核心服务
 
-### Basic Search
-```
-User: "I need a coffee shop for remote work"
-AI: Recommends cafés with WiFi, quiet atmosphere, laptop-friendly seating
-```
+### AI 服务 (`src/lib/ai.ts`)
+- 智能对话生成
+- 商家推荐
+- 用户偏好提取
 
-### Family Activities
-```
-User: "Looking for family-friendly activities"
-AI: Suggests Auckland Zoo, parks, and kid-friendly restaurants
-```
+### 配额服务 (`src/lib/quotaService.ts`)
+- 用户配额检查
+- 使用量更新
+- 配额重置
 
-### Budget-Conscious Options
-```
-User: "Affordable restaurants near me"
-AI: Filters by price range and provides budget-friendly options
-```
+### 认证服务 (`src/lib/authService.ts`)
+- 用户注册/登录
+- 会话管理
+- 用户配置文件
 
-## Development
+### 广告服务 (`src/lib/adService.ts`)
+- 智能广告投放
+- 相关性匹配
+- 点击追踪
 
-### Available Scripts
+## 开发指南
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Run TypeScript type checking
-- `npm run format` - Format code with Prettier
+### 添加新功能
+1. 在 `src/lib/` 中创建服务文件
+2. 在 `src/app/api/` 中创建 API 路由
+3. 在 `src/components/` 中创建 UI 组件
+4. 更新类型定义
 
-### Adding New Features
+### 数据库修改
+1. 修改 `database-schema.sql`
+2. 更新 `src/lib/supabase.ts` 中的类型定义
+3. 更新相关服务文件
 
-1. **New Business Categories**: Add to `mockBusinesses` in `src/lib/recommendations.ts`
-2. **AI Enhancements**: Modify prompts in `src/lib/ai.ts`
-3. **UI Components**: Create new components in `src/components/`
-4. **API Endpoints**: Add new routes in `src/app/api/`
+### 测试新功能
+1. 在 `src/app/test/` 中添加测试页面
+2. 在 `src/app/api/test/` 中添加测试 API
+3. 更新测试页面 UI
 
-### Testing AI Integration
+## 部署
 
-1. Ensure your OpenAI API key is set
-2. Test with various queries in the chat interface
-3. Check browser console for any API errors
-4. Verify fallback system works when AI is unavailable
+### Vercel 部署
+1. 连接 GitHub 仓库到 Vercel
+2. 配置环境变量
+3. 部署项目
 
-## Deployment
-
-### Vercel (Recommended)
-
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy automatically on push
-
-### Environment Variables for Production
-
-Make sure to set these in your production environment:
+### 环境变量配置
+确保在 Vercel 中配置以下环境变量：
 - `OPENAI_API_KEY`
-- `OPENAI_MODEL` (defaults to gpt-5-nano)
-- `NEXT_PUBLIC_APP_NAME`
-- `NEXT_PUBLIC_APP_VERSION`
+- `OPENAI_MODEL`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-## Contributing
+## 故障排除
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+### 常见问题
 
-## License
+#### 1. EPERM 错误
+```bash
+# 清理 Next.js 缓存
+rm -rf .next
+npm run dev
+```
 
-This project is licensed under the MIT License.
+#### 2. 端口占用
+```bash
+# 查找占用端口的进程
+netstat -ano | findstr :3000
+# 终止进程
+taskkill /PID <进程ID> /F
+```
 
-## Support
+#### 3. Supabase 连接问题
+- 检查环境变量配置
+- 确认 Supabase 项目状态
+- 验证 RLS 策略设置
 
-For support or questions:
-- Check the documentation
-- Review the code comments
-- Open an issue on GitHub
+#### 4. AI API 问题
+- 检查 OpenAI API 密钥
+- 确认模型名称正确
+- 查看 API 使用配额
 
-## Roadmap
+## 贡献指南
 
-- [ ] Real-time business data integration
-- [ ] User accounts and preferences
-- [ ] Booking system integration
-- [ ] Location-based recommendations
-- [ ] Multi-language support
-- [ ] Advanced AI features (image recognition, voice input)
-- [ ] Social features and reviews
-- [ ] Push notifications
+1. Fork 项目
+2. 创建功能分支
+3. 提交更改
+4. 创建 Pull Request
+
+## 许可证
+
+MIT License
+
+## 联系方式
+
+如有问题，请创建 Issue 或联系开发团队。

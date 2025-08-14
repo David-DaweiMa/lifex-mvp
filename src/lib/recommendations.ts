@@ -4,12 +4,12 @@ import { getAIRecommendations, type AIRecommendationRequest } from './ai';
 // Mock business data for New Zealand
 export const mockBusinesses: Business[] = [
   {
-    id: 1,
+    id: "1",
     name: "Café Supreme",
     type: "Coffee & Workspace",
     category: "food",
     rating: 4.8,
-    reviews: 234,
+    review_count: 234,
     distance: "0.3km",
     price: "$",
     image: "from-amber-400 to-orange-500",
@@ -25,12 +25,12 @@ export const mockBusinesses: Business[] = [
     longitude: 174.7633
   },
   {
-    id: 2,
+    id: "2",
     name: "Little Bird Unbakery",
     type: "Healthy Breakfast & Brunch",
     category: "food",
     rating: 4.6,
-    reviews: 156,
+    review_count: 156,
     distance: "0.5km",
     price: "$$",
     image: "from-green-400 to-emerald-500",
@@ -46,12 +46,12 @@ export const mockBusinesses: Business[] = [
     longitude: 174.8693
   },
   {
-    id: 3,
+    id: "3",
     name: "Depot Eatery",
     type: "Modern NZ Cuisine",
     category: "food",
     rating: 4.9,
-    reviews: 89,
+    review_count: 89,
     distance: "0.8km",
     price: "$$",
     image: "from-blue-400 to-indigo-500",
@@ -67,12 +67,12 @@ export const mockBusinesses: Business[] = [
     longitude: 174.7633
   },
   {
-    id: 4,
+    id: "4",
     name: "Allpress Espresso",
     type: "Coffee Roasters & Café",
     category: "food",
     rating: 4.7,
-    reviews: 312,
+    review_count: 312,
     distance: "0.4km",
     price: "$",
     image: "from-amber-400 to-orange-500",
@@ -88,12 +88,12 @@ export const mockBusinesses: Business[] = [
     longitude: 174.7633
   },
   {
-    id: 5,
+    id: "5",
     name: "Scarecrow",
     type: "Organic Health Food",
     category: "food",
     rating: 4.5,
-    reviews: 198,
+    review_count: 198,
     distance: "1.2km",
     price: "$$",
     image: "from-green-400 to-emerald-500",
@@ -109,12 +109,12 @@ export const mockBusinesses: Business[] = [
     longitude: 174.7533
   },
   {
-    id: 6,
+    id: "6",
     name: "The Grove",
     type: "Fine Dining Restaurant",
     category: "food",
     rating: 4.9,
-    reviews: 445,
+    review_count: 445,
     distance: "1.5km",
     price: "$$$",
     image: "from-purple-400 to-pink-500",
@@ -130,12 +130,12 @@ export const mockBusinesses: Business[] = [
     longitude: 174.7633
   },
   {
-    id: 7,
+    id: "7",
     name: "Federal Delicatessen",
     type: "American Diner & Deli",
     category: "food",
     rating: 4.4,
-    reviews: 567,
+    review_count: 567,
     distance: "0.6km",
     price: "$$",
     image: "from-red-400 to-orange-500",
@@ -151,12 +151,12 @@ export const mockBusinesses: Business[] = [
     longitude: 174.7633
   },
   {
-    id: 8,
+    id: "8",
     name: "Auckland Zoo",
     type: "Family Entertainment",
     category: "activities",
     rating: 4.3,
-    reviews: 1234,
+    review_count: 1234,
     distance: "3.2km",
     price: "$$",
     image: "from-green-400 to-blue-500",
@@ -243,7 +243,7 @@ export function getKeywordBasedRecommendations(query: string, limit: number = 3)
     
     // Boost score based on rating and reviews
     score += business.rating * 2;
-    score += Math.min(business.reviews / 50, 5);
+    score += Math.min(business.review_count / 50, 5);
     
     // Boost if currently open
     if (business.isOpen) {
@@ -317,8 +317,8 @@ export function getTrendingRecommendations(limit: number = 5): Business[] {
   return mockBusinesses
     .sort((a, b) => {
       // Calculate trending score: rating * log(reviews) * (1 if open, 0.8 if closed)
-      const aScore = a.rating * Math.log(a.reviews + 1) * (a.isOpen ? 1 : 0.8);
-      const bScore = b.rating * Math.log(b.reviews + 1) * (b.isOpen ? 1 : 0.8);
+      const aScore = a.rating * Math.log(a.review_count + 1) * (a.isOpen ? 1 : 0.8);
+      const bScore = b.rating * Math.log(b.review_count + 1) * (b.isOpen ? 1 : 0.8);
       return bScore - aScore;
     })
     .slice(0, limit);
@@ -384,12 +384,12 @@ export function makeCall(phone: string): void {
 }
 
 // Get business by ID
-export function getBusinessById(id: number): Business | undefined {
+export function getBusinessById(id: string): Business | undefined {
   return mockBusinesses.find(business => business.id === id);
 }
 
 // Get similar businesses
-export function getSimilarBusinesses(businessId: number, limit: number = 3): Business[] {
+export function getSimilarBusinesses(businessId: string, limit: number = 3): Business[] {
   const business = getBusinessById(businessId);
   if (!business) return [];
   

@@ -1,112 +1,98 @@
 import OpenAI from 'openai';
-import { Business } from './types';
 
 // Initialize OpenAI client only if API key is available
-const hasApiKey = process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here';
-console.log('🔍 AI 初始化检查:');
-console.log('  - OPENAI_API_KEY 存在:', !!process.env.OPENAI_API_KEY);
-console.log('  - API 密钥有效:', hasApiKey);
-console.log('  - 当前模型:', process.env.OPENAI_MODEL || 'gpt-5-nano');
+let openai: OpenAI | null = null;
 
-const openai = hasApiKey
-  ? new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    })
-  : null;
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
-  // 模型配置：使用 GPT-5 Nano
-const AI_MODEL = 'gpt-5-nano';
+const AI_MODEL = process.env.OPENAI_MODEL || 'gpt-5-nano';
 
-// System prompt for LifeX AI assistant
-const SYSTEM_PROMPT = `You are LifeX, an AI assistant specialized in helping people discover amazing local services and experiences in New Zealand. You have deep knowledge of Kiwi culture, local businesses, and lifestyle preferences.
+// 系统提示词
+const SYSTEM_PROMPT = `你是一个友好的新西兰本地生活助手，专门帮助用户发现和推荐新西兰的餐厅、咖啡店、景点和活动。
 
-Your role is to:
-1. Understand user preferences and needs
-2. Provide personalized recommendations for local services
-3. Explain why each recommendation fits their needs
-4. Maintain a friendly, helpful tone with Kiwi charm
-5. Focus on authentic, local experiences
+你的特点：
+1. 友好、热情，使用新西兰英语口音
+2. 提供准确、实用的本地推荐
+3. 了解新西兰的文化和生活方式
+4. 能够进行自然对话，不仅仅是推荐
 
-When recommending businesses, consider:
-- User's specific requirements (coffee, food, activities, etc.)
-- Location preferences and distance
-- Budget considerations
-- Lifestyle preferences (family-friendly, work-friendly, etc.)
-- Local authenticity and Kiwi culture
+请用中文回复，保持友好和专业的语调。`;
 
-Always provide thoughtful, personalized responses that help users discover the best of New Zealand.`;
-
-// Context about available businesses
+// 业务上下文
 const BUSINESS_CONTEXT = `
-Available business categories and examples:
-- Coffee & Workspace: Cafés with WiFi, quiet atmosphere, laptop-friendly
-- Healthy Food: Organic, fresh ingredients, vegan options
-- Fine Dining: Award-winning restaurants, local ingredients
-- Family Activities: Kid-friendly places, outdoor activities
-- Local Services: Hair salons, home services, health & wellness
-- Entertainment: Cultural activities, nightlife, outdoor adventures
 
-Business data includes: name, type, rating, reviews, distance, price, highlights, phone, address, opening status, and AI-generated reasoning for recommendations.
-`;
+可用的商家类型：
+- 餐厅 (restaurants)
+- 咖啡店 (cafes)
+- 酒吧 (bars)
+- 景点 (attractions)
+- 活动 (activities)
+- 购物 (shopping)
+
+请根据用户的需求提供最相关的推荐。`;
 
 export interface AIRecommendationRequest {
   query: string;
+  userLocation?: any;
   userPreferences?: string[];
-  location?: string;
-  budget?: string;
-  occasion?: string;
 }
 
 export interface AIRecommendationResponse {
-  recommendations: Business[];
+  recommendations: any[];
   explanation: string;
   confidence: number;
   suggestedQueries: string[];
 }
 
+export interface AIConversationContext {
+  userType?: string;
+  userLocation?: any;
+  userPreferences?: string[];
+  conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
+}
+
 export interface AIConversationResponse {
   message: string;
-  recommendations?: Business[];
   followUpQuestions?: string[];
 }
 
 /**
- * Get AI-powered recommendations using GPT-5 Nano
+ * 获取 AI 推荐
  */
 export async function getAIRecommendations(
   request: AIRecommendationRequest,
-  availableBusinesses: Business[]
+  availableBusinesses: any[] | null
 ): Promise<AIRecommendationResponse> {
+  // Check if OpenAI client is available
+  if (!openai) {
+    console.warn('OpenAI API key not configured, using fallback recommendations');
+    return {
+      recommendations: availableBusinesses ? availableBusinesses.slice(0, 3) : [],
+      explanation: "由于AI服务暂时不可用，我为您推荐了一些热门商家。请尝试更具体的查询，比如'推荐奥克兰的咖啡店'或'寻找惠灵顿的餐厅'。",
+      confidence: 0.5,
+      suggestedQueries: ["推荐咖啡店", "寻找餐厅", "附近景点"]
+    };
+  }
+
   try {
-    // If no OpenAI client is available, use fallback
-    if (!openai) {
-      console.log('OpenAI API key not available, using fallback recommendations');
-      return getFallbackRecommendations(request, availableBusinesses);
-    }
-
     const userPrompt = `
-User Query: "${request.query}"
-${request.userPreferences ? `User Preferences: ${request.userPreferences.join(', ')}` : ''}
-${request.location ? `Location: ${request.location}` : ''}
-${request.budget ? `Budget: ${request.budget}` : ''}
-${request.occasion ? `Occasion: ${request.occasion}` : ''}
+用户查询: "${request.query}"
+${request.userLocation ? `用户位置: ${JSON.stringify(request.userLocation)}` : ''}
+${request.userPreferences ? `用户偏好: ${request.userPreferences.join(', ')}` : ''}
 
-Available businesses: ${JSON.stringify(availableBusinesses, null, 2)}
-
-Please analyze the user's request and available businesses to provide:
-1. Top 3 most relevant recommendations with detailed reasoning
-2. A personalized explanation of why these fit their needs
-3. Confidence score (0-100) for the recommendations
-4. 3 suggested follow-up queries the user might ask
-
-Format your response as JSON:
+请提供推荐，格式如下：
 {
-  "recommendations": [business_ids],
-  "explanation": "detailed explanation",
-  "confidence": 85,
-  "suggestedQueries": ["query1", "query2", "query3"]
+  "recommendations": ["business_id_1", "business_id_2", "business_id_3"],
+  "explanation": "推荐理由",
+  "confidence": 0.85,
+  "suggestedQueries": ["相关查询1", "相关查询2", "相关查询3"]
 }
-`;
+
+如果无法提供具体推荐，请返回空数组但提供有用的解释。`;
 
     // 使用 GPT-5 Nano (Responses API)
     const response = await openai.responses.create({
@@ -114,22 +100,23 @@ Format your response as JSON:
       instructions: SYSTEM_PROMPT + BUSINESS_CONTEXT,
       input: userPrompt
     });
-    
+
     console.log(`使用模型: ${AI_MODEL}`);
 
     const responseText = response.output_text;
-    
+
     if (!responseText) {
       throw new Error('No response from AI model');
     }
 
     // Parse JSON response
     const parsedResponse = JSON.parse(responseText);
-    
+
     // Map business IDs to actual business objects
-    const recommendedBusinesses = availableBusinesses.filter(business => 
-      parsedResponse.recommendations.includes(business.id)
-    );
+    const recommendedBusinesses = availableBusinesses ? 
+      availableBusinesses.filter(business =>
+        parsedResponse.recommendations.includes(business.id)
+      ) : [];
 
     return {
       recommendations: recommendedBusinesses,
@@ -141,161 +128,146 @@ Format your response as JSON:
   } catch (error) {
     console.error('AI recommendation error:', error);
     
-    // Fallback to basic keyword matching
-    return getFallbackRecommendations(request, availableBusinesses);
+    // 返回默认推荐
+    return {
+      recommendations: availableBusinesses ? availableBusinesses.slice(0, 3) : [],
+      explanation: "抱歉，我现在无法提供具体推荐。请尝试更具体的查询，比如'推荐奥克兰的咖啡店'或'寻找惠灵顿的餐厅'。",
+      confidence: 0.5,
+      suggestedQueries: ["推荐咖啡店", "寻找餐厅", "附近景点"]
+    };
   }
 }
 
 /**
- * Generate conversational response using GPT-5 Nano
+ * 生成对话回复
  */
 export async function generateConversationalResponse(
   userMessage: string,
-  conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>,
-  context?: { recommendations?: Business[]; userPreferences?: string[] }
+  context?: AIConversationContext
 ): Promise<AIConversationResponse> {
-  try {
-    // If no OpenAI client is available, use fallback
-    if (!openai) {
-      console.log('OpenAI API key not available, using fallback conversation response');
-      console.log('  - openai client is null');
-      console.log('  - hasApiKey:', process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here');
-      
-      // Improved fallback responses for different types of questions
-      const messageLower = userMessage.toLowerCase();
-      
-      if (messageLower.includes('天气') || messageLower.includes('weather')) {
-        return {
-          message: "G'day! I'd love to tell you about the weather, but I'm currently focused on helping you discover amazing places in New Zealand. For real-time weather info, you might want to check a weather app. But hey, whether it's sunny or rainy, I can help you find the perfect café, restaurant, or activity! What are you looking for today?",
-          followUpQuestions: [
-            "Best indoor activities for rainy days?",
-            "Sunny day outdoor activities?",
-            "Weather-friendly restaurants?"
-          ]
-        };
-      }
-      
-      if (messageLower.includes('你好') || messageLower.includes('hello') || messageLower.includes('hi')) {
-        return {
-          message: "G'day! I'm LifeX, your AI companion for discovering amazing local services in New Zealand. How can I help you find the best places today?",
-          followUpQuestions: [
-            "Best coffee shops for remote work?",
-            "Family-friendly restaurants?",
-            "Weekend activities in Auckland?"
-          ]
-        };
-      }
-      
-      if (messageLower.includes('新西兰') || messageLower.includes('new zealand') || messageLower.includes('kiwi')) {
-        return {
-          message: "New Zealand is absolutely stunning! From the beautiful landscapes to the friendly Kiwi culture, there's so much to explore. I'm here to help you discover the best local spots - whether it's amazing coffee shops, delicious restaurants, or exciting activities. What interests you most?",
-          followUpQuestions: [
-            "Best coffee culture spots?",
-            "Local Kiwi restaurants?",
-            "Must-visit attractions?"
-          ]
-        };
-      }
-      
-      // Default fallback
-      return {
-        message: "G'day! I'm LifeX, your AI companion for discovering amazing local services in New Zealand. What can I help you find today?",
-        followUpQuestions: [
-          "Best coffee shops for remote work?",
-          "Family-friendly restaurants?",
-          "Weekend activities in Auckland?"
-        ]
-      };
-    }
+  // Check if OpenAI client is available
+  if (!openai) {
+    console.warn('OpenAI API key not configured, using fallback response');
+    return {
+      message: "G'day! I'm here to help you discover amazing places in New Zealand! What are you looking for today?",
+      followUpQuestions: generateFollowUpQuestions(userMessage)
+    };
+  }
 
-    const contextPrompt = context?.recommendations 
-      ? `\nCurrent recommendations: ${JSON.stringify(context.recommendations, null, 2)}`
-      : '';
+  try {
+    // 构建上下文提示
+    const contextPrompt = context?.userLocation ? 
+      `\n用户位置信息: ${JSON.stringify(context.userLocation)}` : '';
     
-    const preferencesPrompt = context?.userPreferences
-      ? `\nUser preferences: ${context.userPreferences.join(', ')}`
-      : '';
+    const userTypePrompt = context?.userType ? 
+      `\n用户类型: ${context.userType}` : '';
+
+    // 构建偏好提示
+    const preferencesPrompt = context?.userPreferences ? 
+      `\n用户偏好: ${context.userPreferences.join(', ')}` : '';
 
     // 使用 GPT-5 Nano (Responses API)
-    const gpt5Response = await openai.responses.create({
+    let response = await openai.responses.create({
       model: AI_MODEL,
       instructions: SYSTEM_PROMPT,
       input: `User message: "${userMessage}"${contextPrompt}${preferencesPrompt}`,
       reasoning: { effort: 'low' }
     });
-    
-    let response = gpt5Response.output_text;
-    
+
     console.log(`使用模型: ${AI_MODEL}`);
 
     // 确保 response 有值
     if (!response) {
       console.log('⚠️  AI 模型返回空响应，使用回退消息');
-      response = "I'm here to help you discover amazing places in New Zealand! What are you looking for today?";
+      return {
+        message: "I'm here to help you discover amazing places in New Zealand! What are you looking for today?",
+        followUpQuestions: generateFollowUpQuestions(userMessage)
+      };
     }
 
     return {
-      message: response,
+      message: typeof response === 'string' ? response : response.output_text || 'No response from AI',
       followUpQuestions: generateFollowUpQuestions(userMessage)
     };
 
   } catch (error) {
     console.error('AI conversation error:', error);
     
-    // Improved fallback response for errors
-    const messageLower = userMessage.toLowerCase();
-    
-    if (messageLower.includes('天气') || messageLower.includes('weather')) {
-      return {
-        message: "G'day! I'd love to tell you about the weather, but I'm currently focused on helping you discover amazing places in New Zealand. For real-time weather info, you might want to check a weather app. But hey, whether it's sunny or rainy, I can help you find the perfect café, restaurant, or activity! What are you looking for today?",
-        followUpQuestions: [
-          "Best indoor activities for rainy days?",
-          "Sunny day outdoor activities?",
-          "Weather-friendly restaurants?"
-        ]
-      };
-    }
-    
-    // Default fallback response
+    // 返回友好的回退消息
     return {
-      message: "I'm here to help you discover amazing places in New Zealand! What are you looking for today?",
-      followUpQuestions: [
-        "Best coffee shops for remote work?",
-        "Family-friendly restaurants?",
-        "Weekend activities in Auckland?"
-      ]
+      message: "G'day! I'm here to help you discover amazing places in New Zealand! What are you looking for today?",
+      followUpQuestions: ['推荐一些餐厅', '今天天气如何？', '有什么活动推荐？']
     };
   }
 }
 
 /**
- * Generate personalized business reasoning using GPT-5 Nano
+ * 生成后续问题
+ */
+function generateFollowUpQuestions(userMessage: string): string[] {
+  const messageLower = userMessage.toLowerCase();
+  
+  if (messageLower.includes('餐厅') || messageLower.includes('food') || messageLower.includes('eat')) {
+    return [
+      '想要什么类型的餐厅？',
+      '有预算限制吗？',
+      '需要预订吗？'
+    ];
+  }
+  
+  if (messageLower.includes('咖啡') || messageLower.includes('coffee') || messageLower.includes('cafe')) {
+    return [
+      '喜欢什么风格的咖啡？',
+      '需要工作空间吗？',
+      '有甜点偏好吗？'
+    ];
+  }
+  
+  if (messageLower.includes('活动') || messageLower.includes('activity') || messageLower.includes('event')) {
+    return [
+      '喜欢室内还是户外活动？',
+      '有特定兴趣吗？',
+      '需要预订吗？'
+    ];
+  }
+  
+  if (messageLower.includes('天气') || messageLower.includes('weather')) {
+    return [
+      '需要具体城市的天气吗？',
+      '计划什么户外活动？',
+      '需要一周天气预报吗？'
+    ];
+  }
+  
+  // 默认问题
+  return [
+    '推荐一些餐厅',
+    '今天天气如何？',
+    '有什么活动推荐？'
+  ];
+}
+
+/**
+ * 生成商家推理
  */
 export async function generateBusinessReasoning(
-  business: Business,
+  business: any,
   userQuery: string,
   userPreferences?: string[]
 ): Promise<string> {
+  // Check if OpenAI client is available
+  if (!openai) {
+    console.warn('OpenAI API key not configured, using fallback reasoning');
+    return business.aiReason || '这个商家看起来不错，值得一试！';
+  }
+
   try {
-    // If no OpenAI client is available, use fallback
-    if (!openai) {
-      console.log('OpenAI API key not available, using fallback business reasoning');
-      return business.aiReason;
-    }
-
     const prompt = `
-Business: ${business.name} - ${business.type}
-Highlights: ${business.highlights.join(', ')}
-Rating: ${business.rating}/5 (${business.reviews} reviews)
-Price: ${business.price}
-Distance: ${business.distance}
+商家信息: ${JSON.stringify(business)}
+用户查询: "${userQuery}"
+用户偏好: ${userPreferences ? userPreferences.join(', ') : '无特定偏好'}
 
-User Query: "${userQuery}"
-${userPreferences ? `User Preferences: ${userPreferences.join(', ')}` : ''}
-
-Please provide a personalized explanation (2-3 sentences) of why this business would be perfect for this user's needs. Focus on the specific benefits and how it matches their requirements. Be conversational and enthusiastic about the recommendation.
-
-Response:`;
+请分析为什么这个商家适合用户的需求，提供详细的推理过程。`;
 
     // 使用 GPT-5 Nano (Responses API)
     const gpt5Response = await openai.responses.create({
@@ -304,120 +276,105 @@ Response:`;
       input: prompt,
       reasoning: { effort: 'low' }
     });
-    
+
     const response = gpt5Response.output_text;
-    
+
     console.log(`使用模型: ${AI_MODEL}`);
 
     return response || business.aiReason;
 
   } catch (error) {
     console.error('AI reasoning error:', error);
-    return business.aiReason; // Fallback to existing reasoning
+    return business.aiReason || '这个商家看起来不错，值得一试！';
   }
 }
 
 /**
- * Fallback recommendation system using keyword matching
+ * 提取用户偏好
  */
-function getFallbackRecommendations(
-  request: AIRecommendationRequest,
-  availableBusinesses: Business[]
-): AIRecommendationResponse {
-  const queryLower = request.query.toLowerCase();
-  const queryWords = queryLower.split(/\s+/);
-  
-  // Simple keyword scoring
-  const scoredBusinesses = availableBusinesses.map(business => {
-    let score = 0;
-    const businessText = `${business.name} ${business.type} ${business.highlights.join(' ')}`.toLowerCase();
-    
-    queryWords.forEach(word => {
-      if (businessText.includes(word)) {
-        score += 5;
-      }
+export async function extractUserPreferences(
+  conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>
+): Promise<string[]> {
+  // Check if OpenAI client is available
+  if (!openai) {
+    console.warn('OpenAI API key not configured, using fallback preferences');
+    return [];
+  }
+
+  try {
+    const conversationText = conversationHistory
+      .map(msg => `${msg.role}: ${msg.content}`)
+      .join('\n');
+
+    const prompt = `
+基于以下对话历史，提取用户的偏好和兴趣：
+
+${conversationText}
+
+请返回一个 JSON 数组，包含用户偏好：
+["偏好1", "偏好2", "偏好3"]
+
+例如：["咖啡", "户外活动", "预算友好"]`;
+
+    const response = await openai.responses.create({
+      model: AI_MODEL,
+      instructions: SYSTEM_PROMPT,
+      input: prompt,
+      reasoning: { effort: 'low' }
     });
-    
-    score += business.rating * 2;
-    if (business.isOpen) score += 3;
-    
-    return { ...business, searchScore: score };
-  });
-  
-  const recommendations = scoredBusinesses
-    .sort((a, b) => b.searchScore - a.searchScore)
-    .slice(0, 3);
-  
-  return {
-    recommendations,
-    explanation: `I found ${recommendations.length} great places that match your search for "${request.query}".`,
-    confidence: 70,
-    suggestedQueries: [
-      "Show me more options",
-      "What about different price ranges?",
-      "Any family-friendly alternatives?"
-    ]
-  };
-}
 
-/**
- * Generate follow-up questions based on user input
- */
-function generateFollowUpQuestions(userMessage: string): string[] {
-  const message = userMessage.toLowerCase();
-  
-  if (message.includes('coffee') || message.includes('café')) {
-    return [
-      "Looking for a quiet spot to work?",
-      "Need something with great food too?",
-      "Want to explore other coffee areas?"
-    ];
-  } else if (message.includes('food') || message.includes('restaurant')) {
-    return [
-      "Any dietary preferences?",
-      "Looking for casual or fine dining?",
-      "Need family-friendly options?"
-    ];
-  } else if (message.includes('family') || message.includes('kids')) {
-    return [
-      "What age are your children?",
-      "Indoor or outdoor activities?",
-      "Need something educational?"
-    ];
-  }
-  
-  return [
-    "What's your budget range?",
-    "Any specific location preferences?",
-    "What time of day are you planning?"
-  ];
-}
-
-/**
- * Extract user preferences from conversation
- */
-export function extractUserPreferences(conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>): string[] {
-  const preferences: string[] = [];
-  const userMessages = conversationHistory
-    .filter(msg => msg.role === 'user')
-    .map(msg => msg.content.toLowerCase());
-  
-  // Extract preferences based on keywords
-  const preferenceKeywords = {
-    'family-friendly': ['family', 'kids', 'children', 'child-friendly'],
-    'work-friendly': ['work', 'laptop', 'wifi', 'quiet', 'meeting'],
-    'budget-conscious': ['cheap', 'affordable', 'budget', 'inexpensive'],
-    'luxury': ['fine dining', 'premium', 'luxury', 'upscale'],
-    'healthy': ['healthy', 'organic', 'vegan', 'fresh'],
-    'quick': ['fast', 'quick', 'express', 'takeaway'],
-    'local': ['local', 'authentic', 'kiwi', 'traditional']
-  };
-  
-  Object.entries(preferenceKeywords).forEach(([preference, keywords]) => {
-    if (keywords.some(keyword => userMessages.some(msg => msg.includes(keyword)))) {
-      preferences.push(preference);
+    if (!response.output_text) {
+      return [];
     }
-  });
-  
-  return preferences;
+
+    try {
+      const preferences = JSON.parse(response.output_text);
+      return Array.isArray(preferences) ? preferences : [];
+    } catch {
+      return [];
+    }
+
+  } catch (error) {
+    console.error('提取用户偏好失败:', error);
+    return [];
+  }
+}
+
+/**
+ * 检查 AI 服务状态
+ */
+export async function checkAIStatus(): Promise<{
+  isAvailable: boolean;
+  model: string;
+  error?: string;
+}> {
+  // Check if OpenAI client is available
+  if (!openai) {
+    return {
+      isAvailable: false,
+      model: AI_MODEL,
+      error: 'OpenAI API key not configured'
+    };
+  }
+
+  try {
+    const response = await openai.responses.create({
+      model: AI_MODEL,
+      input: 'Hello',
+      reasoning: { effort: 'low' }
+    });
+
+    return {
+      isAvailable: true,
+      model: AI_MODEL
+    };
+
+  } catch (error) {
+    console.error('AI 服务检查失败:', error);
+    return {
+      isAvailable: false,
+      model: AI_MODEL,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
 }

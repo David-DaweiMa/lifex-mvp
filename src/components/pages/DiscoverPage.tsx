@@ -1,9 +1,9 @@
 // src/components/pages/DiscoverPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Heart, Camera, Star, Phone, MapPin, Sparkles } from 'lucide-react';
+import { Heart, Camera, Star, Phone, MapPin, Sparkles, Search, Loader2 } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
-import { discoverCategories, discoverContent, mockBusinesses } from '../../lib/mockData';
-import { Category } from '../../lib/types';
+import { discoverCategories, discoverContent } from '../../lib/mockData';
+import { businessService, Business, BusinessFilters } from '../../lib/businessService';
 
 interface DiscoverPageProps {
   selectedServiceCategory: string;
@@ -17,6 +17,57 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  
+  // Business data state
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  // Load businesses on component mount and category change
+  useEffect(() => {
+    loadBusinesses();
+  }, [selectedServiceCategory, searchQuery]);
+
+  const loadBusinesses = async (page: number = 1, append: boolean = false) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const filters: BusinessFilters = {
+        page,
+        limit: 20,
+        category: selectedServiceCategory === 'all' ? undefined : selectedServiceCategory,
+        search: searchQuery || undefined,
+        sortBy: 'rating',
+        sortOrder: 'desc'
+      };
+
+      const response = await businessService.getBusinesses(filters);
+      
+      if (append) {
+        setBusinesses(prev => [...prev, ...response.data]);
+      } else {
+        setBusinesses(response.data);
+      }
+      
+      setHasMore(page < response.pagination.totalPages);
+      setCurrentPage(page);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load businesses');
+      console.error('Error loading businesses:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      loadBusinesses(currentPage + 1, true);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,11 +93,6 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
     return discoverContent.filter(item => item.category === selectedServiceCategory);
   };
 
-  const getFilteredBusinesses = () => {
-    if (selectedServiceCategory === 'all') return mockBusinesses;
-    return mockBusinesses.filter(business => business.category === selectedServiceCategory);
-  };
-
   return (
     <div className="h-full overflow-y-auto pb-20" style={{ background: darkTheme.background.primary, WebkitOverflowScrolling: 'touch' }}>
       <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
@@ -65,6 +111,26 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
               <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
                 Local businesses & community insights
               </p>
+            </div>
+
+            {/* Search Bar */}
+            <div className="mb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
+                <input
+                  type="text"
+                  placeholder="Search businesses..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border transition-all focus:outline-none focus:ring-2"
+                  style={{
+                    background: darkTheme.background.card,
+                    borderColor: darkTheme.background.glass,
+                    color: darkTheme.text.primary,
+                    '--tw-ring-color': darkTheme.neon.purple,
+                  } as React.CSSProperties}
+                />
+              </div>
             </div>
 
             {/* Categories */}
@@ -101,8 +167,35 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
             </div>
           </div>
 
+          {/* Loading State */}
+          {loading && businesses.length === 0 && (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex items-center gap-3">
+                <Loader2 className="w-6 h-6 animate-spin" style={{ color: darkTheme.neon.purple }} />
+                <span style={{ color: darkTheme.text.secondary }}>Loading businesses...</span>
+              </div>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && businesses.length === 0 && (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <p className="text-red-400 mb-2">Failed to load businesses</p>
+                <button
+                  onClick={() => loadBusinesses()}
+                  className="px-4 py-2 rounded-lg font-medium transition-all"
+                  style={{ background: darkTheme.neon.purple, color: 'white' }}
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Content Layout - Pinterest/Small Red Book Style Two Column Grid */}
-          <div className="grid grid-cols-2 gap-3 md:gap-4">
+          {businesses.length > 0 && (
+            <div className="grid grid-cols-2 gap-3 md:gap-4">
             {/* Left Column */}
             <div className="space-y-3 md:space-y-4">
               {getFilteredContent().filter((_, index) => index % 2 === 0).map((item) => (
@@ -174,14 +267,15 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
               ))}
 
               {/* Business cards in left column */}
-              {getFilteredBusinesses().filter((_, index) => index % 2 === 0).map((business) => (
+              {businesses.filter((_, index) => index % 2 === 0).map((business: Business) => (
                 <div 
                   key={business.id}
-                  className="rounded-xl border overflow-hidden"
+                  className="rounded-xl border overflow-hidden cursor-pointer transition-all hover:scale-[1.02]"
                   style={{
                     background: darkTheme.background.card,
                     borderColor: darkTheme.background.glass,
                   }}
+                  onClick={() => window.location.href = `/businesses/${business.id}`}
                 >
                   <div 
                     className={`h-20 md:h-24 bg-gradient-to-br ${business.image} relative`}
@@ -220,7 +314,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                           <span className="font-medium text-xs md:text-sm" style={{ color: darkTheme.text.primary }}>
                             {business.rating}
                           </span>
-                          <span className="text-xs" style={{ color: darkTheme.text.muted }}>({business.reviews})</span>
+                          <span className="text-xs" style={{ color: darkTheme.text.muted }}>({business.review_count})</span>
                         </div>
                         <p className="font-medium text-xs md:text-sm" style={{ color: darkTheme.neon.green }}>
                           {business.price}
@@ -342,14 +436,15 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
               ))}
 
               {/* Business cards in right column */}
-              {getFilteredBusinesses().filter((_, index) => index % 2 === 1).map((business) => (
+              {businesses.filter((_, index) => index % 2 === 1).map((business: Business) => (
                 <div 
                   key={business.id}
-                  className="rounded-xl border overflow-hidden"
+                  className="rounded-xl border overflow-hidden cursor-pointer transition-all hover:scale-[1.02]"
                   style={{
                     background: darkTheme.background.card,
                     borderColor: darkTheme.background.glass,
                   }}
+                  onClick={() => window.location.href = `/businesses/${business.id}`}
                 >
                   <div 
                     className={`h-20 md:h-24 bg-gradient-to-br ${business.image} relative`}
@@ -388,7 +483,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                           <span className="font-medium text-xs md:text-sm" style={{ color: darkTheme.text.primary }}>
                             {business.rating}
                           </span>
-                          <span className="text-xs" style={{ color: darkTheme.text.muted }}>({business.reviews})</span>
+                          <span className="text-xs" style={{ color: darkTheme.text.muted }}>({business.review_count})</span>
                         </div>
                         <p className="font-medium text-xs md:text-sm" style={{ color: darkTheme.neon.green }}>
                           {business.price}
@@ -439,6 +534,32 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
               ))}
             </div>
           </div>
+          )}
+
+          {/* Load More Button */}
+          {hasMore && businesses.length > 0 && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={handleLoadMore}
+                disabled={loading}
+                className="px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2"
+                style={{ 
+                  background: loading ? darkTheme.background.secondary : darkTheme.neon.purple, 
+                  color: 'white',
+                  opacity: loading ? 0.6 : 1
+                }}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  'Load More'
+                )}
+              </button>
+            </div>
+          )}
 
           {/* Create Content Section - Removed */}
         </div>

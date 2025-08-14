@@ -5,12 +5,12 @@ import { Business, Booking, TrendingData, DiscoverContent, TrendingPost, Categor
 
 export const mockBusinesses: Business[] = [
   {
-    id: 1,
+    id: "1",
     name: "Café Supreme",
     type: "Coffee Shop",
     category: 'food',
     rating: 4.8,
-    reviews: 234,
+    review_count: 234,
     distance: "0.3km",
     address: "118 Ponsonby Road, Auckland",
     phone: "09-555-0123",
@@ -26,12 +26,12 @@ export const mockBusinesses: Business[] = [
     longitude: 174.7633
   },
   {
-    id: 2,
+    id: "2",
     name: "FitNZ Personal Training",
     type: "Gym & Fitness",
     category: 'fitness',
     rating: 4.9,
-    reviews: 187,
+    review_count: 187,
     distance: "0.5km",
     address: "42 Newton Road, Auckland",
     phone: "09-555-0124",
@@ -47,12 +47,12 @@ export const mockBusinesses: Business[] = [
     longitude: 174.7533
   },
   {
-    id: 3,
+    id: "3",
     name: "Beauty Bliss Salon",
     type: "Beauty & Spa",
     category: 'beauty',
     rating: 4.7,
-    reviews: 156,
+    review_count: 156,
     distance: "0.8km",
     address: "25 High Street, Auckland",
     phone: "09-555-0125",
