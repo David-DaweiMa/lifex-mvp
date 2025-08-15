@@ -270,7 +270,7 @@ export default function RegisterFlowPage() {
                          </div>
                          <div className="space-y-2">
                            <span className="font-medium">详细尝试记录:</span>
-                           {result.debug.emailSendAttempts.map((attempt: any, index) => (
+                                                       {result.debug.emailSendAttempts.map((attempt: any, index: number) => (
                              <div key={index} className="bg-white p-3 rounded border text-xs">
                                <div className="grid grid-cols-2 gap-2">
                                  <div>
