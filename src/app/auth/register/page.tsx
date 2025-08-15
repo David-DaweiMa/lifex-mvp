@@ -23,6 +23,7 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -58,7 +59,12 @@ export default function RegisterPage() {
       });
 
       if (result.success) {
-        router.push('/'); // Redirect to home page
+        // 检查用户是否已验证
+        if (result.user && !result.user.is_verified) {
+          setShowEmailConfirmation(true);
+        } else {
+          router.push('/'); // Redirect to home page
+        }
       } else {
         setError(result.error || 'Registration failed');
       }
@@ -278,6 +284,41 @@ export default function RegisterPage() {
           </p>
         </div>
       </div>
+
+      {/* Email Confirmation Modal */}
+      {showEmailConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md mx-4">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                <Mail className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                请检查您的邮箱
+              </h3>
+              <p className="text-sm text-gray-600 mb-6">
+                我们已向 <strong>{formData.email}</strong> 发送了一封确认邮件。
+                <br />
+                请点击邮件中的链接来激活您的账户。
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => setShowEmailConfirmation(false)}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  我知道了
+                </button>
+                <button
+                  onClick={() => router.push('/auth/login')}
+                  className="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+                >
+                  返回登录
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

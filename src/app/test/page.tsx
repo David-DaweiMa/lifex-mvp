@@ -207,6 +207,43 @@ export default function TestPage() {
           </div>
         </div>
 
+        {/* 快速链接 */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">快速链接</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <a
+              href="/test/config"
+              className="px-4 py-3 bg-purple-600 text-white rounded hover:bg-purple-700 text-center"
+            >
+              配置检查
+            </a>
+            <a
+              href="/test/email"
+              className="px-4 py-3 bg-orange-600 text-white rounded hover:bg-orange-700 text-center"
+            >
+              邮件测试
+            </a>
+            <a
+              href="/auth/register"
+              className="px-4 py-3 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-center"
+            >
+              用户注册测试
+            </a>
+            <a
+              href="/auth/confirm"
+              className="px-4 py-3 bg-teal-600 text-white rounded hover:bg-teal-700 text-center"
+            >
+              邮件确认页面
+            </a>
+            <a
+              href="/"
+              className="px-4 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 text-center"
+            >
+              返回首页
+            </a>
+          </div>
+        </div>
+
         {/* 测试结果 */}
         {results.length > 0 && (
           <div className="bg-white rounded-lg shadow-md p-6">

@@ -1,4 +1,5 @@
 import { typedSupabase } from './supabase';
+import { emailService } from './emailService';
 
 export interface UserProfile {
   id: string;
@@ -64,6 +65,7 @@ export async function registerUser(email: string, password: string, userData?: P
       email,
       password,
       options: {
+        // 启用邮件确认
         emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
         data: {
           username: userData?.username,
@@ -114,18 +116,31 @@ export async function registerUser(email: string, password: string, userData?: P
       // 如果触发器没有工作，返回成功但提示用户需要确认邮箱
       return {
         success: true,
-                 user: {
-           id: authData.user.id,
-           email: email,
-           username: userData?.username || undefined,
-           full_name: userData?.full_name || undefined,
-           user_type: userData?.user_type || 'customer',
-           is_verified: false,
-           is_active: true,
-           created_at: new Date().toISOString(),
-           updated_at: new Date().toISOString()
-         }
+        user: {
+          id: authData.user.id,
+          email: email,
+          username: userData?.username || undefined,
+          full_name: userData?.full_name || undefined,
+          user_type: userData?.user_type || 'customer',
+          is_verified: false,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
       };
+    }
+
+    // 发送邮件确认
+    if (authData.user && !authData.user.email_confirmed_at) {
+      try {
+        await emailService.sendEmailConfirmation(
+          email,
+          userData?.username || '用户',
+          authData.user.id // 使用用户ID作为确认token
+        );
+      } catch (emailError) {
+        console.warn('邮件发送失败，但用户注册成功:', emailError);
+      }
     }
 
     return {
