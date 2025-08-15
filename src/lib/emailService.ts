@@ -15,37 +15,14 @@ export interface EmailData {
 
 class EmailService {
   private resend: Resend | null = null;
-  private smtpTransporter: any = null;
   private fromEmail: string;
 
   constructor() {
-    this.fromEmail = process.env.RESEND_FROM_EMAIL || process.env.SMTP_FROM_EMAIL || 'noreply@lifex.co.nz';
+    this.fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@lifex.co.nz';
     
-    // 初始化 Resend (推荐用于生产环境)
+    // 初始化 Resend
     if (process.env.RESEND_API_KEY) {
       this.resend = new Resend(process.env.RESEND_API_KEY);
-    }
-    
-    // 初始化 SMTP (备用方案) - 使用动态导入
-    this.initSMTP();
-  }
-
-  private async initSMTP() {
-    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-      try {
-        const nodemailer = await import('nodemailer');
-        this.smtpTransporter = nodemailer.createTransporter({
-          host: process.env.SMTP_HOST,
-          port: parseInt(process.env.SMTP_PORT || '587'),
-          secure: false,
-          auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-          },
-        });
-      } catch (error) {
-        console.warn('SMTP 初始化失败:', error);
-      }
     }
   }
 
@@ -54,7 +31,7 @@ class EmailService {
    */
   async sendEmail(emailData: EmailData): Promise<{ success: boolean; error?: string }> {
     try {
-      // 优先使用 Resend
+      // 使用 Resend
       if (this.resend) {
         const { data, error } = await this.resend.emails.send({
           from: this.fromEmail,
@@ -68,19 +45,6 @@ class EmailService {
           console.error('Resend email error:', error);
           throw new Error(error.message);
         }
-
-        return { success: true };
-      }
-
-      // 备用 SMTP
-      if (this.smtpTransporter) {
-        await this.smtpTransporter.sendMail({
-          from: this.fromEmail,
-          to: emailData.to,
-          subject: emailData.subject,
-          html: emailData.html,
-          text: emailData.text,
-        });
 
         return { success: true };
       }
