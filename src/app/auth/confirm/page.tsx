@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -10,7 +10,7 @@ interface ConfirmationResult {
   error?: string;
 }
 
-export default function EmailConfirmationPage() {
+function EmailConfirmationContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [result, setResult] = useState<ConfirmationResult | null>(null);
@@ -148,5 +148,31 @@ export default function EmailConfirmationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8 p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            加载中...
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            正在准备确认页面
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function EmailConfirmationPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <EmailConfirmationContent />
+    </Suspense>
   );
 }
