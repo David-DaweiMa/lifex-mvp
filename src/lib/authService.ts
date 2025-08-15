@@ -60,12 +60,12 @@ export async function registerUser(email: string, password: string, userData?: P
       };
     }
 
-    // 创建 Supabase 用户 - 使用 metadata 传递额外信息
+    // 创建 Supabase 用户 - 禁用自动邮件确认，使用我们的自定义邮件服务
     const { data: authData, error: authError } = await typedSupabase.auth.signUp({
       email,
       password,
       options: {
-        // 启用邮件确认
+        // 禁用 Supabase 自动邮件确认，我们将手动发送
         emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
         data: {
           username: userData?.username,
@@ -130,14 +130,21 @@ export async function registerUser(email: string, password: string, userData?: P
       };
     }
 
-    // 发送邮件确认
-    if (authData.user && !authData.user.email_confirmed_at) {
+    // 发送邮件确认 - 使用我们的自定义邮件服务
+    if (authData.user) {
       try {
-        await emailService.sendEmailConfirmation(
+        console.log('正在发送确认邮件到:', email);
+        const emailResult = await emailService.sendEmailConfirmation(
           email,
           userData?.username || '用户',
           authData.user.id // 使用用户ID作为确认token
         );
+        
+        if (emailResult.success) {
+          console.log('确认邮件发送成功');
+        } else {
+          console.warn('确认邮件发送失败:', emailResult.error);
+        }
       } catch (emailError) {
         console.warn('邮件发送失败，但用户注册成功:', emailError);
       }
