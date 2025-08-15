@@ -55,7 +55,10 @@ export async function POST(request: NextRequest) {
       console.log('注册流程邮件结果:', registrationEmailResult);
     } catch (error) {
       console.error('注册流程邮件发送失败:', error);
-      registrationEmailResult = { success: false, error: error.message };
+      registrationEmailResult = { 
+        success: false, 
+        error: error instanceof Error ? error.message : '未知错误'
+      };
     }
 
     // 测试4: 实际注册流程
