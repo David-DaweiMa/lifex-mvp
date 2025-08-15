@@ -31,14 +31,38 @@ export async function POST(request: NextRequest) {
     };
     console.log('邮件服务状态:', emailServiceStatus);
 
-    // 步骤2: 测试直接邮件发送
+    // 步骤2: 测试直接邮件发送（带详细日志）
     console.log('步骤2: 测试直接邮件发送');
-    const testEmailResult = await emailService.sendEmail({
+    const testEmailData = {
       to: email,
       subject: '测试邮件 - 直接发送',
       html: '<h1>这是一封测试邮件</h1><p>如果您收到这封邮件，说明邮件服务正常工作。</p>',
       text: '这是一封测试邮件 - 如果您收到这封邮件，说明邮件服务正常工作。'
-    });
+    };
+    
+    console.log('发送邮件数据:', testEmailData);
+    
+    // 直接调用 Resend API 获取详细响应
+    let resendResponse = null;
+    if (emailService['resend']) {
+      try {
+        const { data, error } = await emailService['resend'].emails.send({
+          from: emailService['fromEmail'],
+          to: [email],
+          subject: testEmailData.subject,
+          html: testEmailData.html,
+          text: testEmailData.text,
+        });
+        
+        resendResponse = { data, error };
+        console.log('Resend 直接响应:', resendResponse);
+      } catch (resendError) {
+        console.error('Resend 直接调用错误:', resendError);
+        resendResponse = { error: resendError };
+      }
+    }
+    
+    const testEmailResult = await emailService.sendEmail(testEmailData);
     console.log('直接邮件发送结果:', testEmailResult);
 
     // 步骤3: 测试注册流程
@@ -69,6 +93,7 @@ export async function POST(request: NextRequest) {
       debugInfo,
       emailServiceStatus,
       testEmailResult,
+      resendResponse,
       registrationResult,
       templateGenerated: true
     });

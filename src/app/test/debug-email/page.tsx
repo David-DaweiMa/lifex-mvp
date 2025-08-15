@@ -189,25 +189,51 @@ export default function DebugEmailPage() {
                 </div>
               )}
 
-              {result.testEmailResult && (
-                <div className="bg-yellow-50 p-4 rounded-md border border-yellow-200">
-                  <h4 className="font-medium text-yellow-800 mb-3">直接邮件发送测试</h4>
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      <span className="font-medium">状态:</span> 
-                      <span className={`ml-2 ${result.testEmailResult.success ? 'text-green-600' : 'text-red-600'}`}>
-                        {result.testEmailResult.success ? '成功' : '失败'}
-                      </span>
-                    </div>
-                    {result.testEmailResult.error && (
-                      <div>
-                        <span className="font-medium">错误:</span> 
-                        <span className="ml-2 text-red-600">{result.testEmailResult.error}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+                             {result.testEmailResult && (
+                 <div className="bg-yellow-50 p-4 rounded-md border border-yellow-200">
+                   <h4 className="font-medium text-yellow-800 mb-3">直接邮件发送测试</h4>
+                   <div className="space-y-2 text-sm">
+                     <div>
+                       <span className="font-medium">状态:</span> 
+                       <span className={`ml-2 ${result.testEmailResult.success ? 'text-green-600' : 'text-red-600'}`}>
+                         {result.testEmailResult.success ? '成功' : '失败'}
+                       </span>
+                     </div>
+                     {result.testEmailResult.error && (
+                       <div>
+                         <span className="font-medium">错误:</span> 
+                         <span className="ml-2 text-red-600">{result.testEmailResult.error}</span>
+                       </div>
+                     )}
+                   </div>
+                 </div>
+               )}
+
+               {result.resendResponse && (
+                 <div className="bg-orange-50 p-4 rounded-md border border-orange-200">
+                   <h4 className="font-medium text-orange-800 mb-3">Resend API 详细响应</h4>
+                   <div className="space-y-2 text-sm">
+                     {result.resendResponse.data && (
+                       <div>
+                         <span className="font-medium">邮件ID:</span> 
+                         <span className="ml-2 text-gray-600">{result.resendResponse.data.id}</span>
+                       </div>
+                     )}
+                     {result.resendResponse.error && (
+                       <div>
+                         <span className="font-medium">Resend 错误:</span> 
+                         <span className="ml-2 text-red-600">{JSON.stringify(result.resendResponse.error)}</span>
+                       </div>
+                     )}
+                     <div className="mt-2">
+                       <span className="font-medium">完整响应:</span> 
+                       <pre className="mt-1 text-xs text-gray-600 bg-gray-100 p-2 rounded overflow-x-auto">
+                         {JSON.stringify(result.resendResponse, null, 2)}
+                       </pre>
+                     </div>
+                   </div>
+                 </div>
+               )}
 
               {result.registrationResult && (
                 <div className="bg-indigo-50 p-4 rounded-md border border-indigo-200">
