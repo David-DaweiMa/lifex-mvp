@@ -1,5 +1,4 @@
 import { Resend } from 'resend';
-import nodemailer from 'nodemailer';
 
 export interface EmailTemplate {
   subject: string;
@@ -16,7 +15,7 @@ export interface EmailData {
 
 class EmailService {
   private resend: Resend | null = null;
-  private smtpTransporter: nodemailer.Transporter | null = null;
+  private smtpTransporter: any = null;
   private fromEmail: string;
 
   constructor() {
@@ -27,17 +26,26 @@ class EmailService {
       this.resend = new Resend(process.env.RESEND_API_KEY);
     }
     
-    // 初始化 SMTP (备用方案)
+    // 初始化 SMTP (备用方案) - 使用动态导入
+    this.initSMTP();
+  }
+
+  private async initSMTP() {
     if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-      this.smtpTransporter = nodemailer.createTransporter({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: false,
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
+      try {
+        const nodemailer = await import('nodemailer');
+        this.smtpTransporter = nodemailer.createTransporter({
+          host: process.env.SMTP_HOST,
+          port: parseInt(process.env.SMTP_PORT || '587'),
+          secure: false,
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        });
+      } catch (error) {
+        console.warn('SMTP 初始化失败:', error);
+      }
     }
   }
 
