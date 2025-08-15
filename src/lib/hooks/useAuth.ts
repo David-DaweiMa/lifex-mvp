@@ -6,8 +6,8 @@ import { UserProfile } from '../authService';
 interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (email: string, password: string, userData?: Partial<UserProfile>) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
+  register: (email: string, password: string, userData?: Partial<UserProfile>) => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
   logout: () => Promise<{ success: boolean; error?: string }>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<{ success: boolean; error?: string }>;
 }
@@ -59,8 +59,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await response.json();
 
       if (result.success) {
-        setUser(result.user);
-        return { success: true };
+        if (result.user) {
+          setUser(result.user);
+        }
+        return { success: true, user: result.user };
       } else {
         return { success: false, error: result.error };
       }
@@ -82,8 +84,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await response.json();
 
       if (result.success) {
-        setUser(result.user);
-        return { success: true };
+        if (result.user) {
+          setUser(result.user);
+        }
+        return { success: true, user: result.user };
       } else {
         return { success: false, error: result.error };
       }
