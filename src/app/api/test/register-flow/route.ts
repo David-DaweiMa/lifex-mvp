@@ -35,9 +35,17 @@ export async function POST(request: NextRequest) {
     const startTime = Date.now();
     
     // 创建一个自定义的注册函数来捕获邮件发送过程
-    let emailSendAttempts = [];
+    interface EmailAttempt {
+      attempt: number;
+      success: boolean;
+      error?: string;
+      duration: string;
+      timestamp: string;
+    }
+    
+    let emailSendAttempts: EmailAttempt[] = [];
     let emailSendSuccess = false;
-    let emailSendError = null;
+    let emailSendError: string | null = null;
     
     // 临时替换 emailService.sendEmailConfirmation 来捕获详细信息
     const originalSendEmailConfirmation = emailService.sendEmailConfirmation;
