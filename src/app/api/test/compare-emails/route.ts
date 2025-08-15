@@ -19,6 +19,9 @@ export async function POST(request: NextRequest) {
     });
     console.log('测试邮件结果:', testEmailResult);
 
+    // 等待1秒避免 rate limit
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
     // 测试2: 发送确认邮件模板
     console.log('测试2: 发送确认邮件模板');
     const confirmationTemplate = emailService.generateEmailConfirmationTemplate(
@@ -33,6 +36,9 @@ export async function POST(request: NextRequest) {
       text: confirmationTemplate.text
     });
     console.log('确认邮件结果:', confirmationEmailResult);
+
+    // 等待1秒避免 rate limit
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // 测试3: 注册流程（但不创建用户）
     console.log('测试3: 模拟注册流程邮件发送');
