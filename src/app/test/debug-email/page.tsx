@@ -156,17 +156,17 @@ export default function DebugEmailPage() {
                     <div>
                       <span className="font-medium">时间:</span> {new Date(result.debugInfo.timestamp).toLocaleString()}
                     </div>
-                    {Object.entries(result.debugInfo.config).map(([key, value]) => (
-                      <div key={key}>
-                        <span className="font-medium">{key}:</span> 
-                        <span className={`ml-2 ${
-                          value === '已配置' ? 'text-green-600' : 
-                          value === '未配置' ? 'text-red-600' : 'text-gray-600'
-                        }`}>
-                          {value || '未设置'}
-                        </span>
-                      </div>
-                    ))}
+                                         {Object.entries(result.debugInfo.config).map(([key, value]) => (
+                       <div key={key}>
+                         <span className="font-medium">{key}:</span> 
+                         <span className={`ml-2 ${
+                           value === '已配置' ? 'text-green-600' : 
+                           value === '未配置' ? 'text-red-600' : 'text-gray-600'
+                         }`}>
+                           {String(value || '未设置')}
+                         </span>
+                       </div>
+                     ))}
                   </div>
                 </div>
               )}
