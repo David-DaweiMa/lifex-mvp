@@ -75,9 +75,9 @@ export async function POST(request: NextRequest) {
             emailSendSuccess = true;
             console.log('✅ 邮件发送成功');
             break;
-          } else {
-            emailSendError = result.error;
-            console.log(`❌ 邮件发送失败 (尝试 ${attempt}/3):`, result.error);
+                     } else {
+             emailSendError = result.error || '未知错误';
+             console.log(`❌ 邮件发送失败 (尝试 ${attempt}/3):`, result.error);
             
             if (attempt < 3) {
               console.log('等待2秒后重试...');
