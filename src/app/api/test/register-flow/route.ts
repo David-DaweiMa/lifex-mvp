@@ -34,11 +34,89 @@ export async function POST(request: NextRequest) {
     console.log('步骤3: 执行注册流程');
     const startTime = Date.now();
     
+    // 创建一个自定义的注册函数来捕获邮件发送过程
+    let emailSendAttempts = [];
+    let emailSendSuccess = false;
+    let emailSendError = null;
+    
+    // 临时替换 emailService.sendEmailConfirmation 来捕获详细信息
+    const originalSendEmailConfirmation = emailService.sendEmailConfirmation;
+    emailService.sendEmailConfirmation = async (email, username, token) => {
+      console.log('=== 邮件发送过程开始 ===');
+      
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        const attemptStartTime = Date.now();
+        console.log(`邮件发送尝试 ${attempt}/3 开始`);
+        
+        try {
+          const result = await originalSendEmailConfirmation.call(emailService, email, username, token);
+          const attemptDuration = Date.now() - attemptStartTime;
+          
+          const attemptInfo = {
+            attempt,
+            success: result.success,
+            error: result.error,
+            duration: attemptDuration + 'ms',
+            timestamp: new Date().toISOString()
+          };
+          
+          emailSendAttempts.push(attemptInfo);
+          console.log(`邮件发送尝试 ${attempt}/3 结果:`, attemptInfo);
+          
+          if (result.success) {
+            emailSendSuccess = true;
+            console.log('✅ 邮件发送成功');
+            break;
+          } else {
+            emailSendError = result.error;
+            console.log(`❌ 邮件发送失败 (尝试 ${attempt}/3):`, result.error);
+            
+            if (attempt < 3) {
+              console.log('等待2秒后重试...');
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+          }
+        } catch (error) {
+          const attemptDuration = Date.now() - attemptStartTime;
+          emailSendError = error instanceof Error ? error.message : '未知错误';
+          
+          const attemptInfo = {
+            attempt,
+            success: false,
+            error: emailSendError,
+            duration: attemptDuration + 'ms',
+            timestamp: new Date().toISOString()
+          };
+          
+          emailSendAttempts.push(attemptInfo);
+          console.log(`❌ 邮件发送异常 (尝试 ${attempt}/3):`, error);
+          
+          if (attempt < 3) {
+            console.log('等待2秒后重试...');
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
+        }
+      }
+      
+      if (!emailSendSuccess) {
+        console.error('❌ 所有邮件发送尝试都失败了');
+        return {
+          success: false,
+          error: `邮件发送失败: ${emailSendError}`
+        };
+      }
+      
+      return { success: true };
+    };
+    
     const registrationResult = await registerUser(email, password, {
       username,
       full_name,
       user_type: 'customer'
     });
+    
+    // 恢复原始方法
+    emailService.sendEmailConfirmation = originalSendEmailConfirmation;
     
     const endTime = Date.now();
     const duration = endTime - startTime;
@@ -69,6 +147,9 @@ export async function POST(request: NextRequest) {
         userStatus,
         duration: duration + 'ms',
         timestamp: new Date().toISOString(),
+        emailSendAttempts,
+        emailSendSuccess,
+        emailSendError
       }
     });
 

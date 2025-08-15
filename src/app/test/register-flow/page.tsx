@@ -222,31 +222,82 @@ export default function RegisterFlowPage() {
                     </div>
                   </div>
 
-                  {result.debug.userStatus && (
-                    <div className="bg-purple-50 p-4 rounded-md border border-purple-200">
-                      <h4 className="font-medium text-purple-800 mb-3">用户状态</h4>
-                      <div className="space-y-2 text-sm">
-                        <div>
-                          <span className="font-medium">用户ID:</span> 
-                          <span className="ml-2 text-gray-600">{result.debug.userStatus.id}</span>
-                        </div>
-                        <div>
-                          <span className="font-medium">邮箱:</span> 
-                          <span className="ml-2 text-gray-600">{result.debug.userStatus.email}</span>
-                        </div>
-                        <div>
-                          <span className="font-medium">邮箱验证状态:</span> 
-                          <span className={`ml-2 ${result.debug.userStatus.is_verified ? 'text-green-600' : 'text-red-600'}`}>
-                            {result.debug.userStatus.is_verified ? '✅ 已验证' : '❌ 未验证'}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="font-medium">创建时间:</span> 
-                          <span className="ml-2 text-gray-600">{result.debug.userStatus.created_at}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                                     {result.debug.userStatus && (
+                     <div className="bg-purple-50 p-4 rounded-md border border-purple-200">
+                       <h4 className="font-medium text-purple-800 mb-3">用户状态</h4>
+                       <div className="space-y-2 text-sm">
+                         <div>
+                           <span className="font-medium">用户ID:</span> 
+                           <span className="ml-2 text-gray-600">{result.debug.userStatus.id}</span>
+                         </div>
+                         <div>
+                           <span className="font-medium">邮箱:</span> 
+                           <span className="ml-2 text-gray-600">{result.debug.userStatus.email}</span>
+                         </div>
+                         <div>
+                           <span className="font-medium">邮箱验证状态:</span> 
+                           <span className={`ml-2 ${result.debug.userStatus.is_verified ? 'text-green-600' : 'text-red-600'}`}>
+                             {result.debug.userStatus.is_verified ? '✅ 已验证' : '❌ 未验证'}
+                           </span>
+                         </div>
+                         <div>
+                           <span className="font-medium">创建时间:</span> 
+                           <span className="ml-2 text-gray-600">{result.debug.userStatus.created_at}</span>
+                         </div>
+                       </div>
+                     </div>
+                   )}
+
+                   {result.debug.emailSendAttempts && result.debug.emailSendAttempts.length > 0 && (
+                     <div className="bg-orange-50 p-4 rounded-md border border-orange-200">
+                       <h4 className="font-medium text-orange-800 mb-3">邮件发送过程</h4>
+                       <div className="space-y-3">
+                         <div>
+                           <span className="font-medium">邮件发送状态:</span> 
+                           <span className={`ml-2 ${result.debug.emailSendSuccess ? 'text-green-600' : 'text-red-600'}`}>
+                             {result.debug.emailSendSuccess ? '✅ 成功' : '❌ 失败'}
+                           </span>
+                         </div>
+                         {result.debug.emailSendError && (
+                           <div>
+                             <span className="font-medium">邮件发送错误:</span> 
+                             <span className="ml-2 text-red-600">{result.debug.emailSendError}</span>
+                           </div>
+                         )}
+                         <div>
+                           <span className="font-medium">发送尝试次数:</span> 
+                           <span className="ml-2 text-gray-600">{result.debug.emailSendAttempts.length}</span>
+                         </div>
+                         <div className="space-y-2">
+                           <span className="font-medium">详细尝试记录:</span>
+                           {result.debug.emailSendAttempts.map((attempt, index) => (
+                             <div key={index} className="bg-white p-3 rounded border text-xs">
+                               <div className="grid grid-cols-2 gap-2">
+                                 <div>
+                                   <span className="font-medium">尝试 {attempt.attempt}:</span> 
+                                   <span className={`ml-1 ${attempt.success ? 'text-green-600' : 'text-red-600'}`}>
+                                     {attempt.success ? '✅ 成功' : '❌ 失败'}
+                                   </span>
+                                 </div>
+                                 <div>
+                                   <span className="font-medium">耗时:</span> 
+                                   <span className="ml-1 text-gray-600">{attempt.duration}</span>
+                                 </div>
+                               </div>
+                               {attempt.error && (
+                                 <div className="mt-1 text-red-600">
+                                   <span className="font-medium">错误:</span> {attempt.error}
+                                 </div>
+                               )}
+                               <div className="mt-1 text-gray-500">
+                                 {attempt.timestamp}
+                               </div>
+                             </div>
+                           ))}
+                         </div>
+                       </div>
+                     </div>
+                   )}
 
                   <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
                     <h4 className="font-medium text-gray-800 mb-3">调试时间</h4>
