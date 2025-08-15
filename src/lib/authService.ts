@@ -132,21 +132,55 @@ export async function registerUser(email: string, password: string, userData?: P
 
     // 发送邮件确认 - 使用我们的自定义邮件服务
     if (authData.user) {
-      try {
-        console.log('正在发送确认邮件到:', email);
-        const emailResult = await emailService.sendEmailConfirmation(
-          email,
-          userData?.username || '用户',
-          authData.user.id // 使用用户ID作为确认token
-        );
-        
-        if (emailResult.success) {
-          console.log('确认邮件发送成功');
-        } else {
-          console.warn('确认邮件发送失败:', emailResult.error);
+      console.log('=== 开始发送确认邮件 ===');
+      console.log('用户ID:', authData.user.id);
+      console.log('邮箱:', email);
+      console.log('用户名:', userData?.username || '用户');
+      
+      let emailSent = false;
+      let emailError = null;
+      
+      // 尝试发送邮件，最多重试3次
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          console.log(`邮件发送尝试 ${attempt}/3`);
+          
+          const emailResult = await emailService.sendEmailConfirmation(
+            email,
+            userData?.username || '用户',
+            authData.user.id // 使用用户ID作为确认token
+          );
+          
+          if (emailResult.success) {
+            console.log('✅ 确认邮件发送成功');
+            emailSent = true;
+            break;
+          } else {
+            console.warn(`❌ 邮件发送失败 (尝试 ${attempt}/3):`, emailResult.error);
+            emailError = emailResult.error;
+            
+            if (attempt < 3) {
+              console.log(`等待2秒后重试...`);
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+          }
+        } catch (error) {
+          console.error(`❌ 邮件发送异常 (尝试 ${attempt}/3):`, error);
+          emailError = error instanceof Error ? error.message : '未知错误';
+          
+          if (attempt < 3) {
+            console.log(`等待2秒后重试...`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
         }
-      } catch (emailError) {
-        console.warn('邮件发送失败，但用户注册成功:', emailError);
+      }
+      
+      if (!emailSent) {
+        console.error('❌ 所有邮件发送尝试都失败了');
+        return {
+          success: false,
+          error: `注册成功，但确认邮件发送失败: ${emailError}`
+        };
       }
     }
 
