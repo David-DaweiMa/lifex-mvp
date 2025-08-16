@@ -17,31 +17,68 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查用户 Chat 配额
-    const chatQuota = await checkUserQuota(userId, 'chat');
-    if (!chatQuota.canUse) {
-      return NextResponse.json({
-        error: 'Chat 使用次数已达上限',
-        quota: {
-          remaining: chatQuota.remaining,
-          current: chatQuota.current,
-          max: chatQuota.max,
-          resetDate: chatQuota.resetDate
-        }
-      }, { status: 429 });
+    let chatQuota = { canUse: true, remaining: 999, current: 0, max: 1000, resetDate: new Date().toISOString() };
+    
+    if (userId === 'anonymous') {
+      // 匿名用户限制：每天最多10次
+      const anonymousQuota = await checkAnonymousQuota(sessionId, 'chat');
+      if (!anonymousQuota.canUse) {
+        return NextResponse.json({
+          error: '匿名用户每日使用次数已达上限，请注册以获得更多使用次数',
+          quota: {
+            remaining: anonymousQuota.remaining,
+            current: anonymousQuota.current,
+            max: anonymousQuota.max,
+            resetDate: anonymousQuota.resetDate
+          }
+        }, { status: 429 });
+      }
+      chatQuota = anonymousQuota;
+    } else if (userId !== 'demo-user') {
+      // 注册用户配额检查
+      chatQuota = await checkUserQuota(userId, 'chat');
+      if (!chatQuota.canUse) {
+        return NextResponse.json({
+          error: 'Chat 使用次数已达上限',
+          quota: {
+            remaining: chatQuota.remaining,
+            current: chatQuota.current,
+            max: chatQuota.max,
+            resetDate: chatQuota.resetDate
+          }
+        }, { status: 429 });
+      }
     }
 
     // 获取用户信息
-    const { data: user, error: userError } = await typedSupabase
-      .from('user_profiles')
-      .select('user_type, location')
-      .eq('id', userId)
-      .single();
+    let user = null;
+    if (userId === 'anonymous') {
+      // 匿名用户使用默认信息
+      user = {
+        user_type: 'visitor',
+        location: { city: 'Auckland', country: 'New Zealand' }
+      };
+    } else if (userId === 'demo-user') {
+      // 演示用户使用默认信息
+      user = {
+        user_type: 'tourist',
+        location: { city: 'Auckland', country: 'New Zealand' }
+      };
+    } else {
+      // 注册用户从数据库获取信息
+      const { data: userData, error: userError } = await typedSupabase
+        .from('user_profiles')
+        .select('user_type, location')
+        .eq('id', userId)
+        .single();
 
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: '用户信息获取失败' },
-        { status: 401 }
-      );
+      if (userError || !userData) {
+        return NextResponse.json(
+          { error: '用户信息获取失败' },
+          { status: 401 }
+        );
+      }
+      user = userData;
     }
 
     // 检查是否为推荐请求
@@ -95,53 +132,61 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 保存聊天记录
-    const { error: chatError } = await typedSupabase
-      .from('chat_messages')
-      .insert({
-        user_id: userId,
-        session_id: sessionId || 'default',
-        message_type: 'user',
-        content: message,
-        created_at: new Date().toISOString()
-      });
+    // 保存聊天记录（跳过匿名用户和demo用户）
+    if (userId !== 'anonymous' && userId !== 'demo-user') {
+      const { error: chatError } = await typedSupabase
+        .from('chat_messages')
+        .insert({
+          user_id: userId,
+          session_id: sessionId || 'default',
+          message_type: 'user',
+          content: message,
+          created_at: new Date().toISOString()
+        });
 
-    if (chatError) {
-      console.error('保存用户消息失败:', chatError);
-    }
+      if (chatError) {
+        console.error('保存用户消息失败:', chatError);
+      }
 
-    // 保存 AI 回复
-    const { error: aiChatError } = await typedSupabase
-      .from('chat_messages')
-      .insert({
-        user_id: userId,
-        session_id: sessionId || 'default',
-        message_type: 'ai',
-        content: response,
-        metadata: {
-          recommendations,
-          followUpQuestions: isRecommendationRequest ? null : ['推荐一些餐厅', '今天天气如何？', '有什么活动推荐？'],
-          adInfo
-        },
-        is_ad_integrated: !!adInfo,
-        ad_info: adInfo,
-        created_at: new Date().toISOString()
-      });
+      // 保存 AI 回复
+      const { error: aiChatError } = await typedSupabase
+        .from('chat_messages')
+        .insert({
+          user_id: userId,
+          session_id: sessionId || 'default',
+          message_type: 'ai',
+          content: response,
+          metadata: {
+            recommendations,
+            followUpQuestions: isRecommendationRequest ? null : ['推荐一些餐厅', '今天天气如何？', '有什么活动推荐？'],
+            adInfo
+          },
+          is_ad_integrated: !!adInfo,
+          ad_info: adInfo,
+          created_at: new Date().toISOString()
+        });
 
-    if (aiChatError) {
-      console.error('保存 AI 回复失败:', aiChatError);
+      if (aiChatError) {
+        console.error('保存 AI 回复失败:', aiChatError);
+      }
     }
 
     // 更新配额使用量
-    await updateUserQuota(userId, 'chat');
-    await recordUsage(userId, 'chat');
+    if (userId === 'anonymous') {
+      // 更新匿名用户配额
+      await updateAnonymousQuota(sessionId, 'chat');
+    } else if (userId !== 'demo-user') {
+      // 更新注册用户配额
+      await updateUserQuota(userId, 'chat');
+      await recordUsage(userId, 'chat');
 
-    // 如果有广告，记录广告展示
-    if (adInfo) {
-      await recordAdImpression(adInfo.adId, userId, 'ai_response', {
-        chat_context: message,
-        user_type: user.user_type
-      });
+      // 如果有广告，记录广告展示
+      if (adInfo) {
+        await recordAdImpression(adInfo.adId, userId, 'ai_response', {
+          chat_context: message,
+          user_type: user.user_type
+        });
+      }
     }
 
     return NextResponse.json({
@@ -165,6 +210,98 @@ export async function POST(request: NextRequest) {
       { error: '服务暂时不可用' },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * 检查匿名用户配额
+ */
+async function checkAnonymousQuota(sessionId: string, feature: string): Promise<{
+  canUse: boolean;
+  remaining: number;
+  current: number;
+  max: number;
+  resetDate: string;
+}> {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const key = `anonymous_${sessionId}_${feature}_${today}`;
+    
+    // 从数据库获取匿名用户使用次数
+    const { data: usageData, error: usageError } = await typedSupabase
+      .from('anonymous_usage')
+      .select('usage_count')
+      .eq('session_id', sessionId)
+      .eq('feature', feature)
+      .eq('usage_date', today)
+      .single();
+
+    let currentUsage = 0;
+    if (usageData) {
+      currentUsage = usageData.usage_count;
+    }
+    
+    const maxUsage = 10; // 匿名用户每天最多10次
+    const canUse = currentUsage < maxUsage;
+    
+    return {
+      canUse,
+      remaining: Math.max(0, maxUsage - currentUsage),
+      current: currentUsage,
+      max: maxUsage,
+      resetDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24小时后重置
+    };
+  } catch (error) {
+    console.error('检查匿名用户配额失败:', error);
+    return {
+      canUse: true,
+      remaining: 10,
+      current: 0,
+      max: 10,
+      resetDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    };
+  }
+}
+
+/**
+ * 更新匿名用户配额
+ */
+async function updateAnonymousQuota(sessionId: string, feature: string): Promise<void> {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 尝试更新现有记录
+    const { data: updateData, error: updateError } = await typedSupabase
+      .from('anonymous_usage')
+      .update({ 
+        usage_count: typedSupabase.rpc('increment_usage_count'),
+        updated_at: new Date().toISOString()
+      })
+      .eq('session_id', sessionId)
+      .eq('feature', feature)
+      .eq('usage_date', today);
+
+    // 如果更新失败（记录不存在），则创建新记录
+    if (updateError || !updateData) {
+      const { error: insertError } = await typedSupabase
+        .from('anonymous_usage')
+        .insert({
+          session_id: sessionId,
+          feature: feature,
+          usage_date: today,
+          usage_count: 1,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+
+      if (insertError) {
+        console.error('创建匿名用户使用记录失败:', insertError);
+      }
+    }
+
+    console.log(`更新匿名用户配额: ${sessionId}_${feature}_${today}`);
+  } catch (error) {
+    console.error('更新匿名用户配额失败:', error);
   }
 }
 

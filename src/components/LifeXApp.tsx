@@ -7,6 +7,7 @@ import { darkTheme, getResponsiveContainer } from '../lib/theme';
 import { ViewType, Message, Booking } from '../lib/types';
 import { mockBookings } from '../lib/mockData';
 import { chatService, ChatServiceResponse } from '../lib/chatService';
+import { useAuth } from '../lib/hooks/useAuth';
 
 // Import page components
 import ChatPage from './pages/ChatPage';
@@ -16,6 +17,9 @@ import BookingPage from './pages/BookingPage';
 import ProfilePage from './pages/ProfilePage';
 
 const LifeXApp: React.FC = () => {
+  // Auth context
+  const { user } = useAuth();
+  
   // Core state
   const [currentView, setCurrentView] = useState<ViewType>('chat');
   const [chatInput, setChatInput] = useState('');
@@ -64,7 +68,9 @@ const LifeXApp: React.FC = () => {
     setIsTyping(true);
     
     try {
-      const response: ChatServiceResponse = await chatService.sendMessage(query);
+      // 传递用户ID（如果已登录）
+      const userId = user?.id;
+      const response: ChatServiceResponse = await chatService.sendMessage(query, userId);
       
       setIsTyping(false);
       
