@@ -22,7 +22,16 @@ class EmailService {
     
     // 初始化 Resend
     if (process.env.RESEND_API_KEY) {
-      this.resend = new Resend(process.env.RESEND_API_KEY);
+      try {
+        this.resend = new Resend(process.env.RESEND_API_KEY);
+        console.log('✅ Resend 客户端初始化成功');
+        console.log('发件人邮箱:', this.fromEmail);
+      } catch (error) {
+        console.error('❌ Resend 客户端初始化失败:', error);
+        this.resend = null;
+      }
+    } else {
+      console.warn('⚠️ RESEND_API_KEY 未配置，邮件服务将不可用');
     }
   }
 
@@ -31,31 +40,55 @@ class EmailService {
    */
   async sendEmail(emailData: EmailData): Promise<{ success: boolean; error?: string }> {
     try {
-      // 使用 Resend
-      if (this.resend) {
-        const { data, error } = await this.resend.emails.send({
-          from: this.fromEmail,
-          to: [emailData.to],
-          subject: emailData.subject,
-          html: emailData.html,
-          text: emailData.text,
-        });
+      console.log('=== 开始发送邮件 ===');
+      console.log('收件人:', emailData.to);
+      console.log('主题:', emailData.subject);
+      console.log('发件人:', this.fromEmail);
 
-        if (error) {
-          console.error('Resend email error:', error);
-          throw new Error(error.message);
-        }
-
-        return { success: true };
+      // 检查邮件服务是否可用
+      if (!this.resend) {
+        const error = '邮件服务未配置或初始化失败';
+        console.error('❌', error);
+        return { success: false, error };
       }
 
-      throw new Error('No email service configured');
+      // 检查必要的环境变量
+      if (!process.env.RESEND_API_KEY) {
+        const error = 'RESEND_API_KEY 未配置';
+        console.error('❌', error);
+        return { success: false, error };
+      }
+
+      if (!this.fromEmail) {
+        const error = '发件人邮箱未配置';
+        console.error('❌', error);
+        return { success: false, error };
+      }
+
+      // 使用 Resend 发送邮件
+      console.log('正在发送邮件...');
+      const { data, error } = await this.resend.emails.send({
+        from: this.fromEmail,
+        to: [emailData.to],
+        subject: emailData.subject,
+        html: emailData.html,
+        text: emailData.text,
+      });
+
+      if (error) {
+        console.error('❌ Resend 邮件发送失败:', error);
+        return { success: false, error: error.message };
+      }
+
+      console.log('✅ 邮件发送成功');
+      console.log('邮件ID:', data?.id);
+      return { success: true };
 
     } catch (error) {
-      console.error('Email sending failed:', error);
+      console.error('❌ 邮件发送异常:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : '未知错误'
       };
     }
   }
@@ -68,7 +101,10 @@ class EmailService {
     confirmationToken: string,
     email: string
   ): EmailTemplate {
-    const confirmationUrl = `${process.env.EMAIL_CONFIRMATION_URL || 'http://localhost:3000/auth/confirm'}?token=${confirmationToken}&email=${encodeURIComponent(email)}`;
+    const confirmationUrl = `${process.env.EMAIL_CONFIRMATION_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/confirm?token=${confirmationToken}&email=${encodeURIComponent(email)}`;
+    
+    console.log('生成确认邮件模板');
+    console.log('确认URL:', confirmationUrl);
     
     return {
       subject: '欢迎加入 LifeX - 请确认您的邮箱',
@@ -163,6 +199,9 @@ ${confirmationUrl}
     email: string
   ): EmailTemplate {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    
+    console.log('生成欢迎邮件模板');
+    console.log('应用URL:', appUrl);
     
     return {
       subject: '🎉 欢迎来到 LifeX - 您的账户已激活！',
@@ -294,6 +333,11 @@ ${appUrl}
     username: string,
     confirmationToken: string
   ): Promise<{ success: boolean; error?: string }> {
+    console.log('=== 发送邮件确认 ===');
+    console.log('邮箱:', email);
+    console.log('用户名:', username);
+    console.log('确认Token:', confirmationToken);
+    
     const template = this.generateEmailConfirmationTemplate(username, confirmationToken, email);
     
     return await this.sendEmail({
@@ -311,6 +355,10 @@ ${appUrl}
     email: string,
     username: string
   ): Promise<{ success: boolean; error?: string }> {
+    console.log('=== 发送欢迎邮件 ===');
+    console.log('邮箱:', email);
+    console.log('用户名:', username);
+    
     const template = this.generateWelcomeTemplate(username, email);
     
     return await this.sendEmail({

@@ -25,6 +25,9 @@ export interface AuthResult {
  */
 export async function registerUser(email: string, password: string, userData?: Partial<UserProfile>): Promise<AuthResult> {
   try {
+    console.log('=== 开始用户注册流程 ===');
+    console.log('注册参数:', { email, username: userData?.username, full_name: userData?.full_name });
+
     // 检查 Supabase 配置
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       console.warn('Supabase configuration missing, using demo mode');
@@ -47,18 +50,30 @@ export async function registerUser(email: string, password: string, userData?: P
     }
 
     // 检查邮箱是否已存在
-    const { data: existingProfile } = await typedSupabase
+    console.log('检查邮箱是否已存在...');
+    const { data: existingProfile, error: existingError } = await typedSupabase
       .from('user_profiles')
       .select('id')
       .eq('email', email)
       .single();
 
+    if (existingError && existingError.code !== 'PGRST116') {
+      console.error('检查现有用户时出错:', existingError);
+      return {
+        success: false,
+        error: '检查用户状态时发生错误'
+      };
+    }
+
     if (existingProfile) {
+      console.log('邮箱已存在:', existingProfile.id);
       return {
         success: false,
         error: '该邮箱已被注册'
       };
     }
+
+    console.log('邮箱可用，开始创建用户...');
 
     // 创建 Supabase 用户 - 禁用自动邮件确认，使用我们的自定义邮件服务
     const { data: authData, error: authError } = await typedSupabase.auth.signUp({
@@ -76,6 +91,7 @@ export async function registerUser(email: string, password: string, userData?: P
     });
 
     if (authError) {
+      console.error('Supabase Auth 创建用户失败:', authError);
       return {
         success: false,
         error: authError.message
@@ -83,18 +99,22 @@ export async function registerUser(email: string, password: string, userData?: P
     }
 
     if (!authData.user) {
+      console.error('用户创建失败：没有返回用户数据');
       return {
         success: false,
         error: '用户创建失败'
       };
     }
 
+    console.log('Supabase Auth 用户创建成功:', authData.user.id);
+
     // 等待数据库触发器创建用户配置文件
     // 在开发环境中，我们可以直接检查配置文件是否创建成功
     let profile = null;
     let attempts = 0;
-    const maxAttempts = 5;
+    const maxAttempts = 10; // 增加重试次数
 
+    console.log('等待用户配置文件创建...');
     while (!profile && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 1000)); // 等待1秒
       
@@ -106,28 +126,44 @@ export async function registerUser(email: string, password: string, userData?: P
 
       if (profileData && !profileError) {
         profile = profileData;
+        console.log('用户配置文件创建成功:', profile.id);
         break;
       }
       
       attempts++;
+      console.log(`配置文件检查尝试 ${attempts}/${maxAttempts} 失败:`, profileError?.message);
     }
 
     if (!profile) {
-      // 如果触发器没有工作，返回成功但提示用户需要确认邮箱
-      return {
-        success: true,
-        user: {
+      console.warn('触发器没有创建配置文件，尝试手动创建...');
+      
+      // 手动创建用户配置文件
+      const { data: manualProfile, error: manualError } = await typedSupabase
+        .from('user_profiles')
+        .insert({
           id: authData.user.id,
           email: email,
-          username: userData?.username || undefined,
-          full_name: userData?.full_name || undefined,
+          username: userData?.username,
+          full_name: userData?.full_name,
           user_type: userData?.user_type || 'customer',
           is_verified: false,
           is_active: true,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
-        }
-      };
+        })
+        .select()
+        .single();
+
+      if (manualError) {
+        console.error('手动创建配置文件失败:', manualError);
+        return {
+          success: false,
+          error: `用户创建成功，但配置文件创建失败: ${manualError.message}`
+        };
+      }
+
+      profile = manualProfile;
+      console.log('手动创建配置文件成功:', profile.id);
     }
 
     // 发送邮件确认 - 使用我们的自定义邮件服务
@@ -136,6 +172,12 @@ export async function registerUser(email: string, password: string, userData?: P
       console.log('用户ID:', authData.user.id);
       console.log('邮箱:', email);
       console.log('用户名:', userData?.username || '用户');
+      
+      // 检查邮件服务配置
+      console.log('检查邮件服务配置...');
+      console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? '已配置' : '未配置');
+      console.log('RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
+      console.log('EMAIL_CONFIRMATION_URL:', process.env.EMAIL_CONFIRMATION_URL);
       
       let emailSent = false;
       let emailError = null;
@@ -177,13 +219,16 @@ export async function registerUser(email: string, password: string, userData?: P
       
       if (!emailSent) {
         console.error('❌ 所有邮件发送尝试都失败了');
+        // 邮件发送失败，返回错误信息
+        console.log('返回失败状态，因为邮件发送失败');
         return {
           success: false,
-          error: `注册成功，但确认邮件发送失败: ${emailError}`
+          error: `注册成功，但确认邮件发送失败: ${emailError}。请稍后重试或联系客服。`
         };
       }
     }
 
+    console.log('=== 注册流程完成 ===');
     return {
       success: true,
       user: profile
