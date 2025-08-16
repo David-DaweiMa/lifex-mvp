@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { typedSupabase } from '@/lib/supabase';
 import { emailService } from '@/lib/emailService';
+import { createClient } from '@supabase/supabase-js';
+
+// 创建服务角色客户端，用于绕过 RLS
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+);
 
 export async function POST(request: NextRequest) {
   try {
@@ -184,8 +197,8 @@ export async function POST(request: NextRequest) {
       if (!profile) {
         diagnosis.warnings.push('触发器没有创建配置文件，尝试手动创建');
         
-        // 手动创建配置文件
-        const { data: manualProfile, error: manualError } = await typedSupabase
+        // 手动创建配置文件（使用服务角色客户端绕过 RLS）
+        const { data: manualProfile, error: manualError } = await supabaseAdmin
           .from('user_profiles')
           .insert({
             id: authData.user.id,
