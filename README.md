@@ -26,12 +26,13 @@ LifeX 是一个基于 AI 的新西兰本地生活推荐平台，集成了用户�
 
 | 用户类型 | Chat (每日) | Trending (每月) | Ads (每月) | Products | Stores |
 |---------|-------------|----------------|------------|----------|---------|
-| Guest | 3 | 0 | 0 | 0 | 0 |
-| Customer | 10 | 5 | 1 | 0 | 0 |
-| Premium | 50 | 20 | 5 | 0 | 0 |
-| Free Business | 10 | 5 | 1 | 10 | 1 |
-| Professional Business | 100 | 50 | 20 | 50 | 3 |
-| Enterprise Business | 200 | 100 | 50 | 200 | 10 |
+| Anonymous | 5 | 0 | 0 | 0 | 0 |
+| Free | 20 | 10 | 2 | 0 | 0 |
+| Customer | 100 | 50 | 10 | 0 | 0 |
+| Premium | 500 | 200 | 50 | 0 | 0 |
+| Free Business | 20 | 10 | 2 | 20 | 2 |
+| Professional Business | 100 | 50 | 10 | 50 | 3 |
+| Enterprise Business | 500 | 200 | 50 | 200 | 10 |
 
 ## 技术栈
 

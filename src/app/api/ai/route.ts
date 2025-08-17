@@ -3,6 +3,7 @@ import { generateConversationalResponse, getAIRecommendations } from '@/lib/ai';
 import { checkUserQuota, updateUserQuota, recordUsage } from '@/lib/quotaService';
 import { typedSupabase } from '@/lib/supabase';
 import { getAdForChat } from '@/lib/adService';
+import { ANONYMOUS_QUOTA, isUnlimitedUser } from '@/lib/quotaConfig';
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
         }, { status: 429 });
       }
       chatQuota = anonymousQuota;
-    } else if (userId !== 'demo-user') {
+    } else if (!isUnlimitedUser(userId)) {
       // 注册用户配额检查
       chatQuota = await checkUserQuota(userId, 'chat');
       if (!chatQuota.canUse) {
@@ -132,8 +133,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 保存聊天记录（跳过匿名用户和demo用户）
-    if (userId !== 'anonymous' && userId !== 'demo-user') {
+    // 保存聊天记录（跳过匿名用户和无限制用户）
+    if (userId !== 'anonymous' && !isUnlimitedUser(userId)) {
       const { error: chatError } = await typedSupabase
         .from('chat_messages')
         .insert({
@@ -175,7 +176,7 @@ export async function POST(request: NextRequest) {
     if (userId === 'anonymous') {
       // 更新匿名用户配额
       await updateAnonymousQuota(sessionId, 'chat');
-    } else if (userId !== 'demo-user') {
+    } else if (!isUnlimitedUser(userId)) {
       // 更新注册用户配额
       await updateUserQuota(userId, 'chat');
       await recordUsage(userId, 'chat');
@@ -241,7 +242,7 @@ async function checkAnonymousQuota(sessionId: string, feature: string): Promise<
       currentUsage = usageData.usage_count;
     }
     
-    const maxUsage = 10; // 匿名用户每天最多10次
+    const maxUsage = ANONYMOUS_QUOTA.chat.daily; // 匿名用户每天最多10次
     const canUse = currentUsage < maxUsage;
     
     return {
