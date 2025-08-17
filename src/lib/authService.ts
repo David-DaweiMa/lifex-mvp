@@ -9,6 +9,7 @@ export interface UserProfile {
   avatar_url?: string;
   user_type: 'anonymous' | 'free' | 'customer' | 'premium' | 'free_business' | 'professional_business' | 'enterprise_business';
   email_verified: boolean;
+  is_active?: boolean;
   created_at: string;
   updated_at: string;
 }

@@ -259,12 +259,12 @@ export default function EditProfilePage() {
               <span style={{ color: darkTheme.text.muted }}>Status:</span>
               <span 
                 className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  user.is_active 
+                  (user.is_active ?? true) 
                     ? 'bg-green-500/20 text-green-400' 
                     : 'bg-red-500/20 text-red-400'
                 }`}
               >
-                {user.is_active ? 'Active' : 'Inactive'}
+                {(user.is_active ?? true) ? 'Active' : 'Inactive'}
               </span>
             </div>
           </div>
