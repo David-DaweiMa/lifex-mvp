@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-08-17T01:57:38.504Z",
+  "tests": [
+    {
+      "name": "环境变量检查",
+      "status": "failed",
+      "timestamp": "2025-08-17T01:57:38.512Z",
+      "details": null,
+      "error": "缺少必要的环境变量"
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "errors": [
+      "环境变量检查: 缺少必要的环境变量"
+    ]
+  }
+}

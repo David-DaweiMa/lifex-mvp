@@ -1,69 +1,201 @@
 'use client';
 
 import { useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function DiagnoseRegistrationPage() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    username: '',
-    full_name: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [testResults, setTestResults] = useState<any[]>([]);
+  const [isRunning, setIsRunning] = useState(false);
+  const [testEmail, setTestEmail] = useState(`test-${Date.now()}@example.com`);
+  const [testPassword, setTestPassword] = useState('TestPassword123!');
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const addResult = (step: string, status: 'success' | 'error' | 'info', message: string, data?: any) => {
+    setTestResults(prev => [...prev, {
+      step,
+      status,
+      message,
+      data,
+      timestamp: new Date().toISOString()
+    }]);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setResult(null);
+  const runDiagnostic = async () => {
+    setIsRunning(true);
+    setTestResults([]);
 
     try {
-      const response = await fetch('/api/test/diagnose-registration', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      // 步骤1: 检查环境变量
+      addResult('环境检查', 'info', '开始检查环境变量...');
+      
+      const envVars = {
+        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+        supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        resendApiKey: process.env.RESEND_API_KEY,
+      };
 
-      const data = await response.json();
-      setResult(data);
-    } catch (error) {
-      setResult({
-        success: false,
-        error: '请求失败: ' + (error instanceof Error ? error.message : '未知错误')
-      });
+      addResult('环境变量', 'info', '环境变量状态', envVars);
+
+      // 步骤2: 检查数据库连接
+      addResult('数据库连接', 'info', '测试数据库连接...');
+      
+      try {
+        const { data, error } = await supabase.from('user_profiles').select('count').limit(1);
+        if (error) throw error;
+        addResult('数据库连接', 'success', '数据库连接成功');
+      } catch (error: any) {
+        addResult('数据库连接', 'error', `数据库连接失败: ${error.message}`);
+        return;
+      }
+
+      // 步骤3: 检查RLS策略
+      addResult('RLS策略', 'info', '检查RLS策略...');
+      
+      try {
+        const { data: policies, error } = await supabase.rpc('check_rls_policies');
+        if (error) {
+          // 如果RPC不存在，直接查询
+          const { data: directPolicies, error: directError } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .limit(1);
+          
+          if (directError) {
+            addResult('RLS策略', 'error', `RLS策略检查失败: ${directError.message}`);
+          } else {
+            addResult('RLS策略', 'info', 'RLS策略状态需要进一步检查');
+          }
+        } else {
+          addResult('RLS策略', 'success', 'RLS策略检查完成', policies);
+        }
+      } catch (error: any) {
+        addResult('RLS策略', 'error', `RLS策略检查异常: ${error.message}`);
+      }
+
+      // 步骤4: 检查触发器
+      addResult('触发器', 'info', '检查触发器状态...');
+      
+      try {
+        const { data: triggers, error } = await supabase.rpc('check_triggers');
+        if (error) {
+          addResult('触发器', 'info', '触发器检查需要进一步验证');
+        } else {
+          addResult('触发器', 'success', '触发器检查完成', triggers);
+        }
+      } catch (error: any) {
+        addResult('触发器', 'error', `触发器检查异常: ${error.message}`);
+      }
+
+      // 步骤5: 测试用户注册
+      addResult('用户注册', 'info', '开始测试用户注册...');
+      
+      try {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: testEmail,
+          password: testPassword,
+          options: {
+            data: {
+              username: 'testuser',
+              full_name: 'Test User',
+              user_type: 'free'
+            }
+          }
+        });
+
+        if (authError) {
+          addResult('用户注册', 'error', `用户注册失败: ${authError.message}`, authError);
+          return;
+        }
+
+        if (authData.user) {
+          addResult('用户注册', 'success', '用户创建成功', {
+            userId: authData.user.id,
+            email: authData.user.email,
+            emailConfirmed: authData.user.email_confirmed_at
+          });
+
+          // 等待一下让触发器执行
+          await new Promise(resolve => setTimeout(resolve, 3000));
+
+          // 步骤6: 检查用户配置文件
+          addResult('配置文件检查', 'info', '检查用户配置文件是否创建...');
+          
+          try {
+            const { data: profile, error: profileError } = await supabase
+              .from('user_profiles')
+              .select('*')
+              .eq('id', authData.user.id)
+              .single();
+
+            if (profileError) {
+              addResult('配置文件检查', 'error', `配置文件查询失败: ${profileError.message}`, profileError);
+            } else if (profile) {
+              addResult('配置文件检查', 'success', '用户配置文件创建成功', profile);
+            } else {
+              addResult('配置文件检查', 'error', '用户配置文件未找到');
+            }
+          } catch (error: any) {
+            addResult('配置文件检查', 'error', `配置文件检查异常: ${error.message}`);
+          }
+
+          // 步骤7: 检查邮件确认token
+          addResult('邮件Token', 'info', '检查邮件确认token...');
+          
+          try {
+            const { data: tokens, error: tokenError } = await supabase
+              .from('email_confirmations')
+              .select('*')
+              .eq('user_id', authData.user.id);
+
+            if (tokenError) {
+              addResult('邮件Token', 'error', `Token查询失败: ${tokenError.message}`, tokenError);
+            } else if (tokens && tokens.length > 0) {
+              addResult('邮件Token', 'success', '邮件确认token创建成功', tokens[0]);
+            } else {
+              addResult('邮件Token', 'error', '邮件确认token未找到');
+            }
+          } catch (error: any) {
+            addResult('邮件Token', 'error', `Token检查异常: ${error.message}`);
+          }
+
+          // 步骤8: 清理测试数据
+          addResult('清理', 'info', '清理测试数据...');
+          
+          try {
+            // 删除相关数据
+            await supabase.from('email_confirmations').delete().eq('user_id', authData.user.id);
+            await supabase.from('user_profiles').delete().eq('id', authData.user.id);
+            
+            // 删除用户
+            const { error: deleteError } = await supabase.auth.admin.deleteUser(authData.user.id);
+            if (deleteError) {
+              addResult('清理', 'error', `用户删除失败: ${deleteError.message}`);
+            } else {
+              addResult('清理', 'success', '测试数据清理完成');
+            }
+          } catch (error: any) {
+            addResult('清理', 'error', `清理异常: ${error.message}`);
+          }
+        }
+      } catch (error: any) {
+        addResult('用户注册', 'error', `注册过程异常: ${error.message}`, error);
+      }
+
+      addResult('诊断完成', 'success', '所有诊断步骤已完成');
+
+    } catch (error: any) {
+      addResult('诊断过程', 'error', `诊断过程异常: ${error.message}`, error);
     } finally {
-      setLoading(false);
+      setIsRunning(false);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'success': return 'text-green-600';
-      case 'failed': return 'text-red-600';
-      case 'error': return 'text-red-600';
-      case 'completed': return 'text-blue-600';
-      default: return 'text-gray-600';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'success': return '✅';
-      case 'failed': return '❌';
-      case 'error': return '⚠️';
-      case 'completed': return 'ℹ️';
-      default: return '❓';
-    }
+  const clearResults = () => {
+    setTestResults([]);
   };
 
   return (
@@ -71,223 +203,108 @@ export default function DiagnoseRegistrationPage() {
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            注册流程详细诊断
+            🔍 注册流程诊断工具
           </h1>
-          
-          <p className="text-gray-600 mb-6">
-            这个工具会详细分析注册流程的每个步骤，帮助找出邮件发送失败的具体原因。
-          </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4 mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  邮箱地址 *
+                  测试邮箱
                 </label>
                 <input
                   type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="输入测试邮箱"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  密码 *
+                  测试密码
                 </label>
                 <input
                   type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                  minLength={6}
+                  value={testPassword}
+                  onChange={(e) => setTestPassword(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="至少6位密码"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  用户名
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="用户名（可选）"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  全名
-                </label>
-                <input
-                  type="text"
-                  name="full_name"
-                  value={formData.full_name}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="全名（可选）"
                 />
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {loading ? '诊断中...' : '开始诊断'}
-            </button>
-          </form>
+            <div className="flex gap-4">
+              <button
+                onClick={runDiagnostic}
+                disabled={isRunning}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isRunning ? '诊断中...' : '开始诊断'}
+              </button>
+              <button
+                onClick={clearResults}
+                className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+              >
+                清除结果
+              </button>
+            </div>
+          </div>
 
-          {result && (
-            <div className="space-y-6">
-              {/* 总体结果 */}
-              <div className={`p-4 rounded-md ${
-                result.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
-              }`}>
-                <h3 className={`font-medium ${
-                  result.success ? 'text-green-800' : 'text-red-800'
-                }`}>
-                  {result.success ? '✅ 诊断完成 - 所有步骤成功' : '❌ 诊断完成 - 发现问题'}
-                </h3>
-                {result.error && (
-                  <p className="mt-2 text-red-700">{result.error}</p>
-                )}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-gray-900">诊断结果</h2>
+            
+            {testResults.length === 0 ? (
+              <div className="text-gray-500 text-center py-8">
+                点击"开始诊断"按钮开始测试
               </div>
-
-              {/* 诊断步骤 */}
-              {result.diagnosis && result.diagnosis.steps && (
-                <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
-                  <h4 className="font-medium text-blue-800 mb-4">诊断步骤详情</h4>
-                  <div className="space-y-3">
-                    {result.diagnosis.steps.map((step: any, index: number) => (
-                      <div key={index} className="bg-white p-3 rounded border">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-sm font-medium">{step.step}.</span>
-                          <span className="text-sm font-medium">{step.name}</span>
-                          <span className={`text-sm ${getStatusColor(step.status)}`}>
-                            {getStatusIcon(step.status)} {step.status}
-                          </span>
-                        </div>
-                        {step.details && (
-                          <div className="text-xs text-gray-600 ml-4">
-                            <pre className="whitespace-pre-wrap overflow-x-auto">
-                              {JSON.stringify(step.details, null, 2)}
+            ) : (
+              <div className="space-y-3">
+                {testResults.map((result, index) => (
+                  <div
+                    key={index}
+                    className={`p-4 rounded-lg border ${
+                      result.status === 'success' ? 'bg-green-50 border-green-200' :
+                      result.status === 'error' ? 'bg-red-50 border-red-200' :
+                      'bg-blue-50 border-blue-200'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">
+                          {result.step}
+                        </h3>
+                        <p className={`text-sm ${
+                          result.status === 'success' ? 'text-green-700' :
+                          result.status === 'error' ? 'text-red-700' :
+                          'text-blue-700'
+                        }`}>
+                          {result.message}
+                        </p>
+                        {result.data && (
+                          <details className="mt-2">
+                            <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800">
+                              查看详细信息
+                            </summary>
+                            <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-h-40">
+                              {JSON.stringify(result.data, null, 2)}
                             </pre>
-                          </div>
+                          </details>
                         )}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 错误列表 */}
-              {result.diagnosis && result.diagnosis.errors && result.diagnosis.errors.length > 0 && (
-                <div className="bg-red-50 p-4 rounded-md border border-red-200">
-                  <h4 className="font-medium text-red-800 mb-3">发现的问题</h4>
-                  <ul className="list-disc list-inside space-y-1">
-                    {result.diagnosis.errors.map((error: string, index: number) => (
-                      <li key={index} className="text-red-700 text-sm">{error}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* 警告列表 */}
-              {result.diagnosis && result.diagnosis.warnings && result.diagnosis.warnings.length > 0 && (
-                <div className="bg-yellow-50 p-4 rounded-md border border-yellow-200">
-                  <h4 className="font-medium text-yellow-800 mb-3">警告信息</h4>
-                  <ul className="list-disc list-inside space-y-1">
-                    {result.diagnosis.warnings.map((warning: string, index: number) => (
-                      <li key={index} className="text-yellow-700 text-sm">{warning}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* 最终结果 */}
-              {result.diagnosis && result.diagnosis.finalResult && (
-                <div className="bg-green-50 p-4 rounded-md border border-green-200">
-                  <h4 className="font-medium text-green-800 mb-3">最终结果</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium">用户创建:</span> 
-                      <span className={`ml-2 ${result.diagnosis.finalResult.userCreated ? 'text-green-600' : 'text-red-600'}`}>
-                        {result.diagnosis.finalResult.userCreated ? '✅ 成功' : '❌ 失败'}
+                      <span className={`ml-2 text-xs px-2 py-1 rounded ${
+                        result.status === 'success' ? 'bg-green-100 text-green-800' :
+                        result.status === 'error' ? 'bg-red-100 text-red-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {result.status.toUpperCase()}
                       </span>
                     </div>
-                    <div>
-                      <span className="font-medium">配置文件:</span> 
-                      <span className={`ml-2 ${result.diagnosis.finalResult.profileCreated ? 'text-green-600' : 'text-red-600'}`}>
-                        {result.diagnosis.finalResult.profileCreated ? '✅ 成功' : '❌ 失败'}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium">邮件发送:</span> 
-                      <span className={`ml-2 ${result.diagnosis.finalResult.emailSent ? 'text-green-600' : 'text-red-600'}`}>
-                        {result.diagnosis.finalResult.emailSent ? '✅ 成功' : '❌ 失败'}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium">用户ID:</span> 
-                      <span className="ml-2 text-gray-600">{result.diagnosis.finalResult.userId || 'N/A'}</span>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {new Date(result.timestamp).toLocaleTimeString()}
                     </div>
                   </div>
-                </div>
-              )}
-
-              {/* 诊断时间 */}
-              <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
-                <h4 className="font-medium text-gray-800 mb-3">诊断时间</h4>
-                <div className="text-sm text-gray-600">
-                  {new Date(result.timestamp).toLocaleString()}
-                </div>
+                ))}
               </div>
-            </div>
-          )}
-
-          <div className="mt-8 flex flex-wrap gap-4">
-            <a
-              href="/test/email-service"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            >
-              邮件服务测试
-            </a>
-            <a
-              href="/test/register-flow"
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-            >
-              注册流程测试
-            </a>
-            <a
-              href="/test/env-check"
-              className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-            >
-              环境配置检查
-            </a>
-            <a
-              href="/auth/register"
-              className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
-            >
-              实际注册页面
-            </a>
-            <a
-              href="/"
-              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-            >
-              返回首页
-            </a>
+            )}
           </div>
         </div>
       </div>
