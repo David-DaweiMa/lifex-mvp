@@ -1,0 +1,130 @@
+{
+  "timestamp": "2025-08-17T00:38:51.047Z",
+  "tests": [
+    {
+      "name": "SQL脚本检查 - fix-database-triggers.sql",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.095Z",
+      "details": "文件大小: 7662 bytes",
+      "error": null
+    },
+    {
+      "name": "SQL脚本检查 - quick-trigger-check.sql",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.096Z",
+      "details": "文件大小: 2955 bytes",
+      "error": null
+    },
+    {
+      "name": "脚本内容检查 - handle_new_user函数",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.108Z",
+      "details": "元素存在",
+      "error": null
+    },
+    {
+      "name": "脚本内容检查 - setup_user_quotas函数",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.110Z",
+      "details": "元素存在",
+      "error": null
+    },
+    {
+      "name": "脚本内容检查 - 触发器创建",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.110Z",
+      "details": "元素存在",
+      "error": null
+    },
+    {
+      "name": "脚本内容检查 - 触发器日志表",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.111Z",
+      "details": "元素存在",
+      "error": null
+    },
+    {
+      "name": "脚本内容检查 - 用户类型配额配置",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.111Z",
+      "details": "元素存在",
+      "error": null
+    },
+    {
+      "name": "脚本内容检查 - 错误处理",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.112Z",
+      "details": "元素存在",
+      "error": null
+    },
+    {
+      "name": "脚本内容检查 - SECURITY DEFINER",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.112Z",
+      "details": "元素存在",
+      "error": null
+    },
+    {
+      "name": "测试脚本检查 - test-trigger-simple.js",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.116Z",
+      "details": "文件大小: 4906 bytes",
+      "error": null
+    },
+    {
+      "name": "测试脚本检查 - test-registration-flow.js",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.127Z",
+      "details": "文件大小: 7275 bytes",
+      "error": null
+    },
+    {
+      "name": "测试脚本检查 - test-trigger-connection.js",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.128Z",
+      "details": "文件大小: 10881 bytes",
+      "error": null
+    },
+    {
+      "name": "测试指导生成",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.154Z",
+      "details": "指导文件已生成: C:\\Users\\dawei.ma\\lifex-mvp\\test-results\\manual-test-guide.md",
+      "error": null
+    },
+    {
+      "name": "项目结构检查 - src/lib/quotaConfig.ts",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.157Z",
+      "details": "文件存在",
+      "error": null
+    },
+    {
+      "name": "项目结构检查 - src/lib/authService.ts",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.161Z",
+      "details": "文件存在",
+      "error": null
+    },
+    {
+      "name": "项目结构检查 - src/app/api/auth/register/route.ts",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.162Z",
+      "details": "文件存在",
+      "error": null
+    },
+    {
+      "name": "项目结构检查 - PENDING_ISSUES.md",
+      "status": "passed",
+      "timestamp": "2025-08-17T00:38:51.168Z",
+      "details": "文件存在",
+      "error": null
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "errors": []
+  }
+}
