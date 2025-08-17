@@ -17,46 +17,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 验证token
-    const { data: tokenData, error: tokenError } = await supabase
-      .rpc('verify_email_token', { token: token, token_type: 'email_verification' });
+    console.log('🔍 验证token:', token);
 
-    if (tokenError || !tokenData || tokenData.length === 0) {
+    // 直接查询token
+    const { data: tokenData, error: tokenError } = await supabase
+      .from('email_confirmations')
+      .select('*')
+      .eq('token', token)
+      .eq('token_type', 'email_verification')
+      .eq('used_at', null)
+      .gt('expires_at', new Date().toISOString())
+      .single();
+
+    if (tokenError || !tokenData) {
+      console.error('Token验证失败:', tokenError);
       return NextResponse.json(
         { error: 'Invalid or expired verification token' },
         { status: 400 }
       );
     }
 
-    const verification = tokenData[0];
+    console.log('✅ Token验证成功:', tokenData);
     
-    if (!verification.valid) {
-      // 检查是否是过期
-      const { data: expiredToken } = await supabase
-        .from('email_confirmations')
-        .select('expires_at')
-        .eq('token', token)
-        .single();
-      
-      if (expiredToken && new Date(expiredToken.expires_at) < new Date()) {
-        return NextResponse.json(
-          { 
-            error: '确认链接已过期，请重新注册或联系客服',
-            tokenExpired: true,
-            canResendEmail: true
-          },
-          { status: 400 }
-        );
-      }
-      
-      return NextResponse.json(
-        { error: 'Token has already been used' },
-        { status: 400 }
-      );
-    }
-
     // 标记token为已使用
-    await supabase.rpc('mark_token_used', { token: token });
+    const { error: markError } = await supabase
+      .from('email_confirmations')
+      .update({ used_at: new Date().toISOString() })
+      .eq('token', token);
+      
+    if (markError) {
+      console.error('标记token失败:', markError);
+    }
 
     // 更新用户邮箱验证状态
     const { error: updateError } = await supabase
@@ -66,7 +57,7 @@ export async function POST(request: NextRequest) {
         email_verification_token: null,
         email_verification_expires_at: null
       })
-      .eq('id', verification.user_id);
+      .eq('id', tokenData.user_id);
 
     if (updateError) {
       console.error('Error updating user profile:', updateError);
@@ -78,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // 确认用户邮箱（在auth.users表中）
     const { error: confirmError } = await supabase.auth.admin.updateUserById(
-      verification.user_id,
+      tokenData.user_id,
       { email_confirm: true }
     );
 
@@ -116,46 +107,37 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 验证token
-    const { data: tokenData, error: tokenError } = await supabase
-      .rpc('verify_email_token', { token: token, token_type: 'email_verification' });
+    console.log('🔍 验证token (GET):', token);
 
-    if (tokenError || !tokenData || tokenData.length === 0) {
+    // 直接查询token
+    const { data: tokenData, error: tokenError } = await supabase
+      .from('email_confirmations')
+      .select('*')
+      .eq('token', token)
+      .eq('token_type', 'email_verification')
+      .eq('used_at', null)
+      .gt('expires_at', new Date().toISOString())
+      .single();
+
+    if (tokenError || !tokenData) {
+      console.error('Token验证失败 (GET):', tokenError);
       return NextResponse.json(
         { error: 'Invalid or expired verification token' },
         { status: 400 }
       );
     }
 
-    const verification = tokenData[0];
+    console.log('✅ Token验证成功 (GET):', tokenData);
     
-    if (!verification.valid) {
-      // 检查是否是过期
-      const { data: expiredToken } = await supabase
-        .from('email_confirmations')
-        .select('expires_at')
-        .eq('token', token)
-        .single();
-      
-      if (expiredToken && new Date(expiredToken.expires_at) < new Date()) {
-        return NextResponse.json(
-          { 
-            error: '确认链接已过期，请重新注册或联系客服',
-            tokenExpired: true,
-            canResendEmail: true
-          },
-          { status: 400 }
-        );
-      }
-      
-      return NextResponse.json(
-        { error: 'Token has already been used' },
-        { status: 400 }
-      );
-    }
-
     // 标记token为已使用
-    await supabase.rpc('mark_token_used', { token: token });
+    const { error: markError } = await supabase
+      .from('email_confirmations')
+      .update({ used_at: new Date().toISOString() })
+      .eq('token', token);
+      
+    if (markError) {
+      console.error('标记token失败 (GET):', markError);
+    }
 
     // 更新用户邮箱验证状态
     const { error: updateError } = await supabase
@@ -165,7 +147,7 @@ export async function GET(request: NextRequest) {
         email_verification_token: null,
         email_verification_expires_at: null
       })
-      .eq('id', verification.user_id);
+      .eq('id', tokenData.user_id);
 
     if (updateError) {
       console.error('Error updating user profile:', updateError);
@@ -177,7 +159,7 @@ export async function GET(request: NextRequest) {
 
     // 确认用户邮箱（在auth.users表中）
     const { error: confirmError } = await supabase.auth.admin.updateUserById(
-      verification.user_id,
+      tokenData.user_id,
       { email_confirm: true }
     );
 
