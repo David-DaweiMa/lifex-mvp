@@ -31,7 +31,7 @@ function EmailConfirmationContent() {
       }
 
       try {
-        const response = await fetch(`/api/auth/confirm?token=${token}&email=${encodeURIComponent(email)}`);
+        const response = await fetch(`/api/auth/confirm?token=${token}`);
         const data = await response.json();
 
         setResult(data);

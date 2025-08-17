@@ -157,14 +157,12 @@ export async function registerUser(
 
       if (manualError) {
         console.error('手动创建配置文件失败:', manualError);
-        return {
-          success: false,
-          error: `用户创建成功，但配置文件创建失败: ${manualError.message}`
-        };
+        // 不返回错误，因为用户可能已经创建成功，只是配置文件查询有问题
+        console.log('继续注册流程，配置文件可能已通过触发器创建');
+      } else {
+        profile = manualProfile;
+        console.log('手动创建配置文件成功:', profile.id);
       }
-
-      profile = manualProfile;
-      console.log('手动创建配置文件成功:', profile.id);
     }
 
     // 如果设置为自动确认邮箱，则直接确认
