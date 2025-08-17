@@ -186,61 +186,9 @@ export async function registerUser(
         console.log('邮箱自动确认成功');
       }
     } else {
-      // 发送邮件确认
-      console.log('=== 开始发送确认邮件 ===');
-      console.log('用户ID:', authData.user.id);
-      console.log('邮箱:', email);
-      console.log('用户名:', userData?.username || '用户');
-      console.log('用户类型:', userData?.user_type || 'free');
-      
-      // 检查邮件服务配置
-      console.log('检查邮件服务配置...');
-      console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? '已配置' : '未配置');
-      console.log('RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
-      
-      let emailSent = false;
-      let emailError = null;
-      
-      // 尝试发送邮件，最多重试3次
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          console.log(`邮件发送尝试 ${attempt}/3`);
-          
-          const emailResult = await emailService.sendEmailVerification(
-            email,
-            authData.user.id,
-            userData?.user_type || 'free'
-          );
-          
-          if (emailResult.success) {
-            console.log('✅ 确认邮件发送成功');
-            emailSent = true;
-            break;
-          } else {
-            console.warn(`❌ 邮件发送失败 (尝试 ${attempt}/3):`, emailResult.error);
-            emailError = emailResult.error;
-            
-            if (attempt < 3) {
-              console.log(`等待2秒后重试...`);
-              await new Promise(resolve => setTimeout(resolve, 2000));
-            }
-          }
-        } catch (error) {
-          console.error(`❌ 邮件发送异常 (尝试 ${attempt}/3):`, error);
-          emailError = error instanceof Error ? error.message : '未知错误';
-          
-          if (attempt < 3) {
-            console.log(`等待2秒后重试...`);
-            await new Promise(resolve => setTimeout(resolve, 2000));
-          }
-        }
-      }
-      
-      if (!emailSent) {
-        console.error('❌ 所有邮件发送尝试都失败了');
-        // 邮件发送失败，但仍然返回成功，因为用户已创建
-        console.log('用户创建成功，但邮件发送失败');
-      }
+      // 邮件发送由注册API处理，这里不发送邮件
+      console.log('=== 邮件发送由注册API处理 ===');
+      console.log('用户创建成功，等待注册API发送确认邮件');
     }
 
     console.log('=== 注册流程完成 ===');

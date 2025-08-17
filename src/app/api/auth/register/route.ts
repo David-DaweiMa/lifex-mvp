@@ -87,34 +87,39 @@ export async function POST(request: NextRequest) {
     }
 
     // 发送邮件确认
+    let emailSent = false;
+    let emailError = null;
+    
     try {
       const emailResult = await sendEmailVerification(email, result.user.id, selectedUserType);
       
-      if (!emailResult.success) {
-        console.error('Email verification error:', emailResult.error);
+      if (emailResult.success) {
+        emailSent = true;
+        console.log('✅ 邮件发送成功');
+      } else {
+        emailError = emailResult.error;
+        console.error('❌ 邮件发送失败:', emailResult.error);
         
-        // 如果是频率限制错误，返回特殊响应
+        // 如果是频率限制错误，记录但不阻止注册
         if (emailResult.rateLimited) {
-          return NextResponse.json({
-            success: true,
-            user: result.user,
-            message: '注册成功，但邮件发送遇到频率限制。请稍后手动请求重新发送确认邮件。',
-            requiresEmailVerification: true,
-            emailRateLimited: true,
-            expiresInHours: 24
-          });
+          console.log('⚠️ 邮件发送频率限制，用户需要稍后手动请求重新发送');
         }
       }
     } catch (emailError) {
-      console.error('Email verification error:', emailError);
-      // 邮件发送失败不影响注册流程，但记录错误
+      console.error('❌ 邮件发送异常:', emailError);
+      emailError = '邮件发送失败';
     }
 
+    // 无论邮件是否发送成功，注册都算成功
     return NextResponse.json({
       success: true,
       user: result.user,
-      message: 'Registration successful. Please check your email to verify your account. The confirmation link will expire in 24 hours.',
+      message: emailSent 
+        ? '注册成功！请检查您的邮箱并点击确认链接完成验证。'
+        : '注册成功！但邮件发送失败，请稍后手动请求重新发送确认邮件。',
       requiresEmailVerification: true,
+      emailSent: emailSent,
+      emailError: emailError,
       expiresInHours: 24
     });
 
