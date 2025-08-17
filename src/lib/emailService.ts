@@ -188,6 +188,8 @@ class EmailService {
                 <li>享受专属优惠和活动</li>
                 <li>管理您的商家账户（商家用户）</li>
               </ul>
+              
+              <p><strong>⏰ 时间限制：</strong> 此确认链接将在 24 小时后自动失效。如果链接过期，请重新注册账户。</p>
             </div>
             <div class="footer">
               <p>此邮件由 LifeX 系统自动发送，请勿回复</p>

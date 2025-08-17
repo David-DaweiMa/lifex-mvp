@@ -336,6 +336,29 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- 6. 清理过期用户函数
+CREATE OR REPLACE FUNCTION public.cleanup_expired_users()
+RETURNS void AS $$
+BEGIN
+    -- 删除超过24小时的未验证用户配置文件
+    DELETE FROM public.user_profiles 
+    WHERE email_verified = false 
+    AND created_at < NOW() - INTERVAL '24 hours';
+    
+    -- 删除过期的确认token
+    DELETE FROM public.email_confirmations 
+    WHERE expires_at < NOW();
+    
+    -- 删除孤立的配额记录
+    DELETE FROM public.user_quotas 
+    WHERE user_id NOT IN (SELECT id FROM public.user_profiles);
+    
+    -- 删除孤立的触发器日志
+    DELETE FROM public.trigger_logs 
+    WHERE user_id NOT IN (SELECT id FROM public.user_profiles);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- ========================================
 -- 第五步：创建触发器
 -- ========================================
@@ -345,6 +368,7 @@ CREATE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 DECLARE
     email_token TEXT;
+    existing_profile_id UUID;
 BEGIN
     -- 记录触发器执行开始
     INSERT INTO public.trigger_logs (
@@ -357,6 +381,19 @@ BEGIN
         'started'
     );
     
+    -- 检查是否存在未验证的相同邮箱账户
+    SELECT id INTO existing_profile_id
+    FROM public.user_profiles 
+    WHERE email = NEW.email 
+    AND email_verified = false;
+    
+    -- 如果存在未验证的账户，删除它
+    IF existing_profile_id IS NOT NULL THEN
+        DELETE FROM public.user_profiles WHERE id = existing_profile_id;
+        DELETE FROM public.email_confirmations WHERE user_id = existing_profile_id;
+        DELETE FROM public.user_quotas WHERE user_id = existing_profile_id;
+    END IF;
+    
     -- 创建用户配置文件（未验证状态）
     INSERT INTO public.user_profiles (
         id,
@@ -365,7 +402,8 @@ BEGIN
         full_name,
         user_type,
         email_verified,
-        email_verification_token
+        email_verification_token,
+        email_verification_expires_at
     ) VALUES (
         NEW.id,
         NEW.email,
@@ -373,7 +411,8 @@ BEGIN
         COALESCE(NEW.raw_user_meta_data->>'full_name', 'User'),
         COALESCE(NEW.raw_user_meta_data->>'user_type', 'free'),
         FALSE,
-        public.generate_email_token(NEW.id, NEW.email, 'email_verification', 24)
+        public.generate_email_token(NEW.id, NEW.email, 'email_verification', 24),
+        NOW() + INTERVAL '24 hours'
     );
     
     -- 设置用户配额（临时配额，验证后更新）
@@ -446,6 +485,10 @@ CREATE POLICY "Users can update own profile" ON public.user_profiles
 
 CREATE POLICY "Users can insert own profile" ON public.user_profiles
     FOR INSERT WITH CHECK (auth.uid() = id);
+
+-- 关键：允许触发器函数插入（解决RLS阻止问题）
+CREATE POLICY "Allow trigger function insert" ON public.user_profiles
+    FOR INSERT WITH CHECK (true);
 
 CREATE POLICY "Service role can manage all profiles" ON public.user_profiles
     FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');

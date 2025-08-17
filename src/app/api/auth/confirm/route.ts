@@ -31,8 +31,26 @@ export async function POST(request: NextRequest) {
     const verification = tokenData[0];
     
     if (!verification.valid) {
+      // 检查是否是过期
+      const { data: expiredToken } = await supabase
+        .from('email_confirmations')
+        .select('expires_at')
+        .eq('token', token)
+        .single();
+      
+      if (expiredToken && new Date(expiredToken.expires_at) < new Date()) {
+        return NextResponse.json(
+          { 
+            error: '确认链接已过期，请重新注册或联系客服',
+            tokenExpired: true,
+            canResendEmail: true
+          },
+          { status: 400 }
+        );
+      }
+      
       return NextResponse.json(
-        { error: 'Token has expired or already been used' },
+        { error: 'Token has already been used' },
         { status: 400 }
       );
     }
@@ -112,8 +130,26 @@ export async function GET(request: NextRequest) {
     const verification = tokenData[0];
     
     if (!verification.valid) {
+      // 检查是否是过期
+      const { data: expiredToken } = await supabase
+        .from('email_confirmations')
+        .select('expires_at')
+        .eq('token', token)
+        .single();
+      
+      if (expiredToken && new Date(expiredToken.expires_at) < new Date()) {
+        return NextResponse.json(
+          { 
+            error: '确认链接已过期，请重新注册或联系客服',
+            tokenExpired: true,
+            canResendEmail: true
+          },
+          { status: 400 }
+        );
+      }
+      
       return NextResponse.json(
-        { error: 'Token has expired or already been used' },
+        { error: 'Token has already been used' },
         { status: 400 }
       );
     }
