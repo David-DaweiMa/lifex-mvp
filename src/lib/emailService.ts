@@ -471,7 +471,7 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
   }
 
   /**
-   * 发送邮件验证（新方法）
+   * 发送邮件验证（简化版本）
    */
   async sendEmailVerification(
     email: string,
@@ -484,7 +484,7 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
     console.log('用户类型:', userType);
     
     try {
-      // 从数据库获取用户名和确认token
+      // 从数据库获取用户名
       const { createClient } = await import('@supabase/supabase-js');
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -503,38 +503,49 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
         return { success: false, error: '获取用户信息失败' };
       }
       
-      // 获取确认token
-      const { data: tokenData, error: tokenError } = await supabase
-        .from('email_confirmations')
-        .select('token')
-        .eq('user_id', userId)
-        .eq('token_type', 'email_verification')
-        .eq('used_at', null)
-        .gt('expires_at', new Date().toISOString())
-        .single();
-      
-      if (tokenError) {
-        console.error('获取确认token失败:', tokenError);
-        return { success: false, error: '获取确认链接失败' };
-      }
-      
-      if (!tokenData || !tokenData.token) {
-        console.error('未找到有效的确认token');
-        return { success: false, error: '确认链接已失效' };
-      }
-      
-      // 使用真实的用户名和token
+      // 生成新的确认token
+      const confirmationToken = this.generateRandomToken();
       const username = profile.username || profile.full_name || email.split('@')[0];
-      const confirmationToken = tokenData.token;
       
-      console.log('获取到真实token:', confirmationToken);
+      console.log('生成新token:', confirmationToken);
       
+      // 保存token到数据库
+      const { error: saveError } = await supabase
+        .from('email_confirmations')
+        .insert({
+          user_id: userId,
+          token: confirmationToken,
+          token_type: 'email_verification',
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24小时后过期
+          created_at: new Date().toISOString()
+        });
+      
+      if (saveError) {
+        console.error('保存token失败:', saveError);
+        return { success: false, error: '保存确认链接失败' };
+      }
+      
+      console.log('✅ Token已保存到数据库');
+      
+      // 发送邮件
       return await this.sendEmailConfirmation(email, username, confirmationToken, userType);
       
     } catch (error) {
       console.error('发送邮件验证异常:', error);
       return { success: false, error: '发送邮件失败' };
     }
+  }
+
+  /**
+   * 生成随机token
+   */
+  private generateRandomToken(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 32; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
   }
 }
 
