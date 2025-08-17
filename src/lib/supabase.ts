@@ -33,7 +33,7 @@ export interface Database {
           website: string | null;
           social_links: any | null;
           user_type: 'guest' | 'customer' | 'premium' | 'free_business' | 'professional_business' | 'enterprise_business';
-          is_verified: boolean;
+          email_verified: boolean;
           is_active: boolean;
           created_at: string;
           updated_at: string;
@@ -52,7 +52,7 @@ export interface Database {
           website?: string | null;
           social_links?: any | null;
           user_type?: 'guest' | 'customer' | 'premium' | 'free_business' | 'professional_business' | 'enterprise_business';
-          is_verified?: boolean;
+          email_verified?: boolean;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -71,7 +71,7 @@ export interface Database {
           website?: string | null;
           social_links?: any | null;
           user_type?: 'guest' | 'customer' | 'premium' | 'free_business' | 'professional_business' | 'enterprise_business';
-          is_verified?: boolean;
+          email_verified?: boolean;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;

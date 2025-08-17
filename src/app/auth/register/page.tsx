@@ -60,7 +60,7 @@ export default function RegisterPage() {
 
       if (result.success) {
         // 检查用户是否已验证
-        if (result.user && !result.user.is_verified) {
+        if (result.user && !result.user.email_verified) {
           setShowEmailConfirmation(true);
         } else {
           router.push('/'); // Redirect to home page
