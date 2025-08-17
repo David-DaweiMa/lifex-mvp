@@ -79,7 +79,27 @@ export async function POST(request: NextRequest) {
 
     // 发送邮件
     try {
-      await sendEmailVerification(email, profile.id, profile.user_type);
+      const emailResult = await sendEmailVerification(email, profile.id, profile.user_type);
+      
+      if (!emailResult.success) {
+        console.error('发送邮件失败:', emailResult.error);
+        
+        // 如果是频率限制错误，返回特殊响应
+        if (emailResult.rateLimited) {
+          return NextResponse.json(
+            { 
+              error: '邮件发送频率过高，请稍后再试。如果问题持续存在，请联系客服。',
+              rateLimited: true
+            },
+            { status: 429 }
+          );
+        }
+        
+        return NextResponse.json(
+          { error: '发送邮件失败，请稍后重试' },
+          { status: 500 }
+        );
+      }
     } catch (emailError) {
       console.error('发送邮件失败:', emailError);
       return NextResponse.json(

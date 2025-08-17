@@ -88,7 +88,23 @@ export async function POST(request: NextRequest) {
 
     // 发送邮件确认
     try {
-      await sendEmailVerification(email, result.user.id, selectedUserType);
+      const emailResult = await sendEmailVerification(email, result.user.id, selectedUserType);
+      
+      if (!emailResult.success) {
+        console.error('Email verification error:', emailResult.error);
+        
+        // 如果是频率限制错误，返回特殊响应
+        if (emailResult.rateLimited) {
+          return NextResponse.json({
+            success: true,
+            user: result.user,
+            message: '注册成功，但邮件发送遇到频率限制。请稍后手动请求重新发送确认邮件。',
+            requiresEmailVerification: true,
+            emailRateLimited: true,
+            expiresInHours: 24
+          });
+        }
+      }
     } catch (emailError) {
       console.error('Email verification error:', emailError);
       // 邮件发送失败不影响注册流程，但记录错误

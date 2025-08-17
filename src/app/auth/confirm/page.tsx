@@ -19,9 +19,8 @@ function EmailConfirmationContent() {
   useEffect(() => {
     const confirmEmail = async () => {
       const token = searchParams.get('token');
-      const email = searchParams.get('email');
 
-      if (!token || !email) {
+      if (!token) {
         setResult({
           success: false,
           error: '缺少必要的确认参数'

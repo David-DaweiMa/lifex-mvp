@@ -77,6 +77,16 @@ class EmailService {
 
       if (error) {
         console.error('❌ Resend 邮件发送失败:', error);
+        
+        // 处理频率限制错误
+        if (error.message.includes('rate limit') || error.message.includes('too many requests')) {
+          return { 
+            success: false, 
+            error: '邮件发送频率过高，请稍后再试。如果问题持续存在，请联系客服。',
+            rateLimited: true
+          };
+        }
+        
         return { success: false, error: error.message };
       }
 
@@ -473,13 +483,58 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
     console.log('用户ID:', userId);
     console.log('用户类型:', userType);
     
-    // 从数据库获取用户名
-    const username = email.split('@')[0]; // 临时使用邮箱前缀作为用户名
-    
-    // 生成确认token（这里需要从数据库获取）
-    const confirmationToken = 'temp-token'; // 实际应该从数据库获取
-    
-    return await this.sendEmailConfirmation(email, username, confirmationToken, userType);
+    try {
+      // 从数据库获取用户名和确认token
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      
+      // 获取用户配置文件
+      const { data: profile, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('username, full_name')
+        .eq('id', userId)
+        .single();
+      
+      if (profileError) {
+        console.error('获取用户配置文件失败:', profileError);
+        return { success: false, error: '获取用户信息失败' };
+      }
+      
+      // 获取确认token
+      const { data: tokenData, error: tokenError } = await supabase
+        .from('email_confirmations')
+        .select('token')
+        .eq('user_id', userId)
+        .eq('token_type', 'email_verification')
+        .eq('used_at', null)
+        .gt('expires_at', new Date().toISOString())
+        .single();
+      
+      if (tokenError) {
+        console.error('获取确认token失败:', tokenError);
+        return { success: false, error: '获取确认链接失败' };
+      }
+      
+      if (!tokenData || !tokenData.token) {
+        console.error('未找到有效的确认token');
+        return { success: false, error: '确认链接已失效' };
+      }
+      
+      // 使用真实的用户名和token
+      const username = profile.username || profile.full_name || email.split('@')[0];
+      const confirmationToken = tokenData.token;
+      
+      console.log('获取到真实token:', confirmationToken);
+      
+      return await this.sendEmailConfirmation(email, username, confirmationToken, userType);
+      
+    } catch (error) {
+      console.error('发送邮件验证异常:', error);
+      return { success: false, error: '发送邮件失败' };
+    }
   }
 }
 
