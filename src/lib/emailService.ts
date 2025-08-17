@@ -38,7 +38,7 @@ class EmailService {
   /**
    * 发送邮件
    */
-  async sendEmail(emailData: EmailData): Promise<{ success: boolean; error?: string }> {
+  async sendEmail(emailData: EmailData): Promise<{ success: boolean; error?: string; rateLimited?: boolean }> {
     try {
       console.log('=== 开始发送邮件 ===');
       console.log('收件人:', emailData.to);
