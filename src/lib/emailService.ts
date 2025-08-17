@@ -430,7 +430,7 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
     username: string,
     confirmationToken: string,
     userType: string = 'free'
-  ): Promise<{ success: boolean; error?: string }> {
+  ): Promise<{ success: boolean; error?: string; rateLimited?: boolean }> {
     console.log('=== 发送邮件确认 ===');
     console.log('邮箱:', email);
     console.log('用户名:', username);
@@ -454,7 +454,7 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
     email: string,
     username: string,
     userType: string = 'free'
-  ): Promise<{ success: boolean; error?: string }> {
+  ): Promise<{ success: boolean; error?: string; rateLimited?: boolean }> {
     console.log('=== 发送欢迎邮件 ===');
     console.log('邮箱:', email);
     console.log('用户名:', username);
@@ -477,7 +477,7 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
     email: string,
     userId: string,
     userType: string = 'free'
-  ): Promise<{ success: boolean; error?: string }> {
+  ): Promise<{ success: boolean; error?: string; rateLimited?: boolean }> {
     console.log('=== 发送邮件验证 ===');
     console.log('邮箱:', email);
     console.log('用户ID:', userId);
@@ -542,6 +542,6 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
 export const emailService = new EmailService();
 
 // 导出便捷函数
-export const sendEmailVerification = async (email: string, userId: string, userType: string = 'free') => {
+export const sendEmailVerification = async (email: string, userId: string, userType: string = 'free'): Promise<{ success: boolean; error?: string; rateLimited?: boolean }> => {
   return await emailService.sendEmailVerification(email, userId, userType);
 };
