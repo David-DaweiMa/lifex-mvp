@@ -9,16 +9,35 @@
 -- 删除触发器（如果存在）
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 
--- 删除函数（如果存在）
-DROP FUNCTION IF EXISTS public.handle_new_user();
-DROP FUNCTION IF EXISTS public.setup_user_quotas();
-DROP FUNCTION IF EXISTS public.check_functions_exist();
+-- 删除函数（如果存在）- 先删除所有函数
+DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+DROP FUNCTION IF EXISTS public.setup_user_quotas(uuid, text) CASCADE;
+DROP FUNCTION IF EXISTS public.setup_user_quotas(uuid) CASCADE;
+DROP FUNCTION IF EXISTS public.generate_email_token(uuid, text, text, integer) CASCADE;
+DROP FUNCTION IF EXISTS public.generate_email_token(uuid, text, text) CASCADE;
+DROP FUNCTION IF EXISTS public.verify_email_token(text, text) CASCADE;
+DROP FUNCTION IF EXISTS public.mark_token_used(text) CASCADE;
+DROP FUNCTION IF EXISTS public.check_functions_exist() CASCADE;
 
--- 删除表（如果存在）
-DROP TABLE IF EXISTS public.trigger_logs;
-DROP TABLE IF EXISTS public.user_quotas;
-DROP TABLE IF EXISTS public.user_profiles;
-DROP TABLE IF EXISTS public.anonymous_usage;
+-- 删除依赖表（如果存在）
+DROP TABLE IF EXISTS public.trigger_logs CASCADE;
+DROP TABLE IF EXISTS public.user_quotas CASCADE;
+DROP TABLE IF EXISTS public.anonymous_usage CASCADE;
+DROP TABLE IF EXISTS public.email_confirmations CASCADE;
+
+-- 删除其他可能依赖user_profiles的表
+DROP TABLE IF EXISTS public.usage_statistics CASCADE;
+DROP TABLE IF EXISTS public.subscriptions CASCADE;
+DROP TABLE IF EXISTS public.chat_messages CASCADE;
+DROP TABLE IF EXISTS public.advertisements CASCADE;
+DROP TABLE IF EXISTS public.trending_posts CASCADE;
+DROP TABLE IF EXISTS public.ad_impressions CASCADE;
+DROP TABLE IF EXISTS public.search_history CASCADE;
+DROP TABLE IF EXISTS public.user_actions CASCADE;
+DROP TABLE IF EXISTS public.notifications CASCADE;
+
+-- 最后删除user_profiles表（现在应该没有依赖了）
+DROP TABLE IF EXISTS public.user_profiles CASCADE;
 
 -- ========================================
 -- 第二步：重新创建表结构
@@ -87,6 +106,41 @@ CREATE TABLE public.email_confirmations (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 6. 重新创建其他必要的表（如果需要的话）
+-- 聊天消息表
+CREATE TABLE IF NOT EXISTS public.chat_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.user_profiles(id) ON DELETE CASCADE,
+    session_id TEXT,
+    message TEXT NOT NULL,
+    response TEXT,
+    message_type TEXT DEFAULT 'user' CHECK (message_type IN ('user', 'assistant', 'system')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 使用统计表
+CREATE TABLE IF NOT EXISTS public.usage_statistics (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.user_profiles(id) ON DELETE CASCADE,
+    feature_name TEXT NOT NULL,
+    usage_count INTEGER DEFAULT 1,
+    usage_date DATE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_id, feature_name, usage_date)
+);
+
+-- 订阅表
+CREATE TABLE IF NOT EXISTS public.subscriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.user_profiles(id) ON DELETE CASCADE,
+    subscription_type TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'expired')),
+    start_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    end_date TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- ========================================
 -- 第三步：创建索引
 -- ========================================
@@ -113,12 +167,25 @@ CREATE INDEX idx_email_confirmations_token ON public.email_confirmations(token);
 CREATE INDEX idx_email_confirmations_user_id ON public.email_confirmations(user_id);
 CREATE INDEX idx_email_confirmations_expires_at ON public.email_confirmations(expires_at);
 
+-- 聊天消息索引
+CREATE INDEX idx_chat_messages_user_id ON public.chat_messages(user_id);
+CREATE INDEX idx_chat_messages_session_id ON public.chat_messages(session_id);
+CREATE INDEX idx_chat_messages_created_at ON public.chat_messages(created_at);
+
+-- 使用统计索引
+CREATE INDEX idx_usage_statistics_user_id ON public.usage_statistics(user_id);
+CREATE INDEX idx_usage_statistics_usage_date ON public.usage_statistics(usage_date);
+
+-- 订阅索引
+CREATE INDEX idx_subscriptions_user_id ON public.subscriptions(user_id);
+CREATE INDEX idx_subscriptions_status ON public.subscriptions(status);
+
 -- ========================================
 -- 第四步：创建函数
 -- ========================================
 
 -- 1. 设置用户配额函数
-CREATE OR REPLACE FUNCTION public.setup_user_quotas(user_id UUID, user_type TEXT)
+CREATE FUNCTION public.setup_user_quotas(user_id UUID, user_type TEXT)
 RETURNS VOID AS $$
 DECLARE
     quota_config RECORD;
@@ -196,7 +263,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 2. 生成邮件确认token函数
-CREATE OR REPLACE FUNCTION public.generate_email_token(user_id UUID, email TEXT, token_type TEXT, expires_in_hours INTEGER DEFAULT 24)
+CREATE FUNCTION public.generate_email_token(user_id UUID, email TEXT, token_type TEXT, expires_in_hours INTEGER DEFAULT 24)
 RETURNS TEXT AS $$
 DECLARE
     token TEXT;
@@ -217,7 +284,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 3. 验证邮件token函数
-CREATE OR REPLACE FUNCTION public.verify_email_token(token TEXT, token_type TEXT)
+CREATE FUNCTION public.verify_email_token(token TEXT, token_type TEXT)
 RETURNS TABLE(user_id UUID, email TEXT, valid BOOLEAN) AS $$
 BEGIN
     RETURN QUERY
@@ -235,7 +302,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 4. 标记token为已使用函数
-CREATE OR REPLACE FUNCTION public.mark_token_used(token TEXT)
+CREATE FUNCTION public.mark_token_used(token TEXT)
 RETURNS BOOLEAN AS $$
 BEGIN
     UPDATE public.email_confirmations 
@@ -247,13 +314,13 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 5. 检查函数存在性函数
-CREATE OR REPLACE FUNCTION public.check_functions_exist()
-RETURNS TABLE(function_name TEXT, exists BOOLEAN) AS $$
+CREATE FUNCTION public.check_functions_exist()
+RETURNS TABLE(function_name TEXT, function_exists BOOLEAN) AS $$
 BEGIN
     RETURN QUERY
     SELECT 
         'handle_new_user'::TEXT as function_name,
-        EXISTS(SELECT 1 FROM information_schema.routines WHERE routine_name = 'handle_new_user') as exists
+        EXISTS(SELECT 1 FROM information_schema.routines WHERE routine_name = 'handle_new_user') as function_exists
     UNION ALL
     SELECT 
         'setup_user_quotas'::TEXT,
@@ -274,7 +341,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- ========================================
 
 -- 用户创建触发器函数
-CREATE OR REPLACE FUNCTION public.handle_new_user()
+CREATE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 DECLARE
     email_token TEXT;
@@ -366,6 +433,9 @@ ALTER TABLE public.user_quotas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.anonymous_usage ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.trigger_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.email_confirmations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.usage_statistics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 
 -- 用户配置文件RLS策略
 CREATE POLICY "Users can view own profile" ON public.user_profiles
@@ -408,13 +478,37 @@ CREATE POLICY "Users can view own confirmations" ON public.email_confirmations
 CREATE POLICY "Service role can manage all confirmations" ON public.email_confirmations
     FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
 
+-- 聊天消息RLS策略
+CREATE POLICY "Users can view own messages" ON public.chat_messages
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own messages" ON public.chat_messages
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Service role can manage all messages" ON public.chat_messages
+    FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+
+-- 使用统计RLS策略
+CREATE POLICY "Users can view own statistics" ON public.usage_statistics
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Service role can manage all statistics" ON public.usage_statistics
+    FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+
+-- 订阅RLS策略
+CREATE POLICY "Users can view own subscriptions" ON public.subscriptions
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Service role can manage all subscriptions" ON public.subscriptions
+    FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+
 -- ========================================
 -- 第七步：验证重建结果
 -- ========================================
 
 -- 检查表是否创建成功
 SELECT 'Tables' as component, count(*) as count FROM information_schema.tables 
-WHERE table_schema = 'public' AND table_name IN ('user_profiles', 'user_quotas', 'anonymous_usage', 'trigger_logs', 'email_confirmations')
+WHERE table_schema = 'public' AND table_name IN ('user_profiles', 'user_quotas', 'anonymous_usage', 'trigger_logs', 'email_confirmations', 'chat_messages', 'usage_statistics', 'subscriptions')
 
 UNION ALL
 
