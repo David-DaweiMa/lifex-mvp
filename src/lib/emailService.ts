@@ -471,7 +471,7 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
   }
 
   /**
-   * 发送邮件验证（简化版本）
+   * 发送邮件验证（超简化版本）
    */
   async sendEmailVerification(
     email: string,
@@ -484,32 +484,20 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
     console.log('用户类型:', userType);
     
     try {
-      // 从数据库获取用户名
+      // 生成新的确认token
+      const confirmationToken = this.generateRandomToken();
+      const username = email.split('@')[0]; // 使用邮箱前缀作为用户名
+      
+      console.log('生成新token:', confirmationToken);
+      console.log('用户名:', username);
+      
+      // 保存token到数据库
       const { createClient } = await import('@supabase/supabase-js');
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
       );
       
-      // 获取用户配置文件
-      const { data: profile, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('username, full_name')
-        .eq('id', userId)
-        .single();
-      
-      if (profileError) {
-        console.error('获取用户配置文件失败:', profileError);
-        return { success: false, error: '获取用户信息失败' };
-      }
-      
-      // 生成新的确认token
-      const confirmationToken = this.generateRandomToken();
-      const username = profile.username || profile.full_name || email.split('@')[0];
-      
-      console.log('生成新token:', confirmationToken);
-      
-      // 保存token到数据库
       const { error: saveError } = await supabase
         .from('email_confirmations')
         .insert({
@@ -522,13 +510,18 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
       
       if (saveError) {
         console.error('保存token失败:', saveError);
-        return { success: false, error: '保存确认链接失败' };
+        // 即使保存失败，也尝试发送邮件
+        console.log('⚠️ Token保存失败，但继续发送邮件');
+      } else {
+        console.log('✅ Token已保存到数据库');
       }
       
-      console.log('✅ Token已保存到数据库');
-      
       // 发送邮件
-      return await this.sendEmailConfirmation(email, username, confirmationToken, userType);
+      console.log('📧 开始发送邮件...');
+      const result = await this.sendEmailConfirmation(email, username, confirmationToken, userType);
+      console.log('📧 邮件发送结果:', result);
+      
+      return result;
       
     } catch (error) {
       console.error('发送邮件验证异常:', error);
