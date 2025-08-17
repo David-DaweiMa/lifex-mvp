@@ -40,9 +40,9 @@ export async function POST(request: NextRequest) {
       user_type: selectedUserType
     }, false); // 不自动确认邮箱
 
-    if (!result.success) {
+    if (!result.success || !result.user) {
       return NextResponse.json(
-        { error: result.error },
+        { error: result.error || 'User registration failed' },
         { status: 400 }
       );
     }
