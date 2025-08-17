@@ -7,9 +7,8 @@ export interface UserProfile {
   username?: string;
   full_name?: string;
   avatar_url?: string;
-  user_type: 'guest' | 'customer' | 'premium' | 'free_business' | 'professional_business' | 'enterprise_business';
-  is_verified: boolean;
-  is_active: boolean;
+  user_type: 'anonymous' | 'free' | 'customer' | 'premium' | 'free_business' | 'professional_business' | 'enterprise_business';
+  email_verified: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -21,12 +20,17 @@ export interface AuthResult {
 }
 
 /**
- * 用户注册 - 使用标准 Supabase Auth 流程
+ * 用户注册 - 使用新的邮件确认流程
  */
-export async function registerUser(email: string, password: string, userData?: Partial<UserProfile>): Promise<AuthResult> {
+export async function registerUser(
+  email: string, 
+  password: string, 
+  userData?: Partial<UserProfile>,
+  autoConfirmEmail: boolean = false
+): Promise<AuthResult> {
   try {
     console.log('=== 开始用户注册流程 ===');
-    console.log('注册参数:', { email, username: userData?.username, full_name: userData?.full_name });
+    console.log('注册参数:', { email, username: userData?.username, full_name: userData?.full_name, user_type: userData?.user_type });
 
     // 检查 Supabase 配置
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
@@ -37,9 +41,8 @@ export async function registerUser(email: string, password: string, userData?: P
         email: email,
         username: userData?.username || 'demo_user',
         full_name: userData?.full_name || 'Demo User',
-        user_type: 'customer',
-        is_verified: true,
-        is_active: true,
+        user_type: userData?.user_type || 'free',
+        email_verified: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -75,17 +78,16 @@ export async function registerUser(email: string, password: string, userData?: P
 
     console.log('邮箱可用，开始创建用户...');
 
-    // 创建 Supabase 用户 - 禁用自动邮件确认，使用我们的自定义邮件服务
+    // 创建 Supabase 用户 - 不自动确认邮箱
     const { data: authData, error: authError } = await typedSupabase.auth.signUp({
       email,
       password,
       options: {
-        // 禁用 Supabase 自动邮件确认，我们将手动发送
         emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
         data: {
           username: userData?.username,
           full_name: userData?.full_name,
-          user_type: userData?.user_type || 'customer'
+          user_type: userData?.user_type || 'free'
         }
       }
     });
@@ -109,14 +111,13 @@ export async function registerUser(email: string, password: string, userData?: P
     console.log('Supabase Auth 用户创建成功:', authData.user.id);
 
     // 等待数据库触发器创建用户配置文件
-    // 在开发环境中，我们可以直接检查配置文件是否创建成功
     let profile = null;
     let attempts = 0;
-    const maxAttempts = 10; // 增加重试次数
+    const maxAttempts = 10;
 
     console.log('等待用户配置文件创建...');
     while (!profile && attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 等待1秒
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       const { data: profileData, error: profileError } = await typedSupabase
         .from('user_profiles')
@@ -145,9 +146,8 @@ export async function registerUser(email: string, password: string, userData?: P
           email: email,
           username: userData?.username,
           full_name: userData?.full_name,
-          user_type: userData?.user_type || 'customer',
-          is_verified: false,
-          is_active: true,
+          user_type: userData?.user_type || 'free',
+          email_verified: false,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
@@ -166,18 +166,38 @@ export async function registerUser(email: string, password: string, userData?: P
       console.log('手动创建配置文件成功:', profile.id);
     }
 
-    // 发送邮件确认 - 使用我们的自定义邮件服务
-    if (authData.user) {
+    // 如果设置为自动确认邮箱，则直接确认
+    if (autoConfirmEmail) {
+      console.log('自动确认邮箱...');
+      const { error: confirmError } = await typedSupabase.auth.admin.updateUserById(
+        authData.user.id,
+        { email_confirm: true }
+      );
+
+      if (confirmError) {
+        console.error('自动确认邮箱失败:', confirmError);
+      } else {
+        // 更新配置文件中的邮箱验证状态
+        await typedSupabase
+          .from('user_profiles')
+          .update({ email_verified: true })
+          .eq('id', authData.user.id);
+        
+        profile.email_verified = true;
+        console.log('邮箱自动确认成功');
+      }
+    } else {
+      // 发送邮件确认
       console.log('=== 开始发送确认邮件 ===');
       console.log('用户ID:', authData.user.id);
       console.log('邮箱:', email);
       console.log('用户名:', userData?.username || '用户');
+      console.log('用户类型:', userData?.user_type || 'free');
       
       // 检查邮件服务配置
       console.log('检查邮件服务配置...');
       console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? '已配置' : '未配置');
       console.log('RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
-      console.log('EMAIL_CONFIRMATION_URL:', process.env.EMAIL_CONFIRMATION_URL);
       
       let emailSent = false;
       let emailError = null;
@@ -187,10 +207,10 @@ export async function registerUser(email: string, password: string, userData?: P
         try {
           console.log(`邮件发送尝试 ${attempt}/3`);
           
-          const emailResult = await emailService.sendEmailConfirmation(
+          const emailResult = await emailService.sendEmailVerification(
             email,
-            userData?.username || '用户',
-            authData.user.id // 使用用户ID作为确认token
+            authData.user.id,
+            userData?.user_type || 'free'
           );
           
           if (emailResult.success) {
@@ -219,12 +239,8 @@ export async function registerUser(email: string, password: string, userData?: P
       
       if (!emailSent) {
         console.error('❌ 所有邮件发送尝试都失败了');
-        // 邮件发送失败，返回错误信息
-        console.log('返回失败状态，因为邮件发送失败');
-        return {
-          success: false,
-          error: `注册成功，但确认邮件发送失败: ${emailError}。请稍后重试或联系客服。`
-        };
+        // 邮件发送失败，但仍然返回成功，因为用户已创建
+        console.log('用户创建成功，但邮件发送失败');
       }
     }
 
@@ -257,9 +273,8 @@ export async function loginUser(email: string, password: string): Promise<AuthRe
         email: email,
         username: 'demo_user',
         full_name: 'Demo User',
-        user_type: 'customer',
-        is_verified: true,
-        is_active: true,
+        user_type: 'free',
+        email_verified: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -293,13 +308,21 @@ export async function loginUser(email: string, password: string): Promise<AuthRe
     const { data: profile, error: profileError } = await typedSupabase
       .from('user_profiles')
       .select('*')
-      .eq('email', authData.user.email)
+      .eq('id', authData.user.id)
       .single();
 
     if (profileError || !profile) {
       return {
         success: false,
         error: '用户配置文件不存在'
+      };
+    }
+
+    // 检查邮箱是否已验证
+    if (!profile.email_verified) {
+      return {
+        success: false,
+        error: '请先验证您的邮箱地址'
       };
     }
 
@@ -322,8 +345,6 @@ export async function loginUser(email: string, password: string): Promise<AuthRe
  */
 export async function logoutUser(): Promise<{ success: boolean; error?: string }> {
   try {
-    // 使用真实的Supabase Auth登出
-
     const { error } = await typedSupabase.auth.signOut();
     
     if (error) {
@@ -351,8 +372,6 @@ export async function logoutUser(): Promise<{ success: boolean; error?: string }
  */
 export async function getCurrentUser(): Promise<AuthResult> {
   try {
-    // 使用真实的Supabase Auth获取当前用户
-
     const { data: { user: authUser }, error: authError } = await typedSupabase.auth.getUser();
 
     if (authError || !authUser) {
@@ -366,7 +385,7 @@ export async function getCurrentUser(): Promise<AuthResult> {
     const { data: profile, error: profileError } = await typedSupabase
       .from('user_profiles')
       .select('*')
-      .eq('email', authUser.email)
+      .eq('id', authUser.id)
       .single();
 
     if (profileError || !profile) {
@@ -436,8 +455,8 @@ export async function createTestUser(): Promise<AuthResult> {
   return await registerUser(testEmail, testPassword, {
     username: 'testuser',
     full_name: 'Test User',
-    user_type: 'customer'
-  });
+    user_type: 'free'
+  }, true); // 自动确认邮箱
 }
 
 /**

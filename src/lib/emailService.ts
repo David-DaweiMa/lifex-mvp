@@ -99,12 +99,36 @@ class EmailService {
   generateEmailConfirmationTemplate(
     username: string,
     confirmationToken: string,
-    email: string
+    email: string,
+    userType: string = 'free'
   ): EmailTemplate {
-    const confirmationUrl = `${process.env.EMAIL_CONFIRMATION_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/confirm?token=${confirmationToken}&email=${encodeURIComponent(email)}`;
+    const confirmationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/confirm?token=${confirmationToken}`;
     
     console.log('生成确认邮件模板');
     console.log('确认URL:', confirmationUrl);
+    console.log('用户类型:', userType);
+    
+    // 根据用户类型生成不同的配额信息
+    const getQuotaInfo = (type: string) => {
+      switch (type) {
+        case 'free':
+          return '20次AI聊天/天, 10次趋势分析/月, 2次广告/月';
+        case 'customer':
+          return '100次AI聊天/天, 50次趋势分析/月, 10次广告/月';
+        case 'premium':
+          return '500次AI聊天/天, 200次趋势分析/月, 50次广告/月';
+        case 'free_business':
+          return '20次AI聊天/天, 10次趋势分析/月, 2次广告/月, 20个产品, 2个店铺';
+        case 'professional_business':
+          return '100次AI聊天/天, 50次趋势分析/月, 10次广告/月, 50个产品, 3个店铺';
+        case 'enterprise_business':
+          return '500次AI聊天/天, 200次趋势分析/月, 50次广告/月, 200个产品, 10个店铺';
+        default:
+          return '20次AI聊天/天, 10次趋势分析/月, 2次广告/月';
+      }
+    };
+    
+    const quotaInfo = getQuotaInfo(userType);
     
     return {
       subject: '欢迎加入 LifeX - 请确认您的邮箱',
@@ -121,6 +145,7 @@ class EmailService {
             .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
             .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
             .button { display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+            .quota-info { background: white; padding: 20px; margin: 15px 0; border-radius: 5px; border-left: 4px solid #667eea; }
             .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
           </style>
         </head>
@@ -141,10 +166,17 @@ class EmailService {
               <p>如果您无法点击按钮，请复制以下链接到浏览器地址栏：</p>
               <p style="word-break: break-all; color: #667eea;">${confirmationUrl}</p>
               
+              <div class="quota-info">
+                <h3>📊 您的账户配额</h3>
+                <p><strong>用户类型：</strong> ${userType.charAt(0).toUpperCase() + userType.slice(1)}</p>
+                <p><strong>包含功能：</strong> ${quotaInfo}</p>
+              </div>
+              
               <p><strong>重要提示：</strong></p>
               <ul>
                 <li>此链接将在 24 小时后失效</li>
                 <li>如果您没有注册 LifeX 账户，请忽略此邮件</li>
+                <li>确认邮箱后即可开始使用所有功能</li>
                 <li>如有问题，请联系我们的支持团队</li>
               </ul>
               
@@ -154,6 +186,7 @@ class EmailService {
                 <li>发现新西兰本地优质商家</li>
                 <li>发布和分享本地生活内容</li>
                 <li>享受专属优惠和活动</li>
+                <li>管理您的商家账户（商家用户）</li>
               </ul>
             </div>
             <div class="footer">
@@ -174,6 +207,10 @@ class EmailService {
 请访问以下链接确认您的邮箱：
 ${confirmationUrl}
 
+您的账户配额：
+用户类型：${userType.charAt(0).toUpperCase() + userType.slice(1)}
+包含功能：${quotaInfo}
+
 此链接将在 24 小时后失效。
 
 如果您没有注册 LifeX 账户，请忽略此邮件。
@@ -183,6 +220,7 @@ ${confirmationUrl}
 - 发现新西兰本地优质商家
 - 发布和分享本地生活内容
 - 享受专属优惠和活动
+- 管理您的商家账户（商家用户）
 
 如有问题，请联系我们的支持团队。
 
@@ -196,12 +234,36 @@ ${confirmationUrl}
    */
   generateWelcomeTemplate(
     username: string,
-    email: string
+    email: string,
+    userType: string = 'free'
   ): EmailTemplate {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     
     console.log('生成欢迎邮件模板');
     console.log('应用URL:', appUrl);
+    console.log('用户类型:', userType);
+    
+    // 根据用户类型生成不同的功能描述
+    const getFeatureDescription = (type: string) => {
+      switch (type) {
+        case 'free':
+          return '免费用户功能';
+        case 'customer':
+          return '付费用户功能 - 享受更多AI聊天和高级功能';
+        case 'premium':
+          return '高级用户功能 - 无限制使用所有功能';
+        case 'free_business':
+          return '免费商家功能 - 管理您的商家信息';
+        case 'professional_business':
+          return '专业商家功能 - 高级商家管理工具';
+        case 'enterprise_business':
+          return '企业商家功能 - 完整的企业级解决方案';
+        default:
+          return '免费用户功能';
+      }
+    };
+    
+    const featureDescription = getFeatureDescription(userType);
     
     return {
       subject: '🎉 欢迎来到 LifeX - 您的账户已激活！',
@@ -219,6 +281,7 @@ ${confirmationUrl}
             .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
             .button { display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
             .feature { background: white; padding: 20px; margin: 15px 0; border-radius: 5px; border-left: 4px solid #667eea; }
+            .user-type { background: #e8f4fd; padding: 15px; margin: 15px 0; border-radius: 5px; border-left: 4px solid #2196f3; }
             .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
           </style>
         </head>
@@ -231,6 +294,11 @@ ${confirmationUrl}
             <div class="content">
               <h2>恭喜您，${username}！</h2>
               <p>您的 LifeX 账户已成功激活，现在可以开始探索新西兰的精彩本地生活了！</p>
+              
+              <div class="user-type">
+                <h3>👤 账户类型：${userType.charAt(0).toUpperCase() + userType.slice(1)}</h3>
+                <p>${featureDescription}</p>
+              </div>
               
               <div style="text-align: center;">
                 <a href="${appUrl}" class="button">开始探索 LifeX</a>
@@ -258,6 +326,13 @@ ${confirmationUrl}
                 <p>基于您的偏好获得量身定制的推荐</p>
               </div>
               
+              ${userType.includes('business') ? `
+              <div class="feature">
+                <h4>🏢 商家管理</h4>
+                <p>管理您的商家信息、产品和服务</p>
+              </div>
+              ` : ''}
+              
               <h3>💡 快速开始指南：</h3>
               <ol>
                 <li>完善您的个人资料</li>
@@ -265,6 +340,7 @@ ${confirmationUrl}
                 <li>开始与 AI 助手对话</li>
                 <li>探索附近的商家</li>
                 <li>分享您的体验</li>
+                ${userType.includes('business') ? '<li>设置您的商家信息</li>' : ''}
               </ol>
               
               <p><strong>需要帮助？</strong></p>
@@ -289,6 +365,9 @@ ${confirmationUrl}
 
 您的 LifeX 账户已成功激活，现在可以开始探索新西兰的精彩本地生活了！
 
+账户类型：${userType.charAt(0).toUpperCase() + userType.slice(1)}
+${featureDescription}
+
 立即开始体验：
 ${appUrl}
 
@@ -306,12 +385,18 @@ ${appUrl}
 🎯 个性化推荐
 基于您的偏好获得量身定制的推荐
 
+${userType.includes('business') ? `
+🏢 商家管理
+管理您的商家信息、产品和服务
+` : ''}
+
 💡 快速开始指南：
 1. 完善您的个人资料
 2. 设置您的偏好和兴趣
 3. 开始与 AI 助手对话
 4. 探索附近的商家
 5. 分享您的体验
+${userType.includes('business') ? '6. 设置您的商家信息' : ''}
 
 需要帮助？
 我们的支持团队随时为您服务：
@@ -331,14 +416,16 @@ ${appUrl}
   async sendEmailConfirmation(
     email: string,
     username: string,
-    confirmationToken: string
+    confirmationToken: string,
+    userType: string = 'free'
   ): Promise<{ success: boolean; error?: string }> {
     console.log('=== 发送邮件确认 ===');
     console.log('邮箱:', email);
     console.log('用户名:', username);
     console.log('确认Token:', confirmationToken);
+    console.log('用户类型:', userType);
     
-    const template = this.generateEmailConfirmationTemplate(username, confirmationToken, email);
+    const template = this.generateEmailConfirmationTemplate(username, confirmationToken, email, userType);
     
     return await this.sendEmail({
       to: email,
@@ -353,13 +440,15 @@ ${appUrl}
    */
   async sendWelcomeEmail(
     email: string,
-    username: string
+    username: string,
+    userType: string = 'free'
   ): Promise<{ success: boolean; error?: string }> {
     console.log('=== 发送欢迎邮件 ===');
     console.log('邮箱:', email);
     console.log('用户名:', username);
+    console.log('用户类型:', userType);
     
-    const template = this.generateWelcomeTemplate(username, email);
+    const template = this.generateWelcomeTemplate(username, email, userType);
     
     return await this.sendEmail({
       to: email,
@@ -368,7 +457,34 @@ ${appUrl}
       text: template.text,
     });
   }
+
+  /**
+   * 发送邮件验证（新方法）
+   */
+  async sendEmailVerification(
+    email: string,
+    userId: string,
+    userType: string = 'free'
+  ): Promise<{ success: boolean; error?: string }> {
+    console.log('=== 发送邮件验证 ===');
+    console.log('邮箱:', email);
+    console.log('用户ID:', userId);
+    console.log('用户类型:', userType);
+    
+    // 从数据库获取用户名
+    const username = email.split('@')[0]; // 临时使用邮箱前缀作为用户名
+    
+    // 生成确认token（这里需要从数据库获取）
+    const confirmationToken = 'temp-token'; // 实际应该从数据库获取
+    
+    return await this.sendEmailConfirmation(email, username, confirmationToken, userType);
+  }
 }
 
 // 导出单例实例
 export const emailService = new EmailService();
+
+// 导出便捷函数
+export const sendEmailVerification = async (email: string, userId: string, userType: string = 'free') => {
+  return await emailService.sendEmailVerification(email, userId, userType);
+};

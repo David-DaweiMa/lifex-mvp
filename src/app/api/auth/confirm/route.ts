@@ -1,168 +1,167 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { typedSupabase } from '@/lib/supabase';
-import { emailService } from '@/lib/emailService';
+import { createClient } from '@supabase/supabase-js';
 
-export async function GET(request: NextRequest) {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+export async function POST(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const token = searchParams.get('token');
-    const email = searchParams.get('email');
-    const isTest = searchParams.get('test') === 'true';
+    const body = await request.json();
+    const { token } = body;
 
-    if (!token || !email) {
+    if (!token) {
       return NextResponse.json(
-        { error: '缺少必要的确认参数' },
+        { error: 'Verification token is required' },
         { status: 400 }
       );
     }
 
-    // 如果是测试模式，直接返回成功
-    if (isTest) {
-      return NextResponse.json({
-        success: true,
-        message: '测试邮件确认成功！这是一个测试链接，实际注册时会使用真实的确认流程。'
-      });
+    // 验证token
+    const { data: tokenData, error: tokenError } = await supabase
+      .rpc('verify_email_token', { token: token, token_type: 'email_verification' });
+
+    if (tokenError || !tokenData || tokenData.length === 0) {
+      return NextResponse.json(
+        { error: 'Invalid or expired verification token' },
+        { status: 400 }
+      );
     }
 
-    // 验证用户是否存在
-    const { data: user, error: userError } = await typedSupabase.auth.admin.getUserById(token);
+    const verification = tokenData[0];
     
-    if (userError || !user.user) {
+    if (!verification.valid) {
       return NextResponse.json(
-        { error: '无效的确认链接' },
+        { error: 'Token has expired or already been used' },
         { status: 400 }
       );
     }
 
-    // 检查邮箱是否匹配
-    if (user.user.email !== email) {
-      return NextResponse.json(
-        { error: '邮箱地址不匹配' },
-        { status: 400 }
-      );
-    }
+    // 标记token为已使用
+    await supabase.rpc('mark_token_used', { token: token });
 
-    // 检查是否已经确认过
-    if (user.user.email_confirmed_at) {
-      return NextResponse.json(
-        { error: '邮箱已经确认过了' },
-        { status: 400 }
-      );
-    }
+    // 更新用户邮箱验证状态
+    const { error: updateError } = await supabase
+      .from('user_profiles')
+      .update({ 
+        email_verified: true,
+        email_verification_token: null,
+        email_verification_expires_at: null
+      })
+      .eq('id', verification.user_id);
 
-    // 确认用户邮箱
-    const { error: confirmError } = await typedSupabase.auth.admin.updateUserById(token, {
-      email_confirm: true
-    });
-
-    if (confirmError) {
-      console.error('邮箱确认失败:', confirmError);
+    if (updateError) {
+      console.error('Error updating user profile:', updateError);
       return NextResponse.json(
-        { error: '邮箱确认失败' },
+        { error: 'Failed to update user profile' },
         { status: 500 }
       );
     }
 
-    // 更新用户配置文件中的验证状态
-    const { error: profileError } = await typedSupabase
-      .from('user_profiles')
-      .update({ 
-        is_verified: true,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', token);
+    // 确认用户邮箱（在auth.users表中）
+    const { error: confirmError } = await supabase.auth.admin.updateUserById(
+      verification.user_id,
+      { email_confirm: true }
+    );
 
-    if (profileError) {
-      console.warn('更新用户配置文件失败:', profileError);
-    }
-
-    // 发送欢迎邮件
-    try {
-      const username = user.user.user_metadata?.username || '用户';
-      await emailService.sendWelcomeEmail(email, username);
-    } catch (emailError) {
-      console.warn('欢迎邮件发送失败:', emailError);
+    if (confirmError) {
+      console.error('Error confirming user email:', confirmError);
+      return NextResponse.json(
+        { error: 'Failed to confirm user email' },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
       success: true,
-      message: '邮箱确认成功！欢迎来到 LifeX！'
+      message: 'Email verified successfully. You can now log in to your account.'
     });
 
   } catch (error) {
-    console.error('邮箱确认处理失败:', error);
+    console.error('Email confirmation error:', error);
     return NextResponse.json(
-      { error: '服务器内部错误' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email } = body;
+    const { searchParams } = new URL(request.url);
+    const token = searchParams.get('token');
 
-    if (!email) {
+    if (!token) {
       return NextResponse.json(
-        { error: '邮箱地址是必需的' },
+        { error: 'Verification token is required' },
         { status: 400 }
       );
     }
 
-    // 查找用户
-    const { data: users, error: userError } = await typedSupabase.auth.admin.listUsers();
-    
-    if (userError) {
-      return NextResponse.json(
-        { error: '查找用户失败' },
-        { status: 500 }
-      );
-    }
+    // 验证token
+    const { data: tokenData, error: tokenError } = await supabase
+      .rpc('verify_email_token', { token: token, token_type: 'email_verification' });
 
-    const user = users.users.find(u => u.email === email);
-    
-    if (!user) {
+    if (tokenError || !tokenData || tokenData.length === 0) {
       return NextResponse.json(
-        { error: '用户不存在' },
-        { status: 404 }
-      );
-    }
-
-    // 检查是否已经确认过
-    if (user.email_confirmed_at) {
-      return NextResponse.json(
-        { error: '邮箱已经确认过了' },
+        { error: 'Invalid or expired verification token' },
         { status: 400 }
       );
     }
 
-    // 重新发送确认邮件
-    try {
-      const username = user.user_metadata?.username || '用户';
-      await emailService.sendEmailConfirmation(
-        email,
-        username,
-        user.id
-      );
-
-      return NextResponse.json({
-        success: true,
-        message: '确认邮件已重新发送'
-      });
-
-    } catch (emailError) {
-      console.error('重新发送确认邮件失败:', emailError);
+    const verification = tokenData[0];
+    
+    if (!verification.valid) {
       return NextResponse.json(
-        { error: '邮件发送失败' },
+        { error: 'Token has expired or already been used' },
+        { status: 400 }
+      );
+    }
+
+    // 标记token为已使用
+    await supabase.rpc('mark_token_used', { token: token });
+
+    // 更新用户邮箱验证状态
+    const { error: updateError } = await supabase
+      .from('user_profiles')
+      .update({ 
+        email_verified: true,
+        email_verification_token: null,
+        email_verification_expires_at: null
+      })
+      .eq('id', verification.user_id);
+
+    if (updateError) {
+      console.error('Error updating user profile:', updateError);
+      return NextResponse.json(
+        { error: 'Failed to update user profile' },
         { status: 500 }
       );
     }
+
+    // 确认用户邮箱（在auth.users表中）
+    const { error: confirmError } = await supabase.auth.admin.updateUserById(
+      verification.user_id,
+      { email_confirm: true }
+    );
+
+    if (confirmError) {
+      console.error('Error confirming user email:', confirmError);
+      return NextResponse.json(
+        { error: 'Failed to confirm user email' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Email verified successfully. You can now log in to your account.'
+    });
 
   } catch (error) {
-    console.error('重新发送确认邮件处理失败:', error);
+    console.error('Email confirmation error:', error);
     return NextResponse.json(
-      { error: '服务器内部错误' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
