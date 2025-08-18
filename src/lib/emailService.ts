@@ -492,13 +492,13 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
       console.log('用户名:', username);
       
       // 保存token到数据库
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-      );
+      const { typedSupabaseAdmin } = await import('./supabase');
       
-      const { error: saveError } = await supabase
+      console.log('💾 尝试保存token到数据库...');
+      console.log('用户ID:', userId);
+      console.log('Token:', confirmationToken);
+      
+      const { data: saveData, error: saveError } = await typedSupabaseAdmin
         .from('email_confirmations')
         .insert({
           user_id: userId,
@@ -506,14 +506,17 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
           token_type: 'email_verification',
           expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24小时后过期
           created_at: new Date().toISOString()
-        });
+        })
+        .select();
       
       if (saveError) {
-        console.error('保存token失败:', saveError);
+        console.error('❌ 保存token失败:', saveError);
+        console.error('错误详情:', JSON.stringify(saveError, null, 2));
         // 即使保存失败，也尝试发送邮件
         console.log('⚠️ Token保存失败，但继续发送邮件');
       } else {
         console.log('✅ Token已保存到数据库');
+        console.log('保存的数据:', saveData);
       }
       
       // 发送邮件

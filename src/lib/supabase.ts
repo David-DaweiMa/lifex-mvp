@@ -349,8 +349,14 @@ export interface Database {
   };
 }
 
-// 类型化的 Supabase 客户端
+// 类型化的匿名客户端（用于前端）
 export const typedSupabase = createClient<Database>(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-key'
+);
+
+// 类型化的服务角色客户端（用于后端API）
+export const typedSupabaseAdmin = createClient<Database>(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key'
 );
