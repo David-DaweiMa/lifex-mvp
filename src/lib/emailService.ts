@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { createClient } from '@supabase/supabase-js';
 
 export interface EmailTemplate {
   subject: string;
@@ -16,6 +17,7 @@ export interface EmailData {
 class EmailService {
   private resend: Resend | null = null;
   private fromEmail: string;
+  private supabaseAdmin: any;
 
   constructor() {
     this.fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@lifex.co.nz';
@@ -32,6 +34,40 @@ class EmailService {
       }
     } else {
       console.warn('⚠️ RESEND_API_KEY 未配置，邮件服务将不可用');
+    }
+
+    // 初始化专用的Supabase管理员客户端
+    this.initializeSupabaseAdmin();
+  }
+
+  /**
+   * 初始化Supabase管理员客户端
+   */
+  private initializeSupabaseAdmin() {
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+      if (!supabaseUrl || !supabaseServiceKey) {
+        console.error('❌ Supabase配置缺失');
+        console.error('URL存在:', !!supabaseUrl);
+        console.error('Service Key存在:', !!supabaseServiceKey);
+        return;
+      }
+
+      this.supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      });
+
+      console.log('✅ Supabase管理员客户端初始化成功');
+      console.log('Supabase URL:', supabaseUrl);
+      console.log('Service Key前缀:', supabaseServiceKey.substring(0, 10) + '...');
+    } catch (error) {
+      console.error('❌ Supabase管理员客户端初始化失败:', error);
+      this.supabaseAdmin = null;
     }
   }
 
@@ -101,6 +137,142 @@ class EmailService {
         error: error instanceof Error ? error.message : '未知错误'
       };
     }
+  }
+
+  /**
+   * 带重试机制的Token保存
+   */
+  private async saveTokenToDatabase(
+    userId: string,
+    email: string,
+    token: string,
+    maxRetries: number = 3
+  ): Promise<{ success: boolean; error?: string; data?: any }> {
+    if (!this.supabaseAdmin) {
+      return { success: false, error: 'Supabase管理员客户端未初始化' };
+    }
+
+    console.log('=== 保存Token到数据库 ===');
+    console.log('用户ID:', userId);
+    console.log('邮箱:', email);
+    console.log('Token:', token);
+
+    // 先验证用户是否存在
+    console.log('步骤1: 验证用户存在性');
+    try {
+      const { data: userExists, error: userError } = await this.supabaseAdmin
+        .from('user_profiles')
+        .select('id, email, email_verified')
+        .eq('id', userId)
+        .single();
+
+      if (userError || !userExists) {
+        console.error('❌ 用户验证失败:', userError);
+        return { 
+          success: false, 
+          error: `用户不存在或查询失败: ${userError?.message || '用户不存在'}` 
+        };
+      }
+
+      console.log('✅ 用户验证成功:', userExists);
+    } catch (err) {
+      console.error('❌ 用户验证异常:', err);
+      return { success: false, error: '用户验证异常' };
+    }
+
+    // 清理旧的Token记录
+    console.log('步骤2: 清理旧Token记录');
+    try {
+      const { error: deleteError } = await this.supabaseAdmin
+        .from('email_confirmations')
+        .delete()
+        .eq('user_id', userId)
+        .eq('token_type', 'email_verification');
+
+      if (deleteError) {
+        console.warn('⚠️ 清理旧Token失败，但继续执行:', deleteError.message);
+      } else {
+        console.log('✅ 旧Token记录已清理');
+      }
+    } catch (err) {
+      console.warn('⚠️ 清理旧Token异常，但继续执行:', err);
+    }
+
+    // 使用重试机制保存新Token
+    console.log('步骤3: 保存新Token');
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`Token保存尝试 ${attempt}/${maxRetries}`);
+
+        const { data: saveData, error: saveError } = await this.supabaseAdmin
+          .from('email_confirmations')
+          .insert({
+            user_id: userId,
+            email: email,
+            token: token,
+            token_type: 'email_verification',
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            created_at: new Date().toISOString()
+          })
+          .select();
+
+        if (saveError) {
+          console.error(`❌ Token保存失败 (尝试 ${attempt}):`, {
+            message: saveError.message,
+            details: saveError.details,
+            hint: saveError.hint,
+            code: saveError.code
+          });
+
+          if (attempt >= maxRetries) {
+            return { 
+              success: false, 
+              error: `Token保存失败 (已重试${maxRetries}次): ${saveError.message}` 
+            };
+          }
+
+          // 等待后重试
+          console.log(`等待 ${attempt * 1000}ms 后重试...`);
+          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+          continue;
+        }
+
+        console.log('✅ Token保存成功:', saveData);
+        
+        // 验证Token是否真的保存了
+        console.log('步骤4: 验证Token保存');
+        const { data: verifyData, error: verifyError } = await this.supabaseAdmin
+          .from('email_confirmations')
+          .select('*')
+          .eq('token', token)
+          .single();
+
+        if (verifyError || !verifyData) {
+          console.error('❌ Token验证失败:', verifyError);
+          if (attempt >= maxRetries) {
+            return { success: false, error: 'Token保存验证失败' };
+          }
+          continue;
+        }
+
+        console.log('✅ Token验证成功:', verifyData);
+        return { success: true, data: saveData };
+
+      } catch (saveException) {
+        console.error(`💥 Token保存异常 (尝试 ${attempt}):`, saveException);
+        
+        if (attempt >= maxRetries) {
+          return { 
+            success: false, 
+            error: `Token保存异常: ${saveException instanceof Error ? saveException.message : '未知错误'}` 
+          };
+        }
+
+        await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+      }
+    }
+
+    return { success: false, error: 'Token保存失败，所有重试都失败了' };
   }
 
   /**
@@ -471,7 +643,7 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
   }
 
   /**
-   * 发送邮件验证（超简化版本）
+   * 发送邮件验证（完整版本）
    */
   async sendEmailVerification(
     email: string,
@@ -484,6 +656,23 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
     console.log('用户类型:', userType);
     
     try {
+      // 验证输入参数
+      if (!email || !userId) {
+        console.error('❌ 参数验证失败');
+        return { success: false, error: '邮箱和用户ID不能为空' };
+      }
+
+      // 验证环境配置
+      if (!this.supabaseAdmin) {
+        console.error('❌ Supabase管理员客户端未初始化');
+        return { success: false, error: 'Supabase管理员客户端未初始化' };
+      }
+
+      if (!this.resend) {
+        console.error('❌ Resend客户端未初始化');
+        return { success: false, error: 'Resend客户端未初始化' };
+      }
+
       // 生成新的确认token
       const confirmationToken = this.generateRandomToken();
       const username = email.split('@')[0]; // 使用邮箱前缀作为用户名
@@ -491,44 +680,156 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
       console.log('生成新token:', confirmationToken);
       console.log('用户名:', username);
       
-      // 保存token到数据库
-      const { typedSupabaseAdmin } = await import('./supabase');
+      // 保存token到数据库 - 使用新的重试机制
+      const saveResult = await this.saveTokenToDatabase(userId, email, confirmationToken);
       
-      console.log('💾 尝试保存token到数据库...');
-      console.log('用户ID:', userId);
-      console.log('Token:', confirmationToken);
-      
-      const { data: saveData, error: saveError } = await typedSupabaseAdmin
-        .from('email_confirmations')
-        .insert({
-          user_id: userId,
-          token: confirmationToken,
-          token_type: 'email_verification',
-          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24小时后过期
-          created_at: new Date().toISOString()
-        })
-        .select();
-      
-      if (saveError) {
-        console.error('❌ 保存token失败:', saveError);
-        console.error('错误详情:', JSON.stringify(saveError, null, 2));
-        // 即使保存失败，也尝试发送邮件
-        console.log('⚠️ Token保存失败，但继续发送邮件');
+      if (!saveResult.success) {
+        console.error('❌ Token保存失败:', saveResult.error);
+        // 即使Token保存失败，也尝试发送邮件（临时方案）
+        console.log('⚠️ Token保存失败，但继续发送邮件（用户可能需要重新注册）');
       } else {
-        console.log('✅ Token已保存到数据库');
-        console.log('保存的数据:', saveData);
+        console.log('✅ Token已成功保存到数据库');
       }
       
-      // 发送邮件
+      // 发送邮件 - 无论Token是否保存成功都发送
       console.log('📧 开始发送邮件...');
-      const result = await this.sendEmailConfirmation(email, username, confirmationToken, userType);
-      console.log('📧 邮件发送结果:', result);
+      const emailResult = await this.sendEmailConfirmation(email, username, confirmationToken, userType);
       
-      return result;
+      if (!emailResult.success) {
+        console.error('📧 邮件发送失败:', emailResult.error);
+        return emailResult;
+      }
+      
+      console.log('✅ 邮件发送成功');
+      
+      // 返回综合结果
+      if (!saveResult.success) {
+        return {
+          success: false,
+          error: `邮件已发送，但Token保存失败: ${saveResult.error}。请联系支持团队。`
+        };
+      }
+      
+      return { success: true };
       
     } catch (error) {
-      console.error('发送邮件验证异常:', error);
-      return { success: false, error: '发送邮件失败' };
+      console.error('💥 发送邮件验证异常:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : '发送邮件失败' 
+      };
+    }
+  }
+
+  /**
+   * 数据库连接诊断功能
+   */
+  async diagnoseDatabaseConnection(): Promise<{
+    success: boolean;
+    results: Record<string, any>;
+  }> {
+    const results: Record<string, any> = {};
+    
+    try {
+      console.log('=== 数据库连接诊断 ===');
+      
+      if (!this.supabaseAdmin) {
+        return {
+          success: false,
+          results: { error: 'Supabase管理员客户端未初始化' }
+        };
+      }
+
+      // 1. 测试基本连接
+      try {
+        const { data: connectionTest, error: connectionError } = await this.supabaseAdmin
+          .from('user_profiles')
+          .select('count(*)')
+          .limit(1);
+
+        results.connection_test = {
+          success: !connectionError,
+          error: connectionError?.message,
+          data: connectionTest
+        };
+      } catch (err) {
+        results.connection_test = {
+          success: false,
+          error: err instanceof Error ? err.message : '连接测试异常'
+        };
+      }
+
+      // 2. 测试email_confirmations表
+      try {
+        const { data: tableTest, error: tableError } = await this.supabaseAdmin
+          .from('email_confirmations')
+          .select('*')
+          .limit(3);
+
+        results.email_confirmations_test = {
+          success: !tableError,
+          error: tableError?.message,
+          record_count: tableTest?.length || 0,
+          sample_records: tableTest || []
+        };
+      } catch (err) {
+        results.email_confirmations_test = {
+          success: false,
+          error: err instanceof Error ? err.message : '表测试异常'
+        };
+      }
+
+      // 3. 测试插入权限
+      const testToken = 'diagnostic-test-' + Date.now();
+      try {
+        const { data: insertData, error: insertError } = await this.supabaseAdmin
+          .from('email_confirmations')
+          .insert({
+            user_id: '00000000-0000-0000-0000-000000000000',
+            email: 'diagnostic@test.com',
+            token: testToken,
+            token_type: 'diagnostic_test',
+            expires_at: new Date(Date.now() + 60000).toISOString()
+          })
+          .select();
+
+        results.insert_test = {
+          success: !insertError,
+          error: insertError?.message,
+          data: insertData
+        };
+
+        // 清理测试数据
+        if (!insertError) {
+          await this.supabaseAdmin
+            .from('email_confirmations')
+            .delete()
+            .eq('token', testToken);
+          
+          results.cleanup = { success: true, message: '测试数据已清理' };
+        }
+
+      } catch (err) {
+        results.insert_test = {
+          success: false,
+          error: err instanceof Error ? err.message : '插入测试异常'
+        };
+      }
+
+      return {
+        success: true,
+        results
+      };
+
+    } catch (error) {
+      console.error('💥 诊断过程中发生错误:', error);
+      return {
+        success: false,
+        results: {
+          ...results,
+          general_error: error instanceof Error ? error.message : '未知错误'
+        }
+      };
     }
   }
 
@@ -536,6 +837,12 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
    * 生成随机token
    */
   private generateRandomToken(): string {
+    // 使用更安全的token生成方式
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID().replace(/-/g, '');
+    }
+    
+    // 降级方案
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < 32; i++) {
@@ -543,12 +850,54 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
     }
     return result;
   }
+
+  /**
+   * 获取服务状态
+   */
+  getServiceStatus(): {
+    resend: boolean;
+    supabase: boolean;
+    config: Record<string, boolean>;
+  } {
+    return {
+      resend: !!this.resend,
+      supabase: !!this.supabaseAdmin,
+      config: {
+        resend_api_key: !!process.env.RESEND_API_KEY,
+        resend_from_email: !!process.env.RESEND_FROM_EMAIL,
+        supabase_url: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        supabase_service_key: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+        app_url: !!process.env.NEXT_PUBLIC_APP_URL
+      }
+    };
+  }
 }
 
 // 导出单例实例
 export const emailService = new EmailService();
 
 // 导出便捷函数
-export const sendEmailVerification = async (email: string, userId: string, userType: string = 'free'): Promise<{ success: boolean; error?: string; rateLimited?: boolean }> => {
+export const sendEmailVerification = async (
+  email: string, 
+  userId: string, 
+  userType: string = 'free'
+): Promise<{ success: boolean; error?: string; rateLimited?: boolean }> => {
   return await emailService.sendEmailVerification(email, userId, userType);
+};
+
+// 导出诊断函数
+export const diagnoseDatabaseConnection = async (): Promise<{
+  success: boolean;
+  results: Record<string, any>;
+}> => {
+  return await emailService.diagnoseDatabaseConnection();
+};
+
+// 导出服务状态检查
+export const getEmailServiceStatus = (): {
+  resend: boolean;
+  supabase: boolean;
+  config: Record<string, boolean>;
+} => {
+  return emailService.getServiceStatus();
 };
