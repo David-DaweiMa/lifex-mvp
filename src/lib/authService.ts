@@ -1,4 +1,4 @@
-import { typedSupabase } from './supabase';
+import { typedSupabase, typedSupabaseAdmin } from './supabase';
 import { emailService } from './emailService';
 
 export interface UserProfile {
@@ -55,7 +55,7 @@ export async function registerUser(
 
     // 检查邮箱是否已存在
     console.log('检查邮箱是否已存在...');
-    const { data: existingProfile, error: existingError } = await typedSupabase
+    const { data: existingProfile, error: existingError } = await typedSupabaseAdmin
       .from('user_profiles')
       .select('id')
       .eq('email', email)
@@ -80,7 +80,7 @@ export async function registerUser(
     console.log('邮箱可用，开始创建用户...');
 
     // 创建 Supabase 用户 - 使用管理员API直接创建用户
-    const { data: authData, error: authError } = await typedSupabase.auth.admin.createUser({
+    const { data: authData, error: authError } = await typedSupabaseAdmin.auth.admin.createUser({
       email,
       password,
       email_confirm: false,
@@ -113,7 +113,7 @@ export async function registerUser(
     console.log('=== 验证用户创建完整性 ===');
     
     // 1. 验证用户是否真的存在于auth.users表中
-    const { data: userCheck, error: userCheckError } = await typedSupabase.auth.admin.getUserById(authData.user.id);
+    const { data: userCheck, error: userCheckError } = await typedSupabaseAdmin.auth.admin.getUserById(authData.user.id);
     
     if (userCheckError || !userCheck.user) {
       console.error('用户验证失败:', userCheckError);
@@ -134,7 +134,7 @@ export async function registerUser(
     while (!profile && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const { data: profileData, error: profileError } = await typedSupabase
+      const { data: profileData, error: profileError } = await typedSupabaseAdmin
         .from('user_profiles')
         .select('*')
         .eq('id', authData.user.id)
@@ -154,7 +154,7 @@ export async function registerUser(
       console.warn('触发器没有创建配置文件，尝试手动创建...');
       
       // 手动创建用户配置文件
-      const { data: manualProfile, error: manualError } = await typedSupabase
+      const { data: manualProfile, error: manualError } = await typedSupabaseAdmin
         .from('user_profiles')
         .insert({
           id: authData.user.id,
@@ -182,7 +182,7 @@ export async function registerUser(
     }
 
     // 3. 最终验证：确保用户和配置文件都存在且关联正确
-    const { data: finalCheck, error: finalCheckError } = await typedSupabase
+    const { data: finalCheck, error: finalCheckError } = await typedSupabaseAdmin
       .from('user_profiles')
       .select('*')
       .eq('id', authData.user.id)
@@ -203,7 +203,7 @@ export async function registerUser(
     // 如果设置为自动确认邮箱，则直接确认
     if (autoConfirmEmail) {
       console.log('自动确认邮箱...');
-      const { error: confirmError } = await typedSupabase.auth.admin.updateUserById(
+      const { error: confirmError } = await typedSupabaseAdmin.auth.admin.updateUserById(
         authData.user.id,
         { email_confirm: true }
       );
@@ -212,7 +212,7 @@ export async function registerUser(
         console.error('自动确认邮箱失败:', confirmError);
       } else {
         // 更新配置文件中的邮箱验证状态
-        await typedSupabase
+        await typedSupabaseAdmin
           .from('user_profiles')
           .update({ email_verified: true })
           .eq('id', authData.user.id);
