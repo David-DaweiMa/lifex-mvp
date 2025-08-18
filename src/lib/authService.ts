@@ -111,7 +111,23 @@ export async function registerUser(
 
     console.log('Supabase Auth 用户创建成功:', authData.user.id);
 
-    // 等待数据库触发器创建用户配置文件
+    // 🔄 新的逻辑：确保用户完全创建成功后再进行后续操作
+    console.log('=== 验证用户创建完整性 ===');
+    
+    // 1. 验证用户是否真的存在于auth.users表中
+    const { data: userCheck, error: userCheckError } = await typedSupabase.auth.admin.getUserById(authData.user.id);
+    
+    if (userCheckError || !userCheck.user) {
+      console.error('用户验证失败:', userCheckError);
+      return {
+        success: false,
+        error: '用户创建验证失败'
+      };
+    }
+    
+    console.log('✅ 用户验证成功，用户ID:', userCheck.user.id);
+
+    // 2. 等待并验证用户配置文件创建
     let profile = null;
     let attempts = 0;
     const maxAttempts = 10;
@@ -128,7 +144,7 @@ export async function registerUser(
 
       if (profileData && !profileError) {
         profile = profileData;
-        console.log('用户配置文件创建成功:', profile.id);
+        console.log('✅ 用户配置文件创建成功:', profile.id);
         break;
       }
       
@@ -157,13 +173,34 @@ export async function registerUser(
 
       if (manualError) {
         console.error('手动创建配置文件失败:', manualError);
-        // 不返回错误，因为用户可能已经创建成功，只是配置文件查询有问题
-        console.log('继续注册流程，配置文件可能已通过触发器创建');
+        return {
+          success: false,
+          error: '用户配置文件创建失败'
+        };
       } else {
         profile = manualProfile;
-        console.log('手动创建配置文件成功:', profile.id);
+        console.log('✅ 手动创建配置文件成功:', profile.id);
       }
     }
+
+    // 3. 最终验证：确保用户和配置文件都存在且关联正确
+    const { data: finalCheck, error: finalCheckError } = await typedSupabase
+      .from('user_profiles')
+      .select('*')
+      .eq('id', authData.user.id)
+      .eq('email', email)
+      .single();
+
+    if (finalCheckError || !finalCheck) {
+      console.error('最终验证失败:', finalCheckError);
+      return {
+        success: false,
+        error: '用户数据完整性验证失败'
+      };
+    }
+
+    console.log('✅ 用户数据完整性验证成功');
+    profile = finalCheck;
 
     // 如果设置为自动确认邮箱，则直接确认
     if (autoConfirmEmail) {
@@ -185,72 +222,26 @@ export async function registerUser(
         profile.email_verified = true;
         console.log('邮箱自动确认成功');
       }
-    } else {
-      // 发送邮件确认
-      console.log('=== 开始发送确认邮件 ===');
-      console.log('用户ID:', authData.user.id);
-      console.log('邮箱:', email);
-      console.log('用户名:', userData?.username || '用户');
-      console.log('用户类型:', userData?.user_type || 'free');
-      
-      // 检查邮件服务配置
-      console.log('检查邮件服务配置...');
-      console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? '已配置' : '未配置');
-      console.log('RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL);
-      
-      let emailSent = false;
-      let emailError = null;
-      
-      // 尝试发送邮件，最多重试3次
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          console.log(`邮件发送尝试 ${attempt}/3`);
-          
-          const emailResult = await emailService.sendEmailVerification(
-            email,
-            authData.user.id,
-            userData?.user_type || 'free'
-          );
-          
-          if (emailResult.success) {
-            console.log('✅ 确认邮件发送成功');
-            emailSent = true;
-            break;
-          } else {
-            console.warn(`❌ 邮件发送失败 (尝试 ${attempt}/3):`, emailResult.error);
-            emailError = emailResult.error;
-            
-            if (attempt < 3) {
-              console.log(`等待2秒后重试...`);
-              await new Promise(resolve => setTimeout(resolve, 2000));
-            }
-          }
-        } catch (error) {
-          console.error(`❌ 邮件发送异常 (尝试 ${attempt}/3):`, error);
-          emailError = error instanceof Error ? error.message : '未知错误';
-          
-          if (attempt < 3) {
-            console.log(`等待2秒后重试...`);
-            await new Promise(resolve => setTimeout(resolve, 2000));
-          }
-        }
-      }
-      
-      if (!emailSent) {
-        console.error('❌ 所有邮件发送尝试都失败了');
-        // 邮件发送失败，但仍然返回成功，因为用户已创建
-        console.log('用户创建成功，但邮件发送失败');
-      }
     }
 
-    console.log('=== 注册流程完成 ===');
+    // 4. 返回成功结果，但不在这里发送邮件
+    // 邮件发送将在调用方进行，确保用户创建完全成功后再发送
+    console.log('=== 用户注册流程完成 ===');
+    console.log('返回用户信息:', {
+      id: profile.id,
+      email: profile.email,
+      username: profile.username,
+      user_type: profile.user_type,
+      email_verified: profile.email_verified
+    });
+
     return {
       success: true,
       user: profile
     };
 
   } catch (error) {
-    console.error('用户注册失败:', error);
+    console.error('注册过程中发生错误:', error);
     return {
       success: false,
       error: '注册过程中发生错误'

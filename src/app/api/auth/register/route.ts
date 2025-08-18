@@ -72,6 +72,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 🔄 新的逻辑：先确保用户完全创建成功
+    console.log('=== 开始用户注册流程 ===');
+    
     // 注册用户（不自动确认邮箱）
     const result = await registerUser(email, password, {
       username,
@@ -80,13 +83,51 @@ export async function POST(request: NextRequest) {
     }, false); // 不自动确认邮箱
 
     if (!result.success || !result.user) {
+      console.error('用户注册失败:', result.error);
       return NextResponse.json(
         { error: result.error || 'User registration failed' },
         { status: 400 }
       );
     }
 
-    // 发送邮件确认
+    console.log('✅ 用户注册成功，用户ID:', result.user.id);
+
+    // 🔄 验证用户创建完整性
+    console.log('=== 验证用户创建完整性 ===');
+    
+    // 1. 再次验证用户是否真的存在
+    const { data: userCheck, error: userCheckError } = await supabase.auth.admin.getUserById(result.user.id);
+    
+    if (userCheckError || !userCheck.user) {
+      console.error('用户验证失败:', userCheckError);
+      return NextResponse.json(
+        { error: '用户创建验证失败' },
+        { status: 500 }
+      );
+    }
+    
+    console.log('✅ 用户验证成功');
+
+    // 2. 验证用户配置文件是否存在
+    const { data: profileCheck, error: profileCheckError } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('id', result.user.id)
+      .single();
+
+    if (profileCheckError || !profileCheck) {
+      console.error('用户配置文件验证失败:', profileCheckError);
+      return NextResponse.json(
+        { error: '用户配置文件验证失败' },
+        { status: 500 }
+      );
+    }
+    
+    console.log('✅ 用户配置文件验证成功');
+
+    // 3. 现在可以安全地发送邮件确认
+    console.log('=== 开始发送邮件确认 ===');
+    
     let emailSent = false;
     let emailError = null;
     
@@ -111,6 +152,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 无论邮件是否发送成功，注册都算成功
+    // 因为用户已经成功创建，邮件发送失败不影响用户注册
+    console.log('=== 注册流程完成 ===');
+    
     return NextResponse.json({
       success: true,
       user: result.user,
