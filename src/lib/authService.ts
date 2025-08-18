@@ -79,17 +79,15 @@ export async function registerUser(
 
     console.log('邮箱可用，开始创建用户...');
 
-    // 创建 Supabase 用户 - 不自动确认邮箱
-    const { data: authData, error: authError } = await typedSupabase.auth.signUp({
+    // 创建 Supabase 用户 - 使用管理员API直接创建用户
+    const { data: authData, error: authError } = await typedSupabase.auth.admin.createUser({
       email,
       password,
-      options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
-        data: {
-          username: userData?.username,
-          full_name: userData?.full_name,
-          user_type: userData?.user_type || 'free'
-        }
+      email_confirm: false,
+      user_metadata: {
+        username: userData?.username,
+        full_name: userData?.full_name,
+        user_type: userData?.user_type || 'free'
       }
     });
 
