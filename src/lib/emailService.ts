@@ -778,34 +778,54 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
         };
       }
 
-      // 3. 🔧 修复：测试插入权限 - 使用正确的token_type值
-      const testToken = 'diagnostic-test-' + Date.now();
+      // 3. 🔧 修复：测试插入权限 - 使用真实的用户ID
       try {
-        const { data: insertData, error: insertError } = await this.supabaseAdmin
-          .from('email_confirmations')
-          .insert({
-            user_id: '00000000-0000-0000-0000-000000000000',
-            email: 'diagnostic@test.com',
-            token: testToken,
-            token_type: 'email_verification', // 🔧 修复：使用正确的token_type
-            expires_at: new Date(Date.now() + 60000).toISOString()
-          })
-          .select();
+        // 首先获取一个真实的用户ID
+        const { data: realUser, error: userError } = await this.supabaseAdmin
+          .from('user_profiles')
+          .select('id')
+          .limit(1)
+          .single();
 
-        results.insert_test = {
-          success: !insertError,
-          error: insertError?.message,
-          data: insertData
-        };
-
-        // 清理测试数据
-        if (!insertError) {
-          await this.supabaseAdmin
-            .from('email_confirmations')
-            .delete()
-            .eq('token', testToken);
+        if (!userError && realUser) {
+          // 使用真实用户ID进行测试
+          const testToken = 'diagnostic-test-' + Date.now();
           
-          results.cleanup = { success: true, message: '测试数据已清理' };
+          const { data: insertData, error: insertError } = await this.supabaseAdmin
+            .from('email_confirmations')
+            .insert({
+              user_id: realUser.id,
+              email: 'diagnostic@test.com',
+              token: testToken,
+              token_type: 'email_verification',
+              expires_at: new Date(Date.now() + 60000).toISOString()
+            })
+            .select();
+
+          results.insert_test = {
+            success: !insertError,
+            error: insertError?.message,
+            data: insertData,
+            used_real_user: true,
+            user_id: realUser.id
+          };
+
+          // 清理测试数据
+          if (!insertError) {
+            await this.supabaseAdmin
+              .from('email_confirmations')
+              .delete()
+              .eq('token', testToken);
+            
+            results.cleanup = { success: true, message: '测试数据已清理' };
+          }
+        } else {
+          // 没有真实用户，跳过插入测试
+          results.insert_test = {
+            success: false,
+            error: '没有找到真实用户进行测试，请先注册一个用户',
+            skipped: true
+          };
         }
 
       } catch (err) {
