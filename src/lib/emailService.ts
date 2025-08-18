@@ -210,7 +210,7 @@ class EmailService {
             user_id: userId,
             email: email,
             token: token,
-            token_type: 'email_verification',
+            token_type: 'email_verification', // 🔧 修复：确保使用正确的token_type
             expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
             created_at: new Date().toISOString()
           })
@@ -722,7 +722,7 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
   }
 
   /**
-   * 数据库连接诊断功能
+   * 🔧 修复：数据库连接诊断功能
    */
   async diagnoseDatabaseConnection(): Promise<{
     success: boolean;
@@ -740,17 +740,16 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
         };
       }
 
-      // 1. 测试基本连接
+      // 1. 🔧 修复：测试基本连接 - 使用正确的查询语法
       try {
-        const { data: connectionTest, error: connectionError } = await this.supabaseAdmin
+        const { count, error: connectionError } = await this.supabaseAdmin
           .from('user_profiles')
-          .select('count(*)')
-          .limit(1);
+          .select('*', { count: 'exact', head: true });
 
         results.connection_test = {
           success: !connectionError,
           error: connectionError?.message,
-          data: connectionTest
+          count: count
         };
       } catch (err) {
         results.connection_test = {
@@ -779,7 +778,7 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
         };
       }
 
-      // 3. 测试插入权限
+      // 3. 🔧 修复：测试插入权限 - 使用正确的token_type值
       const testToken = 'diagnostic-test-' + Date.now();
       try {
         const { data: insertData, error: insertError } = await this.supabaseAdmin
@@ -788,7 +787,7 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
             user_id: '00000000-0000-0000-0000-000000000000',
             email: 'diagnostic@test.com',
             token: testToken,
-            token_type: 'diagnostic_test',
+            token_type: 'email_verification', // 🔧 修复：使用正确的token_type
             expires_at: new Date(Date.now() + 60000).toISOString()
           })
           .select();
@@ -813,6 +812,23 @@ ${userType.includes('business') ? '6. 设置您的商家信息' : ''}
         results.insert_test = {
           success: false,
           error: err instanceof Error ? err.message : '插入测试异常'
+        };
+      }
+
+      // 4. 🔧 新增：检查token_type约束
+      try {
+        const { data: constraintInfo, error: constraintError } = await this.supabaseAdmin
+          .rpc('get_check_constraints', { table_name: 'email_confirmations' });
+
+        results.constraint_check = {
+          success: !constraintError,
+          error: constraintError?.message,
+          constraints: constraintInfo || []
+        };
+      } catch (err) {
+        results.constraint_check = {
+          success: false,
+          error: 'Cannot check constraints: ' + (err instanceof Error ? err.message : '未知错误')
         };
       }
 
