@@ -284,7 +284,8 @@ class EmailService {
     email: string,
     userType: string = 'free'
   ): EmailTemplate {
-    const confirmationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/confirm?token=${confirmationToken}`;
+    // 🔧 指向确认路由，会自动重定向到结果页面
+    const confirmationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/confirm?token=${confirmationToken}&email=${encodeURIComponent(email)}`;
     
     console.log('生成确认邮件模板');
     console.log('确认URL:', confirmationUrl);
