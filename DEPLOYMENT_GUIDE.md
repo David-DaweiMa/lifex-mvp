@@ -1,119 +1,128 @@
-# LifeX MVP 部署指南
+# 🚀 生产环境部署指南
 
-## 🚀 Vercel 部署
+## 🔍 当前问题
 
-### 步骤 1: 准备环境变量
+从检查结果发现以下问题：
 
-在 Vercel 项目设置中配置以下环境变量：
+1. **生产环境URL配置错误** - `NEXT_PUBLIC_APP_URL` 设置为 `http://localhost:3000`
+2. **邮件确认记录为空** - `email_confirmations` 表没有数据
+3. **用户邮箱未验证** - 所有用户的 `email_verified` 都是 `false`
 
-#### 必需的环境变量：
+## 🛠️ 解决步骤
+
+### 步骤1: 设置正确的生产环境URL
+
+在Vercel Dashboard中设置环境变量：
+
+1. **访问Vercel Dashboard**: https://vercel.com/dashboard
+2. **选择你的项目**
+3. **进入Settings → Environment Variables**
+4. **添加或更新以下环境变量**:
+
+```
+NEXT_PUBLIC_APP_URL=https://your-production-domain.vercel.app
+```
+
+**注意**: 将 `your-production-domain.vercel.app` 替换为你的实际Vercel域名。
+
+### 步骤2: 确认其他环境变量
+
+确保以下环境变量都已正确设置：
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL=noreply@lifex.co.nz
+NEXT_PUBLIC_APP_URL=https://your-production-domain.vercel.app
 ```
 
-#### 可选的环境变量（用于AI功能）：
-```
-OPENAI_API_KEY=your_openai_api_key
-OPENAI_MODEL=gpt-5-nano
-```
+### 步骤3: 重新部署
 
-#### 应用配置：
-```
-NEXT_PUBLIC_APP_URL=https://your-domain.vercel.app
-NODE_ENV=production
-```
+1. **在Vercel Dashboard中点击"Redeploy"**
+2. **或者推送新的代码到GitHub触发自动部署**
 
-### 步骤 2: 获取 Supabase 配置
+### 步骤4: 验证部署
 
-1. 登录 [Supabase Dashboard](https://supabase.com/dashboard)
-2. 选择你的项目
-3. 进入 Settings > API
-4. 复制以下信息：
-   - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
-   - anon public key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+部署完成后，运行以下命令验证：
 
-### 步骤 3: 配置 Vercel
-
-1. 连接 GitHub 仓库到 Vercel
-2. 在项目设置中添加环境变量
-3. 设置构建命令：`npm run build`
-4. 设置输出目录：`.next`
-
-### 步骤 4: 部署
-
-1. 推送代码到 GitHub
-2. Vercel 会自动触发部署
-3. 等待构建完成
-
-## 🔧 环境变量配置
-
-### 本地开发 (.env.local)
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-OPENAI_API_KEY=your_openai_key
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NODE_ENV=development
+node check-production-deployment.js
 ```
 
-### 生产环境 (Vercel)
-在 Vercel 项目设置 > Environment Variables 中添加：
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `OPENAI_API_KEY` (可选)
-- `NEXT_PUBLIC_APP_URL`
+## 🧪 测试步骤
 
-## 🛠️ 故障排除
+### 1. 测试用户注册
 
-### 常见问题：
+1. 访问生产环境注册页面
+2. 完成用户注册
+3. 检查是否收到确认邮件
+4. 点击确认链接验证功能
 
-1. **构建失败：supabaseUrl is required**
-   - 确保在 Vercel 中设置了 `NEXT_PUBLIC_SUPABASE_URL`
-   - 检查环境变量名称是否正确
+### 2. 检查数据库记录
 
-2. **AI 功能不工作**
-   - 检查 `OPENAI_API_KEY` 是否设置
-   - 应用会在没有 AI 密钥时使用备用推荐
+运行以下命令检查：
 
-3. **认证问题**
-   - 确保 Supabase 项目配置正确
-   - 检查 RLS 策略是否启用
+```bash
+node debug-production-email.js
+```
 
-### 调试步骤：
+### 3. 检查Vercel函数日志
 
-1. 检查 Vercel 构建日志
-2. 验证环境变量是否正确设置
-3. 测试 Supabase 连接
-4. 检查数据库表是否存在
+1. 访问Vercel Dashboard
+2. 查看函数日志
+3. 查找邮件发送相关的错误
 
-## 📊 监控和维护
+## 📋 检查清单
 
-### 性能监控：
-- 使用 Vercel Analytics
-- 监控 Supabase 使用量
-- 检查 OpenAI API 使用情况
+### 环境变量配置
+- [ ] `NEXT_PUBLIC_APP_URL` 设置为正确的生产域名
+- [ ] `SUPABASE_SERVICE_ROLE_KEY` 已配置
+- [ ] `RESEND_API_KEY` 已配置
+- [ ] `RESEND_FROM_EMAIL` 已配置
 
-### 安全维护：
-- 定期更新依赖
-- 监控 Supabase 安全日志
-- 检查 RLS 策略
+### 代码部署
+- [ ] 最新代码已推送到GitHub
+- [ ] Vercel自动部署成功
+- [ ] 部署时间在代码推送之后
 
-## 🎯 生产环境检查清单
+### 功能测试
+- [ ] 用户注册功能正常
+- [ ] 邮件发送功能正常
+- [ ] 邮件确认功能正常
+- [ ] 数据库记录正确
 
-- [ ] 环境变量配置完成
-- [ ] Supabase 项目设置正确
-- [ ] 数据库表创建完成
-- [ ] RLS 策略启用
-- [ ] 域名配置（可选）
-- [ ] SSL 证书（自动）
-- [ ] 性能测试通过
-- [ ] 功能测试完成
+## 🔗 有用的链接
 
-## 📞 支持
+- **Vercel Dashboard**: https://vercel.com/dashboard
+- **Supabase Dashboard**: https://supabase.com/dashboard
+- **Resend Dashboard**: https://resend.com/dashboard
 
-如果遇到部署问题：
-1. 检查 Vercel 构建日志
-2. 验证环境变量配置
-3. 测试本地构建：`npm run build`
-4. 联系技术支持
+## 🚨 常见问题
+
+### 问题1: 邮件发送失败
+**解决方案**: 检查Resend API密钥和域名验证
+
+### 问题2: Token保存失败
+**解决方案**: 确认 `SUPABASE_SERVICE_ROLE_KEY` 配置正确
+
+### 问题3: 确认链接无效
+**解决方案**: 检查 `NEXT_PUBLIC_APP_URL` 设置
+
+## 📞 技术支持
+
+如果问题仍然存在，请提供：
+
+1. Vercel函数日志
+2. 环境变量配置截图
+3. 数据库记录截图
+4. 错误信息详情
+
+## 🎯 预期结果
+
+修复后应该看到：
+
+- ✅ 用户注册后收到确认邮件
+- ✅ `email_confirmations` 表有数据
+- ✅ 用户邮箱验证状态为 `true`
+- ✅ 邮件确认链接正常工作
