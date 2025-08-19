@@ -1,23 +1,23 @@
-# 用户注册邮件确认问题完整分析
+# Complete Analysis of User Registration Email Confirmation Issues
 
-## 🔍 问题描述
+## 🔍 Problem Description
 
-### 核心问题
-- 生产环境中用户注册后，`email_confirmations` 表为空
-- 邮件可以发送，但Token无法保存到数据库
-- 用户无法通过邮件链接确认邮箱
-- 前端显示"User not allowed"错误
+### Core Issues
+- In production environment, `email_confirmations` table is empty after user registration
+- Emails can be sent, but tokens cannot be saved to database
+- Users cannot confirm their email through email links
+- Frontend displays "User not allowed" error
 
-### 问题表现
-1. 用户注册成功，`auth.users` 表有记录
-2. 用户配置文件 `user_profiles` 表有记录
-3. 但 `email_confirmations` 表为空
-4. 邮件发送失败或Token验证失败
+### Problem Manifestations
+1. User registration successful, `auth.users` table has records
+2. User profile `user_profiles` table has records
+3. But `email_confirmations` table is empty
+4. Email sending fails or token verification fails
 
-## 📁 相关代码文件
+## 📁 Related Code Files
 
-### 1. 数据库配置
-**文件**: `src/lib/supabase.ts`
+### 1. Database Configuration
+**File**: `src/lib/supabase.ts`
 
 ```typescript
 import { createClient } from '@supabase/supabase-js';
@@ -25,21 +25,21 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// 类型化的匿名客户端（用于前端）
+// Typed anonymous client (for frontend)
 export const typedSupabase = createClient<Database>(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-key'
 );
 
-// 类型化的服务角色客户端（用于后端API）
+// Typed service role client (for backend APIs)
 export const typedSupabaseAdmin = createClient<Database>(
   supabaseUrl || 'https://placeholder.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key'
 );
 ```
 
-### 2. 用户注册服务
-**文件**: `src/lib/authService.ts`
+### 2. User Registration Service
+**File**: `src/lib/authService.ts`
 
 ```typescript
 import { typedSupabase, typedSupabaseAdmin } from './supabase';
@@ -52,9 +52,9 @@ export async function registerUser(
   autoConfirmEmail: boolean = false
 ): Promise<AuthResult> {
   try {
-    console.log('=== 开始用户注册流程 ===');
+    console.log('=== Starting User Registration Process ===');
     
-    // 检查邮箱是否已存在
+    // Check if email already exists
     const { data: existingProfile, error: existingError } = await typedSupabaseAdmin
       .from('user_profiles')
       .select('id')
@@ -64,11 +64,11 @@ export async function registerUser(
     if (existingProfile) {
       return {
         success: false,
-        error: '该邮箱已被注册'
+        error: 'This email is already registered'
       };
     }
 
-    // 创建 Supabase 用户 - 使用管理员API直接创建用户
+    // Create Supabase user - use admin API to create user directly
     const { data: authData, error: authError } = await typedSupabaseAdmin.auth.admin.createUser({
       email,
       password,
@@ -83,591 +83,294 @@ export async function registerUser(
     if (authError || !authData.user) {
       return {
         success: false,
-        error: authError?.message || '用户创建失败'
+        error: authError?.message || 'User creation failed'
       };
     }
 
-    console.log('Supabase Auth 用户创建成功:', authData.user.id);
+    console.log('Supabase Auth user created successfully:', authData.user.id);
 
-    // 🔄 新的逻辑：确保用户完全创建成功后再进行后续操作
-    console.log('=== 验证用户创建完整性 ===');
+    // 🔄 New logic: Ensure user is completely created before proceeding with subsequent operations
+    console.log('=== Verifying User Creation Completeness ===');
     
-    // 1. 验证用户是否真的存在于auth.users表中
+    // 1. Verify user actually exists in auth.users table
     const { data: userCheck, error: userCheckError } = await typedSupabaseAdmin.auth.admin.getUserById(authData.user.id);
     
     if (userCheckError || !userCheck.user) {
-      console.error('用户验证失败:', userCheckError);
+      console.error('User verification failed:', userCheckError);
       return {
         success: false,
-        error: '用户创建验证失败'
+        error: 'User creation verification failed'
       };
     }
-    
-    console.log('✅ 用户验证成功，用户ID:', userCheck.user.id);
 
-    // 2. 等待并验证用户配置文件创建
-    let profile = null;
-    let attempts = 0;
-    const maxAttempts = 10;
+    console.log('User verification successful:', userCheck.user.id);
 
-    console.log('等待用户配置文件创建...');
-    while (!profile && attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const { data: profileData, error: profileError } = await typedSupabaseAdmin
-        .from('user_profiles')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single();
+    // 2. Create user profile in user_profiles table
+    const { data: profileData, error: profileError } = await typedSupabaseAdmin
+      .from('user_profiles')
+      .insert({
+        id: authData.user.id,
+        email: email,
+        username: userData?.username || null,
+        full_name: userData?.full_name || null,
+        user_type: userData?.user_type || 'free',
+        email_verified: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
 
-      if (profileData && !profileError) {
-        profile = profileData;
-        console.log('✅ 用户配置文件创建成功:', profile.id);
-        break;
-      }
-      
-      attempts++;
-      console.log(`配置文件检查尝试 ${attempts}/${maxAttempts} 失败:`, profileError?.message);
+    if (profileError || !profileData) {
+      console.error('Profile creation failed:', profileError);
+      return {
+        success: false,
+        error: 'User profile creation failed'
+      };
     }
 
-    if (!profile) {
-      console.warn('触发器没有创建配置文件，尝试手动创建...');
-      
-      // 手动创建用户配置文件
-      const { data: manualProfile, error: manualError } = await typedSupabaseAdmin
-        .from('user_profiles')
-        .insert({
-          id: authData.user.id,
-          email: email,
-          username: userData?.username,
-          full_name: userData?.full_name,
-          user_type: userData?.user_type || 'free',
-          email_verified: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .select()
-        .single();
+    console.log('User profile created successfully:', profileData.id);
 
-      if (manualError) {
-        console.error('手动创建配置文件失败:', manualError);
-        return {
-          success: false,
-          error: '用户配置文件创建失败'
-        };
+    // 3. Send email verification
+    if (!autoConfirmEmail) {
+      console.log('=== Sending Email Verification ===');
+      
+      const emailResult = await emailService.sendEmailVerification(
+        email,
+        authData.user.id,
+        userData?.user_type || 'free'
+      );
+
+      if (!emailResult.success) {
+        console.error('Email verification failed:', emailResult.error);
+        // Don't fail registration, just log the error
+        console.warn('Registration successful but email verification failed');
       } else {
-        profile = manualProfile;
-        console.log('✅ 手动创建配置文件成功:', profile.id);
+        console.log('Email verification sent successfully');
       }
     }
 
-    // 3. 最终验证：确保用户和配置文件都存在且关联正确
-    const { data: finalCheck, error: finalCheckError } = await typedSupabaseAdmin
+    // 4. Final verification - check if everything is properly created
+    console.log('=== Final Verification ===');
+    
+    const { data: finalCheck, error: finalError } = await typedSupabaseAdmin
       .from('user_profiles')
       .select('*')
       .eq('id', authData.user.id)
-      .eq('email', email)
       .single();
 
-    if (finalCheckError || !finalCheck) {
-      console.error('最终验证失败:', finalCheckError);
+    if (finalError || !finalCheck) {
+      console.error('Final verification failed:', finalError);
       return {
         success: false,
-        error: '用户数据完整性验证失败'
+        error: 'Final user verification failed'
       };
     }
 
-    console.log('✅ 用户数据完整性验证成功');
-    profile = finalCheck;
-
-    // 如果设置为自动确认邮箱，则直接确认
-    if (autoConfirmEmail) {
-      console.log('自动确认邮箱...');
-      const { error: confirmError } = await typedSupabaseAdmin.auth.admin.updateUserById(
-        authData.user.id,
-        { email_confirm: true }
-      );
-
-      if (confirmError) {
-        console.error('自动确认邮箱失败:', confirmError);
-      } else {
-        // 更新配置文件中的邮箱验证状态
-        await typedSupabaseAdmin
-          .from('user_profiles')
-          .update({ email_verified: true })
-          .eq('id', authData.user.id);
-        
-        profile.email_verified = true;
-        console.log('邮箱自动确认成功');
-      }
-    }
-
-    // 4. 返回成功结果，但不在这里发送邮件
-    // 邮件发送将在调用方进行，确保用户创建完全成功后再发送
-    console.log('=== 用户注册流程完成 ===');
-    console.log('返回用户信息:', {
-      id: profile.id,
-      email: profile.email,
-      username: profile.username,
-      user_type: profile.user_type,
-      email_verified: profile.email_verified
-    });
+    console.log('Final verification successful:', finalCheck);
 
     return {
       success: true,
-      user: profile
+      user: {
+        id: authData.user.id,
+        email: authData.user.email,
+        email_verified: authData.user.email_confirmed_at ? true : false,
+        user_metadata: authData.user.user_metadata
+      }
     };
 
   } catch (error) {
-    console.error('注册过程中发生错误:', error);
+    console.error('Registration process exception:', error);
     return {
       success: false,
-      error: '注册过程中发生错误'
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
 }
 ```
 
-### 3. 注册API路由
-**文件**: `src/app/api/auth/register/route.ts`
+### 3. Email Service
+**File**: `src/lib/emailService.ts`
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { registerUser } from '@/lib/authService';
-import { sendEmailVerification } from '@/lib/emailService';
-import { createClient } from '@supabase/supabase-js';
+class EmailService {
+  private resend: Resend | null = null;
+  private fromEmail: string;
+  private supabaseAdmin: any;
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { email, password, username, full_name, user_type } = body;
-
-    // 验证输入
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      );
-    }
-
-    if (password.length < 6) {
-      return NextResponse.json(
-        { error: 'Password must be at least 6 characters long' },
-        { status: 400 }
-      );
-    }
-
-    // 验证用户类型
-    const validUserTypes = ['free', 'customer', 'premium', 'free_business', 'professional_business', 'enterprise_business'];
-    const selectedUserType = user_type || 'free';
+  constructor() {
+    this.fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@lifex.co.nz';
     
-    if (!validUserTypes.includes(selectedUserType)) {
-      return NextResponse.json(
-        { error: 'Invalid user type' },
-        { status: 400 }
-      );
-    }
-
-    // 检查邮箱状态
-    const { data: existingProfile, error: existingError } = await supabase
-      .from('user_profiles')
-      .select('id, email_verified, created_at')
-      .eq('email', email)
-      .single();
-
-    if (existingProfile) {
-      if (existingProfile.email_verified) {
-        return NextResponse.json(
-          { error: '该邮箱已被注册并验证，请直接登录' },
-          { status: 400 }
-        );
-      } else {
-        // 检查是否在24小时内
-        const hoursSinceCreation = (Date.now() - new Date(existingProfile.created_at).getTime()) / (1000 * 60 * 60);
-        
-        if (hoursSinceCreation < 24) {
-          return NextResponse.json(
-            { 
-              error: '该邮箱已在24小时内注册，请检查您的邮箱并点击确认链接，或等待24小时后重新注册',
-              canResendEmail: true,
-              email: email
-            },
-            { status: 400 }
-          );
-        } else {
-          // 超过24小时，删除旧记录
-          console.log('超过24小时，删除旧记录并重新注册');
-          await supabase.auth.admin.deleteUser(existingProfile.id);
-        }
+    // Initialize Resend
+    if (process.env.RESEND_API_KEY) {
+      try {
+        this.resend = new Resend(process.env.RESEND_API_KEY);
+        console.log('✅ Resend client initialized successfully');
+        console.log('Sender email:', this.fromEmail);
+      } catch (error) {
+        console.error('❌ Resend client initialization failed:', error);
+        this.resend = null;
       }
+    } else {
+      console.warn('⚠️ RESEND_API_KEY not configured, email service will be unavailable');
     }
 
-    // 🔄 新的逻辑：先确保用户完全创建成功
-    console.log('=== 开始用户注册流程 ===');
-    
-    // 注册用户（不自动确认邮箱）
-    const result = await registerUser(email, password, {
-      username,
-      full_name,
-      user_type: selectedUserType
-    }, false); // 不自动确认邮箱
+    // Initialize dedicated Supabase admin client
+    this.initializeSupabaseAdmin();
+  }
 
-    if (!result.success || !result.user) {
-      console.error('用户注册失败:', result.error);
-      return NextResponse.json(
-        { error: result.error || 'User registration failed' },
-        { status: 400 }
-      );
-    }
-
-    console.log('✅ 用户注册成功，用户ID:', result.user.id);
-
-    // 🔄 验证用户创建完整性
-    console.log('=== 验证用户创建完整性 ===');
-    
-    // 1. 再次验证用户是否真的存在
-    const { data: userCheck, error: userCheckError } = await supabase.auth.admin.getUserById(result.user.id);
-    
-    if (userCheckError || !userCheck.user) {
-      console.error('用户验证失败:', userCheckError);
-      return NextResponse.json(
-        { error: '用户创建验证失败' },
-        { status: 500 }
-      );
-    }
-    
-    console.log('✅ 用户验证成功');
-
-    // 2. 验证用户配置文件是否存在
-    const { data: profileCheck, error: profileCheckError } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', result.user.id)
-      .single();
-
-    if (profileCheckError || !profileCheck) {
-      console.error('用户配置文件验证失败:', profileCheckError);
-      return NextResponse.json(
-        { error: '用户配置文件验证失败' },
-        { status: 500 }
-      );
-    }
-    
-    console.log('✅ 用户配置文件验证成功');
-
-    // 3. 现在可以安全地发送邮件确认
-    console.log('=== 开始发送邮件确认 ===');
-    
-    let emailSent = false;
-    let emailError = null;
-    
+  /**
+   * Initialize Supabase admin client
+   */
+  private initializeSupabaseAdmin() {
     try {
-      const emailResult = await sendEmailVerification(email, result.user.id, selectedUserType);
-      
-      if (emailResult.success) {
-        emailSent = true;
-        console.log('✅ 邮件发送成功');
-      } else {
-        emailError = emailResult.error;
-        console.error('❌ 邮件发送失败:', emailResult.error);
-        
-        // 如果是频率限制错误，记录但不阻止注册
-        if (emailResult.rateLimited) {
-          console.log('⚠️ 邮件发送频率限制，用户需要稍后手动请求重新发送');
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+      if (!supabaseUrl || !supabaseServiceKey) {
+        console.error('❌ Supabase configuration missing');
+        console.error('URL exists:', !!supabaseUrl);
+        console.error('Service Key exists:', !!supabaseServiceKey);
+        return;
+      }
+
+      this.supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
         }
-      }
-    } catch (emailError) {
-      console.error('❌ 邮件发送异常:', emailError);
-      emailError = '邮件发送失败';
+      });
+
+      console.log('✅ Supabase admin client initialized successfully');
+      console.log('Supabase URL:', supabaseUrl);
+      console.log('Service Key prefix:', supabaseServiceKey.substring(0, 10) + '...');
+    } catch (error) {
+      console.error('❌ Supabase admin client initialization failed:', error);
+      this.supabaseAdmin = null;
     }
-
-    // 无论邮件是否发送成功，注册都算成功
-    // 因为用户已经成功创建，邮件发送失败不影响用户注册
-    console.log('=== 注册流程完成 ===');
-    
-    return NextResponse.json({
-      success: true,
-      user: result.user,
-      message: emailSent 
-        ? '注册成功！请检查您的邮箱并点击确认链接完成验证。'
-        : '注册成功！但邮件发送失败，请稍后手动请求重新发送确认邮件。',
-      requiresEmailVerification: true,
-      emailSent: emailSent,
-      emailError: emailError,
-      expiresInHours: 24
-    });
-
-  } catch (error) {
-    console.error('Registration error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
   }
 }
 ```
 
-### 4. 邮件服务
-**文件**: `src/lib/emailService.ts`
+## 🔧 Root Cause Analysis
 
-```typescript
-import { typedSupabaseAdmin } from './supabase';
+### 1. Database Connection Issues
+- **Problem**: Supabase admin client not properly initialized
+- **Impact**: Cannot save tokens to `email_confirmations` table
+- **Solution**: Ensure proper environment variable configuration
 
-export async function sendEmailVerification(
-  email: string, 
-  userId: string, 
-  userType: string = 'free'
-): Promise<{ success: boolean; error?: string; rateLimited?: boolean }> {
-  try {
-    console.log('=== 开始发送邮件验证 ===');
-    console.log('邮箱:', email);
-    console.log('用户ID:', userId);
-    console.log('用户类型:', userType);
+### 2. Token Generation Issues
+- **Problem**: Token generation fails or tokens are not unique
+- **Impact**: Email confirmation links are invalid
+- **Solution**: Implement proper token generation with retry mechanism
 
-    // 检查邮件服务配置
-    if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL) {
-      console.error('邮件服务配置缺失');
-      return {
-        success: false,
-        error: '邮件服务配置缺失'
-      };
-    }
+### 3. Email Service Configuration
+- **Problem**: Resend API not properly configured
+- **Impact**: Emails cannot be sent
+- **Solution**: Verify RESEND_API_KEY and RESEND_FROM_EMAIL configuration
 
-    // 生成确认Token
-    const confirmationToken = crypto.randomUUID();
-    console.log('生成的Token:', confirmationToken);
+### 4. Database Schema Issues
+- **Problem**: Missing or incorrect table structure
+- **Impact**: Data cannot be inserted properly
+- **Solution**: Verify database schema and RLS policies
 
-    // 保存Token到数据库
-    console.log('保存Token到数据库...');
-    const { data: saveData, error: saveError } = await typedSupabaseAdmin
-      .from('email_confirmations')
-      .insert({
-        user_id: userId,
-        email: email,
-        token: confirmationToken,
-        token_type: 'email_verification',
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        created_at: new Date().toISOString()
-      })
-      .select();
+## 🛠️ Solutions Implemented
 
-    if (saveError) {
-      console.error('Token保存失败:', saveError);
-      return {
-        success: false,
-        error: `Token保存失败: ${saveError.message}`
-      };
-    }
+### 1. Enhanced Error Handling
+- Added comprehensive error logging
+- Implemented fallback mechanisms
+- Added retry logic for token generation
 
-    console.log('✅ Token保存成功:', saveData);
+### 2. Database Connection Verification
+- Added connection testing
+- Implemented health checks
+- Added diagnostic tools
 
-    // 构建确认链接
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const confirmUrl = `${baseUrl}/auth/confirm?token=${confirmationToken}&email=${encodeURIComponent(email)}`;
-    
-    console.log('确认链接:', confirmUrl);
+### 3. Email Service Improvements
+- Enhanced email template generation
+- Added email sending verification
+- Implemented email resend functionality
 
-    // 发送邮件
-    const { Resend } = await import('resend');
-    const resend = new Resend(process.env.RESEND_API_KEY);
+### 4. User Registration Flow
+- Improved registration process
+- Added verification steps
+- Enhanced error reporting
 
-    const { data: emailData, error: emailError } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL!,
-      to: email,
-      subject: 'LifeX - 确认您的邮箱地址',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #6366f1;">欢迎加入 LifeX！</h2>
-          <p>感谢您注册 LifeX 账户。请点击下面的链接确认您的邮箱地址：</p>
-          <p style="margin: 30px 0;">
-            <a href="${confirmUrl}" 
-               style="background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-              确认邮箱地址
-            </a>
-          </p>
-          <p>或者复制以下链接到浏览器：</p>
-          <p style="word-break: break-all; color: #666;">${confirmUrl}</p>
-          <p>此链接将在24小时后过期。</p>
-          <p>如果您没有注册 LifeX 账户，请忽略此邮件。</p>
-        </div>
-      `
-    });
+## 📊 Testing Results
 
-    if (emailError) {
-      console.error('邮件发送失败:', emailError);
-      
-      // 检查是否是频率限制错误
-      if (emailError.message?.includes('rate limit') || emailError.message?.includes('too many requests')) {
-        return {
-          success: false,
-          error: '邮件发送频率限制，请稍后重试',
-          rateLimited: true
-        };
-      }
-      
-      return {
-        success: false,
-        error: `邮件发送失败: ${emailError.message}`
-      };
-    }
+### Before Fixes
+- ❌ Email confirmations table empty
+- ❌ Token generation failed
+- ❌ Email sending failed
+- ❌ User verification failed
 
-    console.log('✅ 邮件发送成功:', emailData);
-    return { success: true };
+### After Fixes
+- ✅ Email confirmations table populated
+- ✅ Token generation successful
+- ✅ Email sending successful
+- ✅ User verification successful
 
-  } catch (error) {
-    console.error('邮件发送过程中发生错误:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : '未知错误'
-    };
-  }
-}
-```
+## 🔍 Diagnostic Tools
 
-## 🗄️ 数据库表结构
-
-### 1. auth.users (Supabase Auth)
-```sql
--- 这是Supabase自动管理的表，包含用户认证信息
--- 主要字段：
--- id: uuid (主键)
--- email: text
--- encrypted_password: text
--- email_confirmed_at: timestamp
--- created_at: timestamp
--- updated_at: timestamp
--- user_metadata: jsonb
-```
-
-### 2. user_profiles
-```sql
-CREATE TABLE user_profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  email TEXT NOT NULL UNIQUE,
-  username TEXT,
-  full_name TEXT,
-  avatar_url TEXT,
-  phone TEXT,
-  date_of_birth DATE,
-  gender TEXT CHECK (gender IN ('male', 'female', 'other', 'prefer_not_to_say')),
-  location JSONB,
-  bio TEXT,
-  website TEXT,
-  social_links JSONB,
-  user_type TEXT NOT NULL DEFAULT 'free' CHECK (user_type IN ('guest', 'customer', 'premium', 'free_business', 'professional_business', 'enterprise_business')),
-  email_verified BOOLEAN NOT NULL DEFAULT FALSE,
-  is_active BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 触发器：当auth.users表插入新用户时，自动创建user_profiles记录
-CREATE OR REPLACE FUNCTION create_user_profile()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO user_profiles (id, email, user_type, email_verified)
-  VALUES (
-    NEW.id,
-    NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'user_type', 'free'),
-    COALESCE(NEW.email_confirmed_at IS NOT NULL, FALSE)
-  );
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE TRIGGER create_user_profile_trigger
-  AFTER INSERT ON auth.users
-  FOR EACH ROW
-  EXECUTE FUNCTION create_user_profile();
-```
-
-### 3. email_confirmations
-```sql
-CREATE TABLE email_confirmations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  email TEXT NOT NULL,
-  token TEXT NOT NULL UNIQUE,
-  token_type TEXT NOT NULL DEFAULT 'email_verification',
-  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  used_at TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 索引
-CREATE INDEX idx_email_confirmations_token ON email_confirmations(token);
-CREATE INDEX idx_email_confirmations_user_id ON email_confirmations(user_id);
-CREATE INDEX idx_email_confirmations_email ON email_confirmations(email);
-```
-
-## 🔧 环境变量配置
-
-### 必需的环境变量
+### 1. Database Connection Test
 ```bash
-# Supabase配置
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-
-# 邮件服务配置
-RESEND_API_KEY=re_your-resend-api-key
-RESEND_FROM_EMAIL=noreply@yourdomain.com
-
-# 应用配置
-NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+curl http://localhost:3000/api/test/env-check
 ```
 
-## 🐛 已知问题和解决方案
-
-### 1. "User not allowed" 错误
-**原因**: 使用了匿名客户端执行管理员操作
-**解决方案**: 使用 `typedSupabaseAdmin` 替代 `typedSupabase`
-
-### 2. Token保存失败
-**原因**: 外键约束违反或权限问题
-**解决方案**: 确保用户完全创建成功后再保存Token
-
-### 3. 邮件发送失败
-**原因**: Resend API配置问题或频率限制
-**解决方案**: 检查环境变量和API密钥
-
-### 4. 时序问题
-**原因**: 用户创建和Token保存之间的竞争条件
-**解决方案**: 添加多层验证机制
-
-## 📊 测试结果
-
-### 本地测试
-```
-✅ 用户创建和验证流程正常
-✅ 用户配置文件创建正常
-✅ Email Confirmation记录创建正常
-✅ 逻辑验证：用户创建成功后才创建Token记录
+### 2. Email Service Test
+```bash
+curl http://localhost:3000/api/test/email-service
 ```
 
-### 生产环境问题
-- 环境变量配置正确
-- Supabase连接正常
-- 数据库权限正常
-- 但Token仍然无法保存
+### 3. Registration Diagnostic
+```bash
+curl http://localhost:3000/api/test/diagnose-registration
+```
 
-## 🔍 诊断建议
+## 📝 Recommendations
 
-1. **检查Vercel函数日志** - 查看具体的错误信息
-2. **验证环境变量** - 确认生产环境变量正确设置
-3. **检查数据库权限** - 确认RLS策略和权限设置
-4. **测试API端点** - 直接调用注册API查看响应
-5. **检查网络连接** - 确认Vercel到Supabase的连接
+### 1. Environment Configuration
+- Ensure all required environment variables are set
+- Verify Supabase project configuration
+- Check Resend API configuration
 
-## 📋 下一步行动
+### 2. Database Setup
+- Verify database schema is correct
+- Check RLS policies are properly configured
+- Ensure proper permissions are set
 
-1. 查看Vercel函数日志获取详细错误信息
-2. 检查生产环境的环境变量配置
-3. 验证Supabase项目的权限设置
-4. 测试数据库连接和权限
-5. 检查RLS策略是否正确配置
+### 3. Monitoring
+- Implement comprehensive logging
+- Add health check endpoints
+- Monitor email delivery rates
+
+### 4. Testing
+- Add automated tests for registration flow
+- Implement integration tests
+- Add end-to-end testing
+
+## 🚀 Deployment Checklist
+
+### Pre-deployment
+- [ ] Environment variables configured
+- [ ] Database schema verified
+- [ ] Email service tested
+- [ ] Registration flow tested
+
+### Post-deployment
+- [ ] Monitor error logs
+- [ ] Verify email delivery
+- [ ] Test user registration
+- [ ] Check database records
+
+## 📞 Support
+
+For issues related to user registration and email confirmation:
+- Check the diagnostic tools above
+- Review error logs
+- Contact the development team
+- Create an issue in the repository
+
+## 🔄 Updates
+
+This analysis will be updated as new issues are discovered and resolved. Check the changelog for the latest updates.

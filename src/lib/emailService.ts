@@ -276,7 +276,7 @@ class EmailService {
   }
 
   /**
-   * 生成邮件确认模板
+   * Generate email confirmation template
    */
   generateEmailConfirmationTemplate(
     username: string,
@@ -284,44 +284,44 @@ class EmailService {
     email: string,
     userType: string = 'free'
   ): EmailTemplate {
-    // 🔧 指向确认路由，会自动重定向到结果页面
+    // 🔧 Point to confirmation route, will automatically redirect to result page
     const confirmationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/confirm?token=${confirmationToken}&email=${encodeURIComponent(email)}`;
     
-    console.log('生成确认邮件模板');
-    console.log('确认URL:', confirmationUrl);
-    console.log('用户类型:', userType);
+    console.log('Generating confirmation email template');
+    console.log('Confirmation URL:', confirmationUrl);
+    console.log('User type:', userType);
     
-    // 根据用户类型生成不同的配额信息
+    // Generate different quota information based on user type
     const getQuotaInfo = (type: string) => {
       switch (type) {
         case 'free':
-          return '20次AI聊天/天, 10次趋势分析/月, 2次广告/月';
+          return '20 AI chats/day, 10 trend analysis/month, 2 ads/month';
         case 'customer':
-          return '100次AI聊天/天, 50次趋势分析/月, 10次广告/月';
+          return '100 AI chats/day, 50 trend analysis/month, 10 ads/month';
         case 'premium':
-          return '500次AI聊天/天, 200次趋势分析/月, 50次广告/月';
+          return '500 AI chats/day, 200 trend analysis/month, 50 ads/month';
         case 'free_business':
-          return '20次AI聊天/天, 10次趋势分析/月, 2次广告/月, 20个产品, 2个店铺';
+          return '20 AI chats/day, 10 trend analysis/month, 2 ads/month, 20 products, 2 stores';
         case 'professional_business':
-          return '100次AI聊天/天, 50次趋势分析/月, 10次广告/月, 50个产品, 3个店铺';
+          return '100 AI chats/day, 50 trend analysis/month, 10 ads/month, 50 products, 3 stores';
         case 'enterprise_business':
-          return '500次AI聊天/天, 200次趋势分析/月, 50次广告/月, 200个产品, 10个店铺';
+          return '500 AI chats/day, 200 trend analysis/month, 50 ads/month, 200 products, 10 stores';
         default:
-          return '20次AI聊天/天, 10次趋势分析/月, 2次广告/月';
+          return '20 AI chats/day, 10 trend analysis/month, 2 ads/month';
       }
     };
     
     const quotaInfo = getQuotaInfo(userType);
     
     return {
-      subject: '欢迎加入 LifeX - 请确认您的邮箱',
+      subject: 'Welcome to LifeX - Please Confirm Your Email',
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>确认您的 LifeX 账户</title>
+          <title>Confirm Your LifeX Account</title>
           <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -335,87 +335,87 @@ class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <h1>🎉 欢迎加入 LifeX</h1>
-              <p>新西兰本地生活推荐平台</p>
+              <h1>🎉 Welcome to LifeX</h1>
+              <p>New Zealand Local Life Recommendation Platform</p>
             </div>
             <div class="content">
-              <h2>您好 ${username}！</h2>
-              <p>感谢您注册 LifeX 账户。为了确保您的账户安全，请点击下面的按钮确认您的邮箱地址：</p>
+              <h2>Hello ${username}!</h2>
+              <p>Thank you for registering a LifeX account. To ensure your account security, please click the button below to confirm your email address:</p>
               
               <div style="text-align: center;">
-                <a href="${confirmationUrl}" class="button">确认邮箱地址</a>
+                <a href="${confirmationUrl}" class="button">Confirm Email Address</a>
               </div>
               
-              <p>如果您无法点击按钮，请复制以下链接到浏览器地址栏：</p>
+              <p>If you cannot click the button, please copy the following link to your browser address bar:</p>
               <p style="word-break: break-all; color: #667eea;">${confirmationUrl}</p>
               
               <div class="quota-info">
-                <h3>📊 您的账户配额</h3>
-                <p><strong>用户类型：</strong> ${userType.charAt(0).toUpperCase() + userType.slice(1)}</p>
-                <p><strong>包含功能：</strong> ${quotaInfo}</p>
+                <h3>📊 Your Account Quota</h3>
+                <p><strong>User Type:</strong> ${userType.charAt(0).toUpperCase() + userType.slice(1)}</p>
+                <p><strong>Included Features:</strong> ${quotaInfo}</p>
               </div>
               
-              <p><strong>重要提示：</strong></p>
+              <p><strong>Important Notes:</strong></p>
               <ul>
-                <li>此链接将在 24 小时后失效</li>
-                <li>如果您没有注册 LifeX 账户，请忽略此邮件</li>
-                <li>确认邮箱后即可开始使用所有功能</li>
-                <li>如有问题，请联系我们的支持团队</li>
+                <li>This link will expire in 24 hours</li>
+                <li>If you did not register a LifeX account, please ignore this email</li>
+                <li>After confirming your email, you can start using all features</li>
+                <li>If you have any questions, please contact our support team</li>
               </ul>
               
-              <p>确认邮箱后，您将可以：</p>
+              <p>After confirming your email, you will be able to:</p>
               <ul>
-                <li>使用 AI 智能助手获取个性化推荐</li>
-                <li>发现新西兰本地优质商家</li>
-                <li>发布和分享本地生活内容</li>
-                <li>享受专属优惠和活动</li>
-                <li>管理您的商家账户（商家用户）</li>
+                <li>Use AI intelligent assistant for personalized recommendations</li>
+                <li>Discover quality local businesses in New Zealand</li>
+                <li>Post and share local life content</li>
+                <li>Enjoy exclusive offers and events</li>
+                <li>Manage your business account (business users)</li>
               </ul>
               
-              <p><strong>⏰ 时间限制：</strong> 此确认链接将在 24 小时后自动失效。如果链接过期，请重新注册账户。</p>
+              <p><strong>⏰ Time Limit:</strong> This confirmation link will automatically expire in 24 hours. If the link expires, please register your account again.</p>
             </div>
             <div class="footer">
-              <p>此邮件由 LifeX 系统自动发送，请勿回复</p>
-              <p>© 2024 LifeX. 保留所有权利。</p>
+              <p>This email is automatically sent by the LifeX system, please do not reply</p>
+              <p>© 2024 LifeX. All rights reserved.</p>
             </div>
           </div>
         </body>
         </html>
       `,
       text: `
-欢迎加入 LifeX！
+Welcome to LifeX!
 
-您好 ${username}！
+Hello ${username}!
 
-感谢您注册 LifeX 账户。为了确保您的账户安全，请确认您的邮箱地址。
+Thank you for registering a LifeX account. To ensure your account security, please confirm your email address.
 
-请访问以下链接确认您的邮箱：
+Please visit the following link to confirm your email:
 ${confirmationUrl}
 
-您的账户配额：
-用户类型：${userType.charAt(0).toUpperCase() + userType.slice(1)}
-包含功能：${quotaInfo}
+Your Account Quota:
+User Type: ${userType.charAt(0).toUpperCase() + userType.slice(1)}
+Included Features: ${quotaInfo}
 
-此链接将在 24 小时后失效。
+This link will expire in 24 hours.
 
-如果您没有注册 LifeX 账户，请忽略此邮件。
+If you did not register a LifeX account, please ignore this email.
 
-确认邮箱后，您将可以：
-- 使用 AI 智能助手获取个性化推荐
-- 发现新西兰本地优质商家
-- 发布和分享本地生活内容
-- 享受专属优惠和活动
-- 管理您的商家账户（商家用户）
+After confirming your email, you will be able to:
+- Use AI intelligent assistant for personalized recommendations
+- Discover quality local businesses in New Zealand
+- Post and share local life content
+- Enjoy exclusive offers and events
+- Manage your business account (business users)
 
-如有问题，请联系我们的支持团队。
+If you have any questions, please contact our support team.
 
-© 2024 LifeX. 保留所有权利。
+© 2024 LifeX. All rights reserved.
       `
     };
   }
 
   /**
-   * 生成欢迎邮件模板
+   * Generate welcome email template
    */
   generateWelcomeTemplate(
     username: string,
@@ -424,41 +424,41 @@ ${confirmationUrl}
   ): EmailTemplate {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     
-    console.log('生成欢迎邮件模板');
-    console.log('应用URL:', appUrl);
-    console.log('用户类型:', userType);
+    console.log('Generating welcome email template');
+    console.log('App URL:', appUrl);
+    console.log('User type:', userType);
     
-    // 根据用户类型生成不同的功能描述
+    // Generate different feature descriptions based on user type
     const getFeatureDescription = (type: string) => {
       switch (type) {
         case 'free':
-          return '免费用户功能';
+          return 'Free user features';
         case 'customer':
-          return '付费用户功能 - 享受更多AI聊天和高级功能';
+          return 'Paid user features - Enjoy more AI chats and advanced features';
         case 'premium':
-          return '高级用户功能 - 无限制使用所有功能';
+          return 'Premium user features - Unlimited access to all features';
         case 'free_business':
-          return '免费商家功能 - 管理您的商家信息';
+          return 'Free business features - Manage your business information';
         case 'professional_business':
-          return '专业商家功能 - 高级商家管理工具';
+          return 'Professional business features - Advanced business management tools';
         case 'enterprise_business':
-          return '企业商家功能 - 完整的企业级解决方案';
+          return 'Enterprise business features - Complete enterprise-level solutions';
         default:
-          return '免费用户功能';
+          return 'Free user features';
       }
     };
     
     const featureDescription = getFeatureDescription(userType);
     
     return {
-      subject: '🎉 欢迎来到 LifeX - 您的账户已激活！',
-      html: `
+      subject: '🎉 Welcome to LifeX - Your Account is Activated!',
+              html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>欢迎来到 LifeX</title>
+          <title>Welcome to LifeX</title>
           <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -473,124 +473,124 @@ ${confirmationUrl}
         <body>
           <div class="container">
             <div class="header">
-              <h1>🎉 欢迎来到 LifeX</h1>
-              <p>您的账户已成功激活！</p>
+              <h1>🎉 Welcome to LifeX</h1>
+              <p>Your account has been successfully activated!</p>
             </div>
             <div class="content">
-              <h2>恭喜您，${username}！</h2>
-              <p>您的 LifeX 账户已成功激活，现在可以开始探索新西兰的精彩本地生活了！</p>
+              <h2>Congratulations, ${username}!</h2>
+              <p>Your LifeX account has been successfully activated, and you can now start exploring the wonderful local life in New Zealand!</p>
               
               <div class="user-type">
-                <h3>👤 账户类型：${userType.charAt(0).toUpperCase() + userType.slice(1)}</h3>
+                <h3>👤 Account Type: ${userType.charAt(0).toUpperCase() + userType.slice(1)}</h3>
                 <p>${featureDescription}</p>
               </div>
               
               <div style="text-align: center;">
-                <a href="${appUrl}" class="button">开始探索 LifeX</a>
+                <a href="${appUrl}" class="button">Start Exploring LifeX</a>
               </div>
               
-              <h3>🚀 立即体验这些功能：</h3>
+              <h3>🚀 Experience these features now:</h3>
               
               <div class="feature">
-                <h4>🤖 AI 智能助手</h4>
-                <p>与我们的 AI 助手对话，获取个性化推荐和建议</p>
-              </div>
-              
-              <div class="feature">
-                <h4>🏪 发现本地商家</h4>
-                <p>探索新西兰各地的优质餐厅、咖啡店、服务提供商</p>
+                <h4>🤖 AI Intelligent Assistant</h4>
+                <p>Chat with our AI assistant to get personalized recommendations and advice</p>
               </div>
               
               <div class="feature">
-                <h4>📱 分享生活点滴</h4>
-                <p>发布您的本地生活体验，与其他用户分享</p>
+                <h4>🏪 Discover Local Businesses</h4>
+                <p>Explore quality restaurants, cafes, and service providers across New Zealand</p>
               </div>
               
               <div class="feature">
-                <h4>🎯 个性化推荐</h4>
-                <p>基于您的偏好获得量身定制的推荐</p>
+                <h4>📱 Share Life Moments</h4>
+                <p>Post your local life experiences and share with other users</p>
+              </div>
+              
+              <div class="feature">
+                <h4>🎯 Personalized Recommendations</h4>
+                <p>Get tailored recommendations based on your preferences</p>
               </div>
               
               ${userType.includes('business') ? `
               <div class="feature">
-                <h4>🏢 商家管理</h4>
-                <p>管理您的商家信息、产品和服务</p>
+                <h4>🏢 Business Management</h4>
+                <p>Manage your business information, products, and services</p>
               </div>
               ` : ''}
               
-              <h3>💡 快速开始指南：</h3>
+              <h3>💡 Quick Start Guide:</h3>
               <ol>
-                <li>完善您的个人资料</li>
-                <li>设置您的偏好和兴趣</li>
-                <li>开始与 AI 助手对话</li>
-                <li>探索附近的商家</li>
-                <li>分享您的体验</li>
-                ${userType.includes('business') ? '<li>设置您的商家信息</li>' : ''}
+                <li>Complete your profile</li>
+                <li>Set your preferences and interests</li>
+                <li>Start chatting with the AI assistant</li>
+                <li>Explore nearby businesses</li>
+                <li>Share your experiences</li>
+                ${userType.includes('business') ? '<li>Set up your business information</li>' : ''}
               </ol>
               
-              <p><strong>需要帮助？</strong></p>
-              <p>我们的支持团队随时为您服务：</p>
+              <p><strong>Need help?</strong></p>
+              <p>Our support team is always here for you:</p>
               <ul>
-                <li>📧 邮箱：support@lifex.co.nz</li>
-                <li>💬 在线聊天：访问我们的网站</li>
+                <li>📧 Email: support@lifex.co.nz</li>
+                <li>💬 Online chat: Visit our website</li>
               </ul>
             </div>
             <div class="footer">
-              <p>感谢您选择 LifeX！</p>
-              <p>© 2024 LifeX. 保留所有权利。</p>
+              <p>Thank you for choosing LifeX!</p>
+              <p>© 2024 LifeX. All rights reserved.</p>
             </div>
           </div>
         </body>
         </html>
       `,
       text: `
-🎉 欢迎来到 LifeX！
+🎉 Welcome to LifeX!
 
-恭喜您，${username}！
+Congratulations, ${username}!
 
-您的 LifeX 账户已成功激活，现在可以开始探索新西兰的精彩本地生活了！
+Your LifeX account has been successfully activated, and you can now start exploring the wonderful local life in New Zealand!
 
-账户类型：${userType.charAt(0).toUpperCase() + userType.slice(1)}
+Account Type: ${userType.charAt(0).toUpperCase() + userType.slice(1)}
 ${featureDescription}
 
-立即开始体验：
+Start experiencing now:
 ${appUrl}
 
-🚀 立即体验这些功能：
+🚀 Experience these features now:
 
-🤖 AI 智能助手
-与我们的 AI 助手对话，获取个性化推荐和建议
+🤖 AI Intelligent Assistant
+Chat with our AI assistant to get personalized recommendations and advice
 
-🏪 发现本地商家
-探索新西兰各地的优质餐厅、咖啡店、服务提供商
+🏪 Discover Local Businesses
+Explore quality restaurants, cafes, and service providers across New Zealand
 
-📱 分享生活点滴
-发布您的本地生活体验，与其他用户分享
+📱 Share Life Moments
+Post your local life experiences and share with other users
 
-🎯 个性化推荐
-基于您的偏好获得量身定制的推荐
+🎯 Personalized Recommendations
+Get tailored recommendations based on your preferences
 
 ${userType.includes('business') ? `
-🏢 商家管理
-管理您的商家信息、产品和服务
+🏢 Business Management
+Manage your business information, products, and services
 ` : ''}
 
-💡 快速开始指南：
-1. 完善您的个人资料
-2. 设置您的偏好和兴趣
-3. 开始与 AI 助手对话
-4. 探索附近的商家
-5. 分享您的体验
-${userType.includes('business') ? '6. 设置您的商家信息' : ''}
+💡 Quick Start Guide:
+1. Complete your profile
+2. Set your preferences and interests
+3. Start chatting with the AI assistant
+4. Explore nearby businesses
+5. Share your experiences
+${userType.includes('business') ? '6. Set up your business information' : ''}
 
-需要帮助？
-我们的支持团队随时为您服务：
-- 邮箱：support@lifex.co.nz
-- 在线聊天：访问我们的网站
+Need help?
+Our support team is always here for you:
+- Email: support@lifex.co.nz
+- Online chat: Visit our website
 
-感谢您选择 LifeX！
+Thank you for choosing LifeX!
 
-© 2024 LifeX. 保留所有权利。
+© 2024 LifeX. All rights reserved.
       `
     };
   }

@@ -1,31 +1,31 @@
-# LifeX MVP - 新西兰本地生活平台
+# LifeX MVP - New Zealand Local Life Platform
 
-## 项目概述
+## Project Overview
 
-LifeX 是一个基于 AI 的新西兰本地生活推荐平台，集成了用户认证、配额管理、内嵌式广告和智能推荐系统。
+LifeX is an AI-based New Zealand local life recommendation platform that integrates user authentication, quota management, embedded advertising, and intelligent recommendation systems.
 
-## 功能特性
+## Features
 
-### 🎯 核心功能
-- **AI 智能对话**: 基于 GPT-5 Nano 的本地生活助手
-- **用户配额管理**: 按用户类型限制功能使用次数
-- **内嵌式广告**: 智能投放，融入内容流
-- **商家管理**: 支持商家注册、商品发布
-- **内容发布**: Trending 内容、产品展示
+### 🎯 Core Features
+- **AI Intelligent Chat**: Local life assistant based on GPT-5 Nano
+- **User Quota Management**: Limit feature usage by user type
+- **Embedded Advertising**: Intelligent placement, integrated into content flow
+- **Business Management**: Support business registration and product publishing
+- **Content Publishing**: Trending content and product showcase
 
-### 👥 用户类型
-- **Guest**: 游客用户（有限功能）
-- **Customer**: 普通用户
-- **Premium**: 高级用户
-- **Free Business**: 免费商家
-- **Professional Business**: 专业商家
-- **Enterprise Business**: 企业商家
+### 👥 User Types
+- **Guest**: Guest users (limited features)
+- **Customer**: Regular users
+- **Premium**: Premium users
+- **Free Business**: Free business users
+- **Professional Business**: Professional business users
+- **Enterprise Business**: Enterprise business users
 
-### 📊 配额系统
-每个用户类型都有不同的功能使用限制：
+### 📊 Quota System
+Each user type has different feature usage limits:
 
-| 用户类型 | Chat (每日) | Trending (每月) | Ads (每月) | Products | Stores |
-|---------|-------------|----------------|------------|----------|---------|
+| User Type | Chat (Daily) | Trending (Monthly) | Ads (Monthly) | Products | Stores |
+|-----------|--------------|-------------------|---------------|----------|---------|
 | Anonymous | 5 | 0 | 0 | 0 | 0 |
 | Free | 20 | 10 | 2 | 0 | 0 |
 | Customer | 100 | 50 | 10 | 0 | 0 |
@@ -34,24 +34,24 @@ LifeX 是一个基于 AI 的新西兰本地生活推荐平台，集成了用户�
 | Professional Business | 100 | 50 | 10 | 50 | 3 |
 | Enterprise Business | 500 | 200 | 50 | 200 | 10 |
 
-## 技术栈
+## Tech Stack
 
-- **前端**: Next.js 15, React, TypeScript, Tailwind CSS
-- **后端**: Next.js API Routes
-- **数据库**: Supabase (PostgreSQL)
+- **Frontend**: Next.js 15, React, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: Supabase (PostgreSQL)
 - **AI**: OpenAI GPT-5 Nano
-- **认证**: Supabase Auth
+- **Authentication**: Supabase Auth
 
-## 快速开始
+## Quick Start
 
-### 1. 环境配置
+### 1. Environment Configuration
 
-复制环境变量文件：
+Copy the environment variables file:
 ```bash
 cp env.example .env.local
 ```
 
-配置以下环境变量：
+Configure the following environment variables:
 ```env
 # OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key_here
@@ -66,183 +66,161 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 NODE_ENV=development
 ```
 
-### 2. 数据库设置
+### 2. Database Setup
 
-#### 2.1 创建 Supabase 项目
-1. 访问 [Supabase](https://supabase.com)
-2. 创建新项目
-3. 获取项目 URL 和匿名密钥
+#### 2.1 Create Supabase Project
+1. Visit [Supabase](https://supabase.com)
+2. Create a new project
+3. Get the project URL and anonymous key
 
-#### 2.2 执行数据库脚本
-在 Supabase SQL 编辑器中执行 `database-schema.sql` 文件中的所有 SQL 语句。
+#### 2.2 Execute Database Scripts
+Execute all SQL statements in the `database-schema.sql` file in the Supabase SQL editor.
 
-#### 2.3 配置 RLS 策略
-确保所有表都启用了 Row Level Security，并根据需要调整访问策略。
+#### 2.3 Configure RLS Policies
+Ensure all tables have Row Level Security enabled and adjust access policies as needed.
 
-### 3. 安装依赖
+### 3. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 4. 启动开发服务器
+### 4. Start Development Server
 
 ```bash
 npm run dev
 ```
 
-访问 [http://localhost:3000](http://localhost:3000)
+Visit [http://localhost:3000](http://localhost:3000)
 
-## 测试系统
+## Testing System
 
-### 1. 访问测试页面
-访问 [http://localhost:3000/test](http://localhost:3000/test) 查看系统测试页面。
+### 1. Access Test Pages
+Visit [http://localhost:3000/test](http://localhost:3000/test) to view system test pages.
 
-### 2. 测试 API 端点
+### 2. Test API Endpoints
 
-#### 检查测试 API 状态
+#### Check Test API Status
 ```bash
 curl http://localhost:3000/api/test
 ```
 
-#### 测试配额系统
+#### Test Quota System
 ```bash
 curl "http://localhost:3000/api/test?action=quota"
 ```
 
-#### 测试用户系统
+#### Test User System
 ```bash
 curl "http://localhost:3000/api/test?action=user"
 ```
 
-### 3. 测试 Chat API
+### 3. Test Chat API
 
 ```bash
 curl -X POST http://localhost:3000/api/ai \
   -H "Content-Type: application/json" \
   -d '{
-    "message": "推荐一些奥克兰的咖啡店",
+    "message": "Recommend some cafes in Auckland",
     "userId": "your_user_id",
     "sessionId": "test_session"
   }'
 ```
 
-## 项目结构
+## Project Structure
 
 ```
 src/
 ├── app/                    # Next.js App Router
-│   ├── api/               # API 路由
-│   │   ├── ai/           # AI 聊天 API
-│   │   └── test/         # 测试 API
-│   ├── test/             # 测试页面
-│   └── page.tsx          # 主页
-├── components/            # React 组件
-│   ├── pages/            # 页面组件
-│   └── LifeXApp.tsx      # 主应用组件
-├── lib/                   # 工具库
-│   ├── ai.ts             # AI 服务
-│   ├── authService.ts    # 认证服务
-│   ├── quotaService.ts   # 配额管理
-│   ├── adService.ts      # 广告服务
-│   └── supabase.ts       # Supabase 配置
-└── types/                # TypeScript 类型定义
+│   ├── api/               # API routes
+│   │   ├── ai/           # AI chat API
+│   │   └── test/         # Test API
+│   ├── test/             # Test pages
+│   └── page.tsx          # Home page
+├── components/            # React components
+│   ├── pages/            # Page components
+│   └── LifeXApp.tsx      # Main app component
+├── lib/                   # Utility libraries
+│   ├── ai.ts             # AI service
+│   ├── authService.ts    # Authentication service
+│   ├── quotaService.ts   # Quota management
+│   ├── adService.ts      # Advertising service
+│   └── supabase.ts       # Supabase configuration
+└── types/                # TypeScript type definitions
 ```
 
-## 核心服务
+## Core Services
 
-### AI 服务 (`src/lib/ai.ts`)
-- 智能对话生成
-- 商家推荐
-- 用户偏好提取
+### AI Service (`src/lib/ai.ts`)
+- Intelligent conversation generation
+- Business recommendations
+- User preference extraction
 
-### 配额服务 (`src/lib/quotaService.ts`)
-- 用户配额检查
-- 使用量更新
-- 配额重置
+### Quota Service (`src/lib/quotaService.ts`)
+- User quota checking
+- Usage updates
+- Quota reset
 
-### 认证服务 (`src/lib/authService.ts`)
-- 用户注册/登录
-- 会话管理
-- 用户配置文件
+### Authentication Service (`src/lib/authService.ts`)
+- User registration/login
+- Session management
+- User profile management
 
-### 广告服务 (`src/lib/adService.ts`)
-- 智能广告投放
-- 相关性匹配
-- 点击追踪
+### Advertising Service (`src/lib/adService.ts`)
+- Intelligent ad placement
+- Relevance matching
+- Click tracking
 
-## 开发指南
+## Development Guide
 
-### 添加新功能
-1. 在 `src/lib/` 中创建服务文件
-2. 在 `src/app/api/` 中创建 API 路由
-3. 在 `src/components/` 中创建 UI 组件
-4. 更新类型定义
+### Adding New Features
+1. Create service files in `src/lib/`
+2. Create API routes in `src/app/api/`
+3. Create UI components in `src/components/`
+4. Update type definitions
 
-### 数据库修改
-1. 修改 `database-schema.sql`
-2. 更新 `src/lib/supabase.ts` 中的类型定义
-3. 更新相关服务文件
+### Database Modifications
+1. Modify `database-schema.sql`
+2. Update type definitions in `src/lib/supabase.ts`
+3. Update related service files
 
-### 测试新功能
-1. 在 `src/app/test/` 中添加测试页面
-2. 在 `src/app/api/test/` 中添加测试 API
-3. 更新测试页面 UI
+### Testing New Features
+1. Add test pages in `src/app/test/`
+2. Add test APIs in `src/app/api/test/`
+3. Update test page UI
 
-## 部署
+## Deployment
 
-### Vercel 部署
-1. 连接 GitHub 仓库到 Vercel
-2. 配置环境变量
-3. 部署项目
+### Vercel Deployment
+1. Connect GitHub repository to Vercel
+2. Configure environment variables
+3. Deploy the project
 
-### 环境变量配置
-确保在 Vercel 中配置以下环境变量：
+### Environment Variable Configuration
+Ensure the following environment variables are configured in Vercel:
 - `OPENAI_API_KEY`
-- `OPENAI_MODEL`
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL`
+- `NEXT_PUBLIC_APP_URL`
 
-## 故障排除
+## Contributing
 
-### 常见问题
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-#### 1. EPERM 错误
-```bash
-# 清理 Next.js 缓存
-rm -rf .next
-npm run dev
-```
+## License
 
-#### 2. 端口占用
-```bash
-# 查找占用端口的进程
-netstat -ano | findstr :3000
-# 终止进程
-taskkill /PID <进程ID> /F
-```
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-#### 3. Supabase 连接问题
-- 检查环境变量配置
-- 确认 Supabase 项目状态
-- 验证 RLS 策略设置
+## Support
 
-#### 4. AI API 问题
-- 检查 OpenAI API 密钥
-- 确认模型名称正确
-- 查看 API 使用配额
-
-## 贡献指南
-
-1. Fork 项目
-2. 创建功能分支
-3. 提交更改
-4. 创建 Pull Request
-
-## 许可证
-
-MIT License
-
-## 联系方式
-
-如有问题，请创建 Issue 或联系开发团队。
+For support, please contact:
+- Email: support@lifex.co.nz
+- Documentation: [Link to documentation]
+- Issues: [GitHub Issues](https://github.com/your-repo/issues)

@@ -47,25 +47,25 @@ export default function RegisterPage() {
 
     // Client-side validation
     if (!formData.email || !formData.password || !formData.full_name) {
-      setError('请填写所有必填字段');
+      setError('Please fill in all required fields');
       setLoading(false);
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('密码不匹配');
+      setError('Passwords do not match');
       setLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('密码至少需要6个字符');
+      setError('Password must be at least 6 characters long');
       setLoading(false);
       return;
     }
 
     try {
-      console.log('🚀 开始注册流程...', {
+      console.log('🚀 Starting registration process...', {
         email: formData.email,
         username: formData.username,
         full_name: formData.full_name
@@ -76,33 +76,33 @@ export default function RegisterPage() {
         full_name: formData.full_name
       });
 
-      console.log('📋 注册结果:', result);
+      console.log('📋 Registration result:', result);
 
       if (result.success && result.user) {
-        // 🎉 注册成功
-        console.log('✅ 注册成功!', result.user);
+        // 🎉 Registration successful
+        console.log('✅ Registration successful!', result.user);
         
-        // 清除任何错误信息
+        // Clear any error messages
         setError('');
         setRegistrationSuccess(true);
         
-        // 检查用户是否已验证
+        // Check if user needs email verification
         if (!result.user.email_verified) {
-          console.log('📧 需要邮箱验证，显示确认对话框');
+          console.log('📧 Email verification required, showing confirmation dialog');
           setShowEmailConfirmation(true);
         } else {
-          console.log('✅ 邮箱已验证，跳转到首页');
+          console.log('✅ Email already verified, redirecting to home');
           router.push('/');
         }
       } else {
-        // ❌ 注册失败
-        console.error('❌ 注册失败:', result.error);
-        setError(result.error || '注册失败，请重试');
+        // ❌ Registration failed
+        console.error('❌ Registration failed:', result.error);
+        setError(result.error || 'Registration failed, please try again');
         setRegistrationSuccess(false);
       }
     } catch (err) {
-      console.error('💥 注册过程中发生异常:', err);
-      setError('发生意外错误，请稍后重试');
+      console.error('💥 Exception during registration:', err);
+      setError('An unexpected error occurred, please try again later');
       setRegistrationSuccess(false);
     } finally {
       setLoading(false);
@@ -112,16 +112,16 @@ export default function RegisterPage() {
   const handleResendEmail = async () => {
     try {
       setLoading(true);
-      console.log('🔄 重新发送确认邮件...');
+      console.log('🔄 Resending confirmation email...');
       
-      // 这里可以调用重新发送邮件的API
+      // Here you can call the resend email API
       // const resendResult = await resendVerificationEmail(formData.email);
       
-      // 临时显示消息
-      alert('确认邮件已重新发送，请检查您的邮箱');
+      // Temporary message display
+      alert('Confirmation email has been resent, please check your inbox');
     } catch (error) {
-      console.error('重新发送邮件失败:', error);
-      alert('重新发送失败，请稍后重试');
+      console.error('Failed to resend email:', error);
+      alert('Failed to resend email, please try again later');
     } finally {
       setLoading(false);
     }
@@ -137,16 +137,16 @@ export default function RegisterPage() {
           style={{ color: darkTheme.text.muted }}
         >
           <ArrowLeft size={16} />
-          返回首页
+          Back to Home
         </Link>
 
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
-            创建账户
+            Create Account
           </h1>
           <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-            加入 LifeX，发现精彩的本地服务
+            Join LifeX and discover amazing local services
           </p>
         </div>
 
@@ -158,9 +158,9 @@ export default function RegisterPage() {
           }}>
             <CheckCircle size={20} style={{ color: '#22c55e' }} />
             <div>
-              <p className="font-medium" style={{ color: '#22c55e' }}>注册成功！</p>
+              <p className="font-medium" style={{ color: '#22c55e' }}>Registration Successful!</p>
               <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                您的账户已创建，请检查邮箱完成验证
+                Your account has been created, please check your email to complete verification
               </p>
             </div>
           </div>
@@ -171,7 +171,7 @@ export default function RegisterPage() {
           {/* Full Name */}
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.primary }}>
-              真实姓名 <span style={{ color: '#ef4444' }}>*</span>
+              Full Name <span style={{ color: '#ef4444' }}>*</span>
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
@@ -189,7 +189,7 @@ export default function RegisterPage() {
                   color: darkTheme.text.primary,
                   '--tw-ring-color': darkTheme.neon.purple,
                 } as React.CSSProperties}
-                placeholder="请输入您的真实姓名"
+                placeholder="Enter your full name"
               />
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function RegisterPage() {
           {/* Username */}
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.primary }}>
-              用户名 <span className="text-xs opacity-60">(可选)</span>
+              Username <span className="text-xs opacity-60">(Optional)</span>
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
@@ -214,7 +214,7 @@ export default function RegisterPage() {
                   color: darkTheme.text.primary,
                   '--tw-ring-color': darkTheme.neon.purple,
                 } as React.CSSProperties}
-                placeholder="选择一个用户名"
+                placeholder="Choose a username"
               />
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function RegisterPage() {
           {/* Email */}
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.primary }}>
-              邮箱地址 <span style={{ color: '#ef4444' }}>*</span>
+              Email Address <span style={{ color: '#ef4444' }}>*</span>
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
@@ -240,7 +240,7 @@ export default function RegisterPage() {
                   color: darkTheme.text.primary,
                   '--tw-ring-color': darkTheme.neon.purple,
                 } as React.CSSProperties}
-                placeholder="请输入您的邮箱地址"
+                placeholder="Enter your email address"
               />
             </div>
           </div>
@@ -248,7 +248,7 @@ export default function RegisterPage() {
           {/* Password */}
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.primary }}>
-              密码 <span style={{ color: '#ef4444' }}>*</span>
+              Password <span style={{ color: '#ef4444' }}>*</span>
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
@@ -266,7 +266,7 @@ export default function RegisterPage() {
                   color: darkTheme.text.primary,
                   '--tw-ring-color': darkTheme.neon.purple,
                 } as React.CSSProperties}
-                placeholder="创建密码（至少6个字符）"
+                placeholder="Create password (at least 6 characters)"
               />
               <button
                 type="button"
@@ -283,7 +283,7 @@ export default function RegisterPage() {
           {/* Confirm Password */}
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.primary }}>
-              确认密码 <span style={{ color: '#ef4444' }}>*</span>
+              Confirm Password <span style={{ color: '#ef4444' }}>*</span>
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
@@ -301,7 +301,7 @@ export default function RegisterPage() {
                   color: darkTheme.text.primary,
                   '--tw-ring-color': darkTheme.neon.purple,
                 } as React.CSSProperties}
-                placeholder="请再次输入密码"
+                placeholder="Confirm your password"
               />
               <button
                 type="button"
@@ -339,10 +339,10 @@ export default function RegisterPage() {
             {loading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                创建账户中...
+                Creating Account...
               </>
             ) : (
-              '创建账户'
+              'Create Account'
             )}
           </button>
         </form>
@@ -350,13 +350,13 @@ export default function RegisterPage() {
         {/* Login Link */}
         <div className="text-center mt-6">
           <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-            已有账户？{' '}
+            Already have an account?{' '}
             <Link 
               href="/auth/login"
               className="font-medium transition-colors hover:underline"
               style={{ color: darkTheme.neon.purple }}
             >
-              立即登录
+              Sign in now
             </Link>
           </p>
         </div>
@@ -364,10 +364,10 @@ export default function RegisterPage() {
         {/* Terms */}
         <div className="text-center mt-4">
           <p className="text-xs" style={{ color: darkTheme.text.muted }}>
-            创建账户即表示您同意我们的{' '}
-            <Link href="/terms" className="underline hover:opacity-80">服务条款</Link>
-            {' '}和{' '}
-            <Link href="/privacy" className="underline hover:opacity-80">隐私政策</Link>
+            By creating an account, you agree to our{' '}
+            <Link href="/terms" className="underline hover:opacity-80">Terms of Service</Link>
+            {' '}and{' '}
+            <Link href="/privacy" className="underline hover:opacity-80">Privacy Policy</Link>
           </p>
         </div>
       </div>
@@ -384,14 +384,14 @@ export default function RegisterPage() {
               
               {/* Title */}
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                注册成功！
+                Registration Successful!
               </h3>
               
               {/* Message */}
               <p className="text-sm text-gray-600 mb-6">
-                我们已向 <strong className="text-gray-900">{formData.email}</strong> 发送了一封确认邮件。
+                We have sent a confirmation email to <strong className="text-gray-900">{formData.email}</strong>.
                 <br />
-                请点击邮件中的链接来激活您的账户。
+                Please click the link in the email to activate your account.
               </p>
               
               {/* Action Buttons */}
@@ -400,7 +400,7 @@ export default function RegisterPage() {
                   onClick={() => setShowEmailConfirmation(false)}
                   className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
                 >
-                  我知道了
+                  Got it
                 </button>
                 
                 <button
@@ -408,20 +408,20 @@ export default function RegisterPage() {
                   disabled={loading}
                   className="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50"
                 >
-                  {loading ? '发送中...' : '重新发送邮件'}
+                  {loading ? 'Sending...' : 'Resend Email'}
                 </button>
                 
                 <button
                   onClick={() => router.push('/auth/login')}
                   className="w-full text-gray-500 py-2 px-4 rounded-md hover:text-gray-700 transition-colors"
                 >
-                  返回登录
+                  Back to Login
                 </button>
               </div>
               
               {/* Help Text */}
               <p className="text-xs text-gray-500 mt-4">
-                没有收到邮件？请检查垃圾邮件文件夹，或点击上方按钮重新发送。
+                Didn't receive the email? Please check your spam folder, or click the button above to resend.
               </p>
             </div>
           </div>

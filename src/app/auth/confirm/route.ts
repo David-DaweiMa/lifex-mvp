@@ -8,21 +8,21 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('=== 邮件确认处理 ===');
+    console.log('=== Email Confirmation Processing ===');
     
     const { searchParams } = new URL(request.url);
     const token = searchParams.get('token');
     const email = searchParams.get('email');
 
-    console.log('收到确认请求:', { token: token?.slice(0, 8) + '...', email });
+    console.log('Received confirmation request:', { token: token?.slice(0, 8) + '...', email });
 
     if (!token) {
-      console.error('❌ 缺少Token参数');
-      return redirectToError('缺少验证Token');
+      console.error('❌ Missing Token parameter');
+      return redirectToError('Missing verification token');
     }
 
-    // 查找Token记录
-    console.log('🔍 查找Token记录...');
+    // Find Token record
+    console.log('🔍 Searching for Token record...');
     const { data: tokenRecord, error: tokenError } = await supabaseAdmin
       .from('email_confirmations')
       .select('*')
@@ -31,22 +31,22 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (tokenError) {
-      console.error('❌ Token查询失败:', tokenError);
-      return redirectToError(`Token查询失败: ${tokenError.message}`);
+      console.error('❌ Token query failed:', tokenError);
+      return redirectToError(`Token query failed: ${tokenError.message}`);
     }
 
     if (!tokenRecord) {
-      console.error('❌ Token不存在');
-      return redirectToError('无效的验证Token');
+      console.error('❌ Token does not exist');
+      return redirectToError('Invalid verification token');
     }
 
-    console.log('✅ 找到Token记录');
+    console.log('✅ Found Token record');
 
-    // 检查Token是否已经被使用过
+    // Check if Token has already been used
     if (tokenRecord.used_at) {
-      console.log('⚠️ Token已被使用过，检查用户验证状态...');
+      console.log('⚠️ Token has already been used, checking user verification status...');
       
-      // 检查用户的邮箱验证状态
+      // Check user's email verification status
       const { data: userProfile } = await supabaseAdmin
         .from('user_profiles')
         .select('email_verified')
@@ -54,48 +54,48 @@ export async function GET(request: NextRequest) {
         .single();
 
       if (userProfile?.email_verified) {
-        console.log('✅ 用户邮箱已验证，重定向到成功页面');
-        return redirectToSuccess('您的邮箱已经确认过了！');
+        console.log('✅ User email is verified, redirecting to success page');
+        return redirectToSuccess('Your email has already been confirmed!');
       } else {
-        console.log('❌ Token已使用但用户未验证');
-        return redirectToError('验证Token已被使用，但验证状态异常');
+        console.log('❌ Token used but user not verified');
+        return redirectToError('Verification token has been used, but verification status is abnormal');
       }
     }
 
-    // 检查Token是否过期
+    // Check if Token has expired
     const now = new Date();
     const expiresAt = new Date(tokenRecord.expires_at);
     
     if (now > expiresAt) {
-      console.error('❌ Token已过期');
+      console.error('❌ Token has expired');
       
-      // 删除过期的Token
+      // Delete expired Token
       await supabaseAdmin
         .from('email_confirmations')
         .delete()
         .eq('id', tokenRecord.id);
       
-      return redirectToError('验证Token已过期，请重新注册');
+      return redirectToError('Verification token has expired, please register again');
     }
 
-    console.log('✅ Token有效，未过期');
+    console.log('✅ Token is valid and not expired');
 
-    // 开始更新用户邮箱验证状态
-    console.log('📧 开始更新用户邮箱验证状态...');
+    // Start updating user email verification status
+    console.log('📧 Starting to update user email verification status...');
     
     try {
-      // 1. 更新auth.users表中的邮箱确认状态
+      // 1. Update email confirmation status in auth.users table
       const { error: authUpdateError } = await supabaseAdmin.auth.admin.updateUserById(
         tokenRecord.user_id,
         { email_confirm: true }
       );
 
       if (authUpdateError) {
-        console.error('❌ 更新auth用户状态失败:', authUpdateError);
-        return redirectToError('确认过程中发生错误');
+        console.error('❌ Failed to update auth user status:', authUpdateError);
+        return redirectToError('Error occurred during confirmation process');
       }
 
-      // 2. 更新user_profiles表中的邮箱验证状态
+      // 2. Update email verification status in user_profiles table
       const { error: profileUpdateError } = await supabaseAdmin
         .from('user_profiles')
         .update({ 
@@ -105,11 +105,11 @@ export async function GET(request: NextRequest) {
         .eq('id', tokenRecord.user_id);
 
       if (profileUpdateError) {
-        console.error('❌ 更新用户配置文件失败:', profileUpdateError);
-        return redirectToError('确认过程中发生错误');
+        console.error('❌ Failed to update user profile:', profileUpdateError);
+        return redirectToError('Error occurred during confirmation process');
       }
 
-      // 3. 标记Token为已使用
+      // 3. Mark Token as used
       const { error: tokenUpdateError } = await supabaseAdmin
         .from('email_confirmations')
         .update({ 
@@ -118,13 +118,13 @@ export async function GET(request: NextRequest) {
         .eq('id', tokenRecord.id);
 
       if (tokenUpdateError) {
-        console.error('⚠️ 更新Token状态失败:', tokenUpdateError);
-        // 这个错误不阻止确认过程，只是记录
+        console.error('⚠️ Failed to update Token status:', tokenUpdateError);
+        // This error doesn't prevent confirmation process, just log it
       }
 
-      console.log('✅ 邮箱确认成功！');
+      console.log('✅ Email confirmation successful!');
 
-      // 验证最终状态
+      // Verify final status
       const { data: finalCheck } = await supabaseAdmin
         .from('user_profiles')
         .select('email_verified')
@@ -132,18 +132,18 @@ export async function GET(request: NextRequest) {
         .single();
 
       if (!finalCheck?.email_verified) {
-        console.error('❌ 最终验证失败，邮箱验证状态仍为false');
-        return redirectToError('确认过程可能未完成，请联系支持团队');
+        console.error('❌ Final verification failed, email verification status is still false');
+        return redirectToError('Confirmation process may not be complete, please contact support team');
       }
 
-      console.log('✅ 最终验证成功，邮箱已确认');
+      console.log('✅ Final verification successful, email confirmed');
 
-      // 可选：发送欢迎邮件
+      // Optional: Send welcome email
       try {
         const { emailService } = await import('@/lib/emailService');
         const username = tokenRecord.email.split('@')[0];
         
-        // 获取用户信息
+        // Get user information
         const { data: userProfile } = await supabaseAdmin
           .from('user_profiles')
           .select('user_type')
@@ -155,23 +155,23 @@ export async function GET(request: NextRequest) {
           username, 
           userProfile?.user_type || 'free'
         );
-        console.log('✅ 欢迎邮件已发送');
+        console.log('✅ Welcome email sent');
       } catch (emailError) {
-        console.error('⚠️ 发送欢迎邮件失败:', emailError);
-        // 不阻止确认流程
+        console.error('⚠️ Failed to send welcome email:', emailError);
+        // Don't prevent confirmation process
       }
 
-      // 重定向到成功页面
-      return redirectToSuccess('邮箱确认成功！欢迎加入LifeX！');
+      // Redirect to success page
+      return redirectToSuccess('Email confirmation successful! Welcome to LifeX!');
 
     } catch (updateError) {
-      console.error('💥 更新过程中发生异常:', updateError);
-      return redirectToError('确认过程中发生系统错误');
+      console.error('💥 Exception during update process:', updateError);
+      return redirectToError('System error occurred during confirmation process');
     }
 
   } catch (error) {
-    console.error('💥 邮件确认过程中发生异常:', error);
-    return redirectToError('确认过程中发生错误');
+    console.error('💥 Exception during email confirmation process:', error);
+    return redirectToError('Error occurred during confirmation process');
   }
 }
 
@@ -179,14 +179,14 @@ function redirectToError(message: string) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const errorUrl = `${baseUrl}/auth/confirm-result?status=error&message=${encodeURIComponent(message)}&timestamp=${Date.now()}`;
   
-  console.log('🔄 重定向到错误页面:', errorUrl);
+  console.log('🔄 Redirecting to error page:', errorUrl);
   return NextResponse.redirect(errorUrl);
 }
 
-function redirectToSuccess(message: string = '邮箱确认成功！欢迎加入LifeX！') {
+function redirectToSuccess(message: string = 'Email confirmation successful! Welcome to LifeX!') {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const successUrl = `${baseUrl}/auth/confirm-result?status=success&message=${encodeURIComponent(message)}&timestamp=${Date.now()}`;
   
-  console.log('🔄 重定向到成功页面:', successUrl);
+  console.log('🔄 Redirecting to success page:', successUrl);
   return NextResponse.redirect(successUrl);
 }

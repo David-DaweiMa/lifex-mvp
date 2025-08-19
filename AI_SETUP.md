@@ -1,67 +1,67 @@
-# LifeX AI 功能设置指南
+# LifeX AI Feature Setup Guide
 
-## 概述
+## Overview
 
-LifeX 集成了 OpenAI GPT-5 Nano 来提供智能聊天和推荐功能。AI 助手可以帮助用户发现新西兰的本地服务，提供个性化推荐，并回答相关问题。
+LifeX integrates OpenAI GPT-5 Nano to provide intelligent chat and recommendation features. The AI assistant can help users discover local services in New Zealand, provide personalized recommendations, and answer related questions.
 
-## 功能特性
+## Features
 
-### 🤖 AI 聊天助手
-- 自然语言对话
-- 个性化推荐
-- 上下文理解
-- 后续问题建议
+### 🤖 AI Chat Assistant
+- Natural language conversation
+- Personalized recommendations
+- Context understanding
+- Follow-up question suggestions
 
-### 🎯 智能推荐系统
-- 基于用户偏好的推荐
-- 关键词匹配
-- 评分和评论分析
-- 实时可用性检查
+### 🎯 Intelligent Recommendation System
+- User preference-based recommendations
+- Keyword matching
+- Rating and review analysis
+- Real-time availability checking
 
-### 💡 智能功能
-- 用户偏好提取
-- 对话历史管理
-- 多轮对话支持
-- 错误处理和回退机制
+### 💡 Intelligent Features
+- User preference extraction
+- Conversation history management
+- Multi-turn conversation support
+- Error handling and fallback mechanisms
 
-## 环境配置
+## Environment Configuration
 
-### 1. OpenAI API 密钥设置
+### 1. OpenAI API Key Setup
 
-1. 访问 [OpenAI Platform](https://platform.openai.com/)
-2. 创建账户并获取 API 密钥
-3. 复制 `.env.example` 到 `.env.local`
-4. 设置你的 OpenAI API 密钥：
+1. Visit [OpenAI Platform](https://platform.openai.com/)
+2. Create an account and get an API key
+3. Copy `.env.example` to `.env.local`
+4. Set your OpenAI API key:
 
 ```bash
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-### 2. 可选配置
+### 2. Optional Configuration
 
 ```bash
-# 指定 AI 模型（默认：gpt-5-nano）
+# Specify AI model (default: gpt-5-nano)
 OPENAI_MODEL=gpt-5-nano
 
-# 其他环境变量
+# Other environment variables
 NODE_ENV=development
 ```
 
-## API 端点
+## API Endpoints
 
 ### POST /api/ai
 
-处理 AI 相关的请求，支持以下类型：
+Handles AI-related requests, supporting the following types:
 
-#### 1. 对话请求
+#### 1. Conversation Request
 ```json
 {
   "type": "conversation",
   "data": {
-    "message": "用户消息",
+    "message": "User message",
     "conversationHistory": [
-      {"role": "user", "content": "用户消息"},
-      {"role": "assistant", "content": "AI 回复"}
+      {"role": "user", "content": "User message"},
+      {"role": "assistant", "content": "AI response"}
     ],
     "context": {
       "userPreferences": ["family-friendly", "work-friendly"]
@@ -70,12 +70,12 @@ NODE_ENV=development
 }
 ```
 
-#### 2. 推荐请求
+#### 2. Recommendation Request
 ```json
 {
   "type": "recommendations",
   "data": {
-    "query": "推荐咖啡店",
+    "query": "Recommend cafes",
     "userPreferences": ["work-friendly", "quiet"],
     "location": "Auckland",
     "budget": "$$"
@@ -83,184 +83,242 @@ NODE_ENV=development
 }
 ```
 
-#### 3. 推理请求
+#### 3. Reasoning Request
 ```json
 {
   "type": "reasoning",
   "data": {
     "business": {...},
-    "userQuery": "为什么推荐这个？",
+    "userQuery": "Why recommend this?",
     "userPreferences": ["family-friendly"]
   }
 }
 ```
 
-## 使用示例
+## Usage Examples
 
-### 基本聊天
-```typescript
-import { chatService } from '@/lib/chatService';
+### Basic Chat
+```javascript
+const response = await fetch('/api/ai', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    type: 'conversation',
+    data: {
+      message: 'Hello, I need help finding a good restaurant in Auckland',
+      conversationHistory: [],
+      context: {
+        userPreferences: ['family-friendly', 'budget-conscious']
+      }
+    }
+  })
+});
 
-// 发送消息
-const response = await chatService.sendMessage("推荐一个适合工作的咖啡店");
-console.log(response.message); // AI 回复
-console.log(response.recommendations); // 推荐列表
-console.log(response.followUpQuestions); // 后续问题
+const result = await response.json();
+console.log(result.message);
 ```
 
-### 获取推荐
-```typescript
-import { getAIRecommendations } from '@/lib/ai';
+### Get Recommendations
+```javascript
+const response = await fetch('/api/ai', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    type: 'recommendations',
+    data: {
+      query: 'Find coffee shops near me',
+      userPreferences: ['quiet', 'good-wifi'],
+      location: 'Wellington CBD',
+      budget: '$$'
+    }
+  })
+});
 
-const recommendations = await getAIRecommendations(
-  { query: "健康食品" },
-  availableBusinesses
-);
+const result = await response.json();
+console.log(result.recommendations);
 ```
 
-## 回退机制
+## Configuration Options
 
-当 OpenAI API 不可用时，系统会自动回退到：
+### Model Selection
+You can choose different AI models by setting the `OPENAI_MODEL` environment variable:
 
-1. **关键词匹配推荐** - 基于业务类型和标签
-2. **评分排序** - 按用户评分和评论数量
-3. **可用性检查** - 优先推荐营业中的商家
+```bash
+# GPT-5 Nano (recommended for most use cases)
+OPENAI_MODEL=gpt-5-nano
 
-## 用户偏好提取
+# GPT-4 Turbo (for more complex reasoning)
+OPENAI_MODEL=gpt-4-turbo
 
-系统会自动从对话中提取用户偏好：
+# GPT-3.5 Turbo (for faster responses)
+OPENAI_MODEL=gpt-3.5-turbo
+```
 
-- **家庭友好** - family, kids, children
-- **工作友好** - work, laptop, wifi, quiet
-- **预算意识** - cheap, affordable, budget
-- **健康选择** - healthy, organic, vegan
-- **快速服务** - fast, quick, express
-- **本地特色** - local, authentic, kiwi
+### Response Format
+The AI service supports different response formats:
 
-## 错误处理
-
-### 常见错误及解决方案
-
-1. **API 密钥无效**
-   ```
-   错误：OpenAI API key not available
-   解决：检查 OPENAI_API_KEY 环境变量
-   ```
-
-2. **网络连接问题**
-   ```
-   错误：Failed to fetch
-   解决：检查网络连接和 API 端点
-   ```
-
-3. **模型不可用**
-   ```
-   错误：Model not found
-   解决：检查 OPENAI_MODEL 设置
-   ```
-
-## 性能优化
-
-### 1. 缓存策略
-- 对话历史本地存储
-- 用户偏好缓存
-- 推荐结果缓存
-
-### 2. 请求优化
-- 批量处理推荐请求
-- 智能上下文管理
-- 减少不必要的 API 调用
-
-### 3. 用户体验
-- 打字指示器
-- 渐进式加载
-- 错误重试机制
-
-## 开发调试
-
-### 启用调试日志
-```typescript
-// 在开发环境中启用详细日志
-if (process.env.NODE_ENV === 'development') {
-  console.log('AI Request:', request);
-  console.log('AI Response:', response);
+#### JSON Format (Default)
+```json
+{
+  "message": "AI response text",
+  "recommendations": ["business_id_1", "business_id_2"],
+  "confidence": 0.85,
+  "suggestedQueries": ["related query 1", "related query 2"]
 }
 ```
 
-### 测试 AI 功能
-```bash
-# 启动开发服务器
-npm run dev
-
-# 测试 API 端点
-curl -X POST http://localhost:3000/api/ai \
-  -H "Content-Type: application/json" \
-  -d '{"type":"conversation","data":{"message":"推荐咖啡店"}}'
+#### Plain Text Format
+```json
+{
+  "format": "text",
+  "message": "Plain text response without structured data"
+}
 ```
 
-## 安全考虑
+## Error Handling
 
-1. **API 密钥保护**
-   - 永远不要在前端暴露 API 密钥
-   - 使用环境变量存储敏感信息
-   - 定期轮换 API 密钥
+### Common Error Scenarios
 
-2. **请求限制**
-   - 实施速率限制
-   - 监控 API 使用量
-   - 设置合理的超时时间
+#### 1. API Key Issues
+```json
+{
+  "error": "OpenAI API key not configured",
+  "fallback": true,
+  "message": "Using fallback recommendations"
+}
+```
 
-3. **数据隐私**
-   - 不存储敏感用户信息
-   - 匿名化对话数据
-   - 遵守隐私法规
+#### 2. Rate Limiting
+```json
+{
+  "error": "Rate limit exceeded",
+  "retryAfter": 60,
+  "message": "Please try again in 1 minute"
+}
+```
 
-## 故障排除
+#### 3. Model Unavailable
+```json
+{
+  "error": "Model not available",
+  "fallbackModel": "gpt-3.5-turbo",
+  "message": "Using fallback model"
+}
+```
 
-### 问题：AI 不响应
-**检查清单：**
-- [ ] API 密钥是否正确设置
-- [ ] 网络连接是否正常
-- [ ] OpenAI 服务是否可用
-- [ ] 环境变量是否正确加载
+### Fallback Mechanisms
 
-### 问题：推荐不准确
-**检查清单：**
-- [ ] 业务数据是否完整
-- [ ] 关键词匹配是否正确
-- [ ] 用户偏好是否正确提取
-- [ ] AI 模型是否合适
+When the primary AI service is unavailable, the system provides fallback responses:
 
-### 问题：性能缓慢
-**检查清单：**
-- [ ] API 响应时间
-- [ ] 网络延迟
-- [ ] 缓存是否有效
-- [ ] 请求频率是否过高
+1. **Cached Recommendations**: Use previously successful recommendations
+2. **Keyword Matching**: Simple keyword-based business matching
+3. **Popular Items**: Return most popular businesses in the category
 
-## 更新日志
+## Performance Optimization
 
-### v1.0.0
-- 初始 AI 集成
-- 基本聊天功能
-- 推荐系统
-- 用户偏好提取
+### Response Time Optimization
+- Use appropriate model sizes for different use cases
+- Implement caching for common queries
+- Use streaming responses for long conversations
 
-### 计划功能
-- 多语言支持
-- 语音输入
-- 图像识别
-- 高级推荐算法
+### Cost Optimization
+- Monitor API usage and costs
+- Implement request batching where possible
+- Use fallback mechanisms to reduce API calls
 
-## 支持
+## Testing
 
-如果遇到问题，请：
+### Test AI Functionality
+```bash
+# Test basic conversation
+curl -X POST http://localhost:3000/api/ai \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "conversation",
+    "data": {
+      "message": "Hello, how are you?",
+      "conversationHistory": []
+    }
+  }'
 
-1. 检查本文档的故障排除部分
-2. 查看控制台错误日志
-3. 验证环境配置
-4. 联系开发团队
+# Test recommendations
+curl -X POST http://localhost:3000/api/ai \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "recommendations",
+    "data": {
+      "query": "Find restaurants in Auckland"
+    }
+  }'
+```
 
----
+### Monitor Performance
+```bash
+# Check API response times
+curl -w "@curl-format.txt" -X POST http://localhost:3000/api/ai \
+  -H "Content-Type: application/json" \
+  -d '{"type": "conversation", "data": {"message": "test"}}'
+```
 
-**注意：** 确保在生产环境中正确配置所有环境变量，并定期监控 AI API 的使用情况。
+## Troubleshooting
+
+### Common Issues
+
+#### 1. Slow Response Times
+- Check OpenAI API status
+- Verify network connectivity
+- Consider using a different model
+
+#### 2. Inaccurate Responses
+- Review system prompts
+- Check user context data
+- Verify business data quality
+
+#### 3. API Errors
+- Check API key validity
+- Verify account billing status
+- Review rate limits
+
+### Debug Mode
+Enable debug mode to get detailed logs:
+
+```bash
+DEBUG=ai:* npm run dev
+```
+
+## Best Practices
+
+### 1. Context Management
+- Maintain conversation history for better responses
+- Include user preferences in requests
+- Provide location context when relevant
+
+### 2. Error Handling
+- Always handle API errors gracefully
+- Implement fallback mechanisms
+- Provide user-friendly error messages
+
+### 3. Performance
+- Cache common responses
+- Use appropriate model sizes
+- Monitor API usage and costs
+
+### 4. Security
+- Never expose API keys in client-side code
+- Validate and sanitize user inputs
+- Implement rate limiting
+
+## Support
+
+For AI-related issues or questions:
+- Check the [OpenAI Documentation](https://platform.openai.com/docs)
+- Review the [LifeX AI Service Code](src/lib/ai.ts)
+- Contact the development team
+
+## Updates
+
+This guide will be updated as new AI features are added to LifeX. Check the changelog for the latest updates.

@@ -11,29 +11,29 @@ if (process.env.OPENAI_API_KEY) {
 
 const AI_MODEL = process.env.OPENAI_MODEL || 'gpt-5-nano';
 
-// 系统提示词
-const SYSTEM_PROMPT = `你是一个友好的新西兰本地生活助手，专门帮助用户发现和推荐新西兰的餐厅、咖啡店、景点和活动。
+// System prompt
+const SYSTEM_PROMPT = `You are a friendly New Zealand local life assistant, specializing in helping users discover and recommend restaurants, cafes, attractions, and activities in New Zealand.
 
-你的特点：
-1. 友好、热情，使用新西兰英语口音
-2. 提供准确、实用的本地推荐
-3. 了解新西兰的文化和生活方式
-4. 能够进行自然对话，不仅仅是推荐
+Your characteristics:
+1. Friendly and enthusiastic, using New Zealand English accent
+2. Provide accurate and practical local recommendations
+3. Understand New Zealand culture and lifestyle
+4. Able to engage in natural conversation, not just recommendations
 
-请用中文回复，保持友好和专业的语调。`;
+Please respond in English, maintaining a friendly and professional tone.`;
 
-// 业务上下文
+// Business context
 const BUSINESS_CONTEXT = `
 
-可用的商家类型：
-- 餐厅 (restaurants)
-- 咖啡店 (cafes)
-- 酒吧 (bars)
-- 景点 (attractions)
-- 活动 (activities)
-- 购物 (shopping)
+Available business types:
+- Restaurants (restaurants)
+- Cafes (cafes)
+- Bars (bars)
+- Attractions (attractions)
+- Activities (activities)
+- Shopping (shopping)
 
-请根据用户的需求提供最相关的推荐。`;
+Please provide the most relevant recommendations based on user needs.`;
 
 export interface AIRecommendationRequest {
   query: string;
@@ -72,36 +72,36 @@ export async function getAIRecommendations(
     console.warn('OpenAI API key not configured, using fallback recommendations');
     return {
       recommendations: availableBusinesses ? availableBusinesses.slice(0, 3) : [],
-      explanation: "由于AI服务暂时不可用，我为您推荐了一些热门商家。请尝试更具体的查询，比如'推荐奥克兰的咖啡店'或'寻找惠灵顿的餐厅'。",
+      explanation: "Since AI service is temporarily unavailable, I've recommended some popular businesses for you. Please try more specific queries like 'recommend cafes in Auckland' or 'find restaurants in Wellington'.",
       confidence: 0.5,
-      suggestedQueries: ["推荐咖啡店", "寻找餐厅", "附近景点"]
+      suggestedQueries: ["recommend cafes", "find restaurants", "nearby attractions"]
     };
   }
 
   try {
     const userPrompt = `
-用户查询: "${request.query}"
-${request.userLocation ? `用户位置: ${JSON.stringify(request.userLocation)}` : ''}
-${request.userPreferences ? `用户偏好: ${request.userPreferences.join(', ')}` : ''}
+User query: "${request.query}"
+${request.userLocation ? `User location: ${JSON.stringify(request.userLocation)}` : ''}
+${request.userPreferences ? `User preferences: ${request.userPreferences.join(', ')}` : ''}
 
-请提供推荐，格式如下：
+Please provide recommendations in the following format:
 {
   "recommendations": ["business_id_1", "business_id_2", "business_id_3"],
-  "explanation": "推荐理由",
+  "explanation": "Reason for recommendation",
   "confidence": 0.85,
-  "suggestedQueries": ["相关查询1", "相关查询2", "相关查询3"]
+  "suggestedQueries": ["related query 1", "related query 2", "related query 3"]
 }
 
-如果无法提供具体推荐，请返回空数组但提供有用的解释。`;
+If unable to provide specific recommendations, please return an empty array but provide useful explanation.`;
 
-    // 使用 GPT-5 Nano (Responses API)
+    // Use GPT-5 Nano (Responses API)
     const response = await openai.responses.create({
       model: AI_MODEL,
       instructions: SYSTEM_PROMPT + BUSINESS_CONTEXT,
       input: userPrompt
     });
 
-    console.log(`使用模型: ${AI_MODEL}`);
+    console.log(`Using model: ${AI_MODEL}`);
 
     const responseText = response.output_text;
 
