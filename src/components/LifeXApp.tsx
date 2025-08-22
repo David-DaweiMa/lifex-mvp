@@ -188,7 +188,7 @@ const LifeXApp: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+      <div className="flex-1 overflow-hidden" style={{ minHeight: 0, background: darkTheme.gradients.background }}>
         {currentView === 'chat' && (
           <ChatPage
             messages={messages}
@@ -248,11 +248,11 @@ const LifeXApp: React.FC = () => {
               onClick={() => setCurrentView(tab.id)}
               className="flex flex-col items-center py-2 md:py-3 px-3 md:px-4 transition-all"
               style={{
-                color: currentView === tab.id ? darkTheme.neon.purple : darkTheme.text.muted,
+                color: currentView === tab.id ? '#FFFFFF' : darkTheme.text.muted,
               }}
               onMouseEnter={(e) => {
                 if (currentView !== tab.id) {
-                  e.currentTarget.style.color = darkTheme.neon.purple;
+                  e.currentTarget.style.color = '#FFFFFF';
                 }
               }}
               onMouseLeave={(e) => {
