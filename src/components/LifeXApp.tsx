@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Search, Bell, MessageCircle, Zap, Camera, Calendar, User } from 'lucide-react';
-import { darkTheme, getResponsiveContainer } from '../lib/theme';
+import { darkTheme } from '../lib/theme';
 import { ViewType, Message, Booking } from '../lib/types';
 import { mockBookings } from '../lib/mockData';
 import { chatService, ChatServiceResponse } from '../lib/chatService';
@@ -15,6 +15,14 @@ import TrendingPage from './pages/TrendingPage';
 import DiscoverPage from './pages/DiscoverPage';
 import BookingPage from './pages/BookingPage';
 import ProfilePage from './pages/ProfilePage';
+
+// 修复：定义响应式容器样式
+const getResponsiveContainer = () => ({
+  width: '100%',
+  maxWidth: 'min(430px, 100vw)',
+  margin: '0 auto',
+  minHeight: '100vh',
+});
 
 const LifeXApp: React.FC = () => {
   // Auth context
@@ -115,10 +123,10 @@ const LifeXApp: React.FC = () => {
     setCurrentView('chat');
   };
 
-  // Responsive styles
+  // 修复：使用正确的渐变背景属性
   const containerStyle = {
     ...getResponsiveContainer(),
-    background: darkTheme.gradients.background,
+    background: darkTheme.gradients.background, // 使用 gradients.background
     WebkitFontSmoothing: 'antialiased' as const,
     textRendering: 'optimizeLegibility' as const
   };
@@ -323,13 +331,13 @@ const LifeXApp: React.FC = () => {
         }
 
         /* Custom responsive breakpoints */
-        @media (minWidth: 768px) {
+        @media (min-width: 768px) {
           .container-responsive {
             max-width: 600px;
           }
         }
 
-        @media (minWidth: 1024px) {
+        @media (min-width: 1024px) {
           .container-responsive {
             max-width: 800px;
           }
