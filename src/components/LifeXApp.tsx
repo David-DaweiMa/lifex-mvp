@@ -126,7 +126,7 @@ const LifeXApp: React.FC = () => {
   // 修复：使用正确的渐变背景属性
   const containerStyle = {
     ...getResponsiveContainer(),
-    background: darkTheme.gradients.background, // 使用 gradients.background
+    background: darkTheme.background.primary, // 改为纯黑色
     WebkitFontSmoothing: 'antialiased' as const,
     textRendering: 'optimizeLegibility' as const
   };

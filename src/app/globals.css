@@ -22,7 +22,7 @@ body {
 
 body {
   color: var(--lifex-dark);
-  background: linear-gradient(135deg, #0a0a0a, #1a1a1a, #111);
+  background: #0a0a0a;  /* 改为纯黑色 */
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
