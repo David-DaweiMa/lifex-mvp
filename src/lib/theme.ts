@@ -61,7 +61,7 @@ export const darkTheme = {
     secondary: 'linear-gradient(135deg, #B794F6 0%, #9F7AEA 100%)',
     accent: 'linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%)',
     dark: 'linear-gradient(135deg, #1A1625 0%, #0F0B1A 100%)',
-    background: 'linear-gradient(135deg, #0F0B1A, #1A1625, #0F0B1A)'  // 添加缺失的 background 属性
+    background: 'linear-gradient(135deg, #0a0a0a, #1a1a1a, #111)'  // 使用之前的背景渐变
   },
 
   // Shadows
@@ -115,7 +115,7 @@ export const lightTheme = {
     primary: 'linear-gradient(135deg, #8B5CF6 0%, #B794F6 100%)',
     secondary: 'linear-gradient(135deg, #FAF5FF 0%, #E9D8FD 100%)',
     accent: 'linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%)',
-    background: 'linear-gradient(135deg, #FFFFFF, #F8F7FF, #E9D8FD)'  // 添加缺失的 background 属性
+    background: 'linear-gradient(135deg, #ffffff, #f8fafc, #f1f5f9)'  // 使用之前的浅色背景
   },
   shadows: darkTheme.shadows,
   borderRadius: darkTheme.borderRadius,
