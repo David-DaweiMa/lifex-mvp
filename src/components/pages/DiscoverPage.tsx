@@ -135,6 +135,13 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
       {/* Header */}
       <div className="px-4 md:px-6 lg:px-8 py-4">
         <div className="max-w-6xl mx-auto">
+          {/* Page Description */}
+          <div className="mb-4">
+            <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
+              Find services
+            </p>
+          </div>
+
           {/* Discovery Tabs - 像第二个图片那样 */}
           <div className="flex gap-2 mb-6">
             {discoveryTabs.map((tab) => (

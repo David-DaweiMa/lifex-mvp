@@ -181,6 +181,18 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
           </button>
         </div>
 
+        {/* Header Description - 在TrendingPage主内容开始前添加 */}
+        <div className="px-4 md:px-6 lg:px-8 py-4">
+          <div className="max-w-6xl mx-auto">
+            {/* Page Description */}
+            <div className="mb-4">
+              <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
+                What's new
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Content Input */}
         <textarea
           value={content}
