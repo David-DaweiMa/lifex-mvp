@@ -1,6 +1,6 @@
 // src/components/pages/DiscoverPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Heart, Camera, Star, Phone, MapPin, Sparkles, Search, Loader2, UserPlus, Store, Building2, Filter } from 'lucide-react';
+import { Heart, Camera, Star, Phone, MapPin, Sparkles, Search, Loader2, UserPlus, Store, Building2, Filter, Plus } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
 import { discoverCategories, discoverContent } from '../../lib/mockData';
 import { businessService, Business, BusinessFilters } from '../../lib/businessService';
@@ -131,7 +131,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
-  const handleClaimBusiness = () => {
+  const handleBusinessAction = () => {
     if (!currentUser) {
       // Redirect to login
       window.location.href = '/auth/login';
@@ -144,25 +144,8 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
       return;
     }
     
-    // Redirect to claim business page
-    window.location.href = '/business/claim';
-  };
-
-  const handleJoinBusiness = () => {
-    if (!currentUser) {
-      // Redirect to login
-      window.location.href = '/auth/login';
-      return;
-    }
-    
-    if (!isBusinessMember) {
-      // Show upgrade to business member modal
-      setShowBusinessModal(true);
-      return;
-    }
-    
-    // Redirect to join business page
-    window.location.href = '/business/join';
+    // Show business actions menu
+    setShowBusinessModal(true);
   };
 
   const handleUpgradeToBusiness = () => {
@@ -170,11 +153,16 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
     window.location.href = '/auth/register?type=business';
   };
 
+  // 瀑布流布局 - 将数据分成两列
+  const getColumnData = (data: Business[], columnIndex: number) => {
+    return data.filter((_, index) => index % 2 === columnIndex);
+  };
+
   return (
     <div className="min-h-screen" style={{ background: darkTheme.background.primary }}>
       {/* Fixed Header */}
       <div
-        className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-40 transition-transform duration-300 ${
           isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
         style={{
@@ -186,12 +174,9 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
           <div className="max-w-6xl mx-auto">
             {/* Header */}
             <div className="mb-4">
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold" style={{ color: darkTheme.text.primary }}>
                 Discover
               </h2>
-              <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
-                Local businesses & community insights
-              </p>
             </div>
 
             {/* Discovery Menu - Following/Recommend/Nearby */}
@@ -223,83 +208,12 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                 ))}
               </div>
             </div>
-
-            {/* Business Member Actions - Only show to business members */}
-            <div className="mb-4">
-              <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                <button
-                  onClick={handleClaimBusiness}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl border transition-all hover:scale-105 whitespace-nowrap"
-                  style={{
-                    background: darkTheme.background.card,
-                    borderColor: darkTheme.background.glass,
-                  }}
-                >
-                  <Building2 
-                    size={16} 
-                    style={{ color: darkTheme.text.muted }} 
-                  />
-                  <span 
-                    className="text-sm font-medium"
-                    style={{ color: darkTheme.text.secondary }}
-                  >
-                    Claim Business
-                  </span>
-                </button>
-                
-                <button
-                  onClick={handleJoinBusiness}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl border transition-all hover:scale-105 whitespace-nowrap"
-                  style={{
-                    background: darkTheme.background.card,
-                    borderColor: darkTheme.background.glass,
-                  }}
-                >
-                  <UserPlus 
-                    size={16} 
-                    style={{ color: darkTheme.text.muted }} 
-                  />
-                  <span 
-                    className="text-sm font-medium"
-                    style={{ color: darkTheme.text.secondary }}
-                  >
-                    Join Business
-                  </span>
-                </button>
-              </div>
-              
-              {!isBusinessMember && currentUser && (
-                <div className="mt-2 text-xs" style={{ color: darkTheme.text.muted }}>
-                  <span>Business member features require upgrading your account. </span>
-                  <button 
-                    onClick={handleUpgradeToBusiness}
-                    className="underline hover:text-purple-400 transition-colors"
-                    style={{ color: darkTheme.neon.purple }}
-                  >
-                    Upgrade now
-                  </button>
-                </div>
-              )}
-              
-              {!currentUser && (
-                <div className="mt-2 text-xs" style={{ color: darkTheme.text.muted }}>
-                  <span>Business features require account registration. </span>
-                  <button 
-                    onClick={() => window.location.href = '/auth/register'}
-                    className="underline hover:text-purple-400 transition-colors"
-                    style={{ color: darkTheme.neon.purple }}
-                  >
-                    Sign up
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="pt-40">
+      <div className="pt-32">
         <div className="px-4 md:px-6 lg:px-8 pb-8">
           <div className="max-w-6xl mx-auto">
             {/* Search Bar */}
@@ -355,31 +269,6 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
               </div>
             </div>
 
-            {/* Current Discovery Menu Info */}
-            <div className="mb-6">
-              <div className="flex items-center gap-3 p-4 rounded-xl border" style={{
-                background: darkTheme.background.card,
-                borderColor: darkTheme.background.glass,
-              }}>
-                {(() => {
-                  const currentMenu = discoveryMenus.find(m => m.id === selectedDiscoveryMenu);
-                  return currentMenu ? (
-                    <>
-                      <currentMenu.icon size={20} style={{ color: darkTheme.neon.purple }} />
-                      <div>
-                        <h3 className="font-medium text-sm" style={{ color: darkTheme.text.primary }}>
-                          {currentMenu.label}
-                        </h3>
-                        <p className="text-xs" style={{ color: darkTheme.text.muted }}>
-                          {currentMenu.description}
-                        </p>
-                      </div>
-                    </>
-                  ) : null;
-                })()}
-              </div>
-            </div>
-
             {/* Error State */}
             {error && (
               <div className="mb-6 p-4 rounded-xl border" style={{
@@ -406,133 +295,157 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
               </div>
             )}
 
-            {/* Business Grid - 修复布局 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
-              {businesses.map((business, index) => (
-                <div 
-                  key={`${business.id}-${index}`}
-                  className="rounded-xl border overflow-hidden transition-all hover:scale-[1.02] cursor-pointer flex flex-col"
-                  style={{
-                    background: darkTheme.background.card,
-                    borderColor: darkTheme.background.glass,
-                  }}
-                  onClick={() => window.location.href = `/businesses/${business.id}`}
-                >
-                  {/* Business Image - 统一高度 */}
-                  <div 
-                    className="h-48 flex items-center justify-center text-white font-bold text-lg relative overflow-hidden"
-                    style={{ 
-                      background: business.cover_photo_url 
-                        ? `url(${business.cover_photo_url}) center/cover` 
-                        : `linear-gradient(135deg, ${darkTheme.neon.purple}, ${darkTheme.neon.blue})` 
-                    }}
-                  >
-                    {!business.cover_photo_url && (
-                      <Store size={32} />
-                    )}
-                    
-                    {/* Heart Button */}
-                    <button 
-                      className="absolute top-3 right-3 w-8 h-8 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/40 transition-all"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Handle favorite logic here
+            {/* 小红书风格瀑布流 - 两列布局 */}
+            {businesses.length > 0 && (
+              <div className="grid grid-cols-2 gap-3 md:gap-4 mb-8">
+                {/* Left Column */}
+                <div className="space-y-3 md:space-y-4">
+                  {getColumnData(businesses, 0).map((business) => (
+                    <div 
+                      key={business.id}
+                      className="rounded-xl border overflow-hidden transition-all hover:scale-[1.02] cursor-pointer"
+                      style={{
+                        background: darkTheme.background.card,
+                        borderColor: darkTheme.background.glass,
                       }}
+                      onClick={() => window.location.href = `/businesses/${business.id}`}
                     >
-                      <Heart size={16} className="text-white" />
-                    </button>
-                  </div>
-
-                  {/* Business Info - 固定结构 */}
-                  <div className="p-4 flex-1 flex flex-col">
-                    {/* 标题和基本信息 */}
-                    <div className="mb-3">
-                      <h3 
-                        className="font-semibold text-base mb-2 line-clamp-1"
-                        style={{ color: darkTheme.text.primary }}
+                      {/* Business Image - 随机高度营造瀑布流效果 */}
+                      <div 
+                        className="relative overflow-hidden"
+                        style={{ 
+                          height: `${160 + (parseInt(business.id) % 3) * 40}px`, // 160px, 200px, or 240px
+                          background: business.cover_photo_url 
+                            ? `url(${business.cover_photo_url}) center/cover` 
+                            : `linear-gradient(135deg, ${darkTheme.neon.purple}, ${darkTheme.neon.blue})` 
+                        }}
                       >
-                        {business.name}
-                      </h3>
-                      
-                      <p 
-                        className="text-sm mb-2 line-clamp-2"
-                        style={{ color: darkTheme.text.secondary }}
-                      >
-                        {business.descriptions?.[0]?.description || business.type}
-                      </p>
-                    </div>
-
-                    {/* Rating and Distance */}
-                    <div className="flex items-center justify-between text-sm mb-3">
-                      <div className="flex items-center gap-1">
-                        <Star size={14} className="fill-current text-yellow-400" />
-                        <span style={{ color: darkTheme.text.primary }}>
-                          {business.rating?.toFixed(1) || '4.5'}
-                        </span>
-                        <span style={{ color: darkTheme.text.muted }}>
-                          ({business.review_count || 0})
-                        </span>
-                      </div>
-                      <span className="text-sm" style={{ color: darkTheme.text.muted }}>
-                        {business.distance || '1.2km'}
-                      </span>
-                    </div>
-
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {business.tags?.slice(0, 2).map((tag, tagIdx) => (
-                        <span 
-                          key={tagIdx}
-                          className="px-2 py-1 rounded-full text-xs font-medium"
-                          style={{
-                            background: `${darkTheme.neon.purple}20`,
-                            color: darkTheme.neon.purple,
+                        {!business.cover_photo_url && (
+                          <div className="absolute inset-0 flex items-center justify-center text-white">
+                            <Store size={24} />
+                          </div>
+                        )}
+                        
+                        {/* Heart Button */}
+                        <button 
+                          className="absolute top-2 right-2 w-7 h-7 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/40 transition-all"
+                          onClick={(e) => {
+                            e.stopPropagation();
                           }}
                         >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                          <Heart size={14} className="text-white" />
+                        </button>
+                      </div>
 
-                    {/* Quick Actions - 固定在底部 */}
-                    <div className="grid grid-cols-2 gap-2 mt-auto">
-                      <button 
-                        className="py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1"
-                        style={{
-                          background: darkTheme.background.secondary,
-                          color: darkTheme.text.primary,
-                          border: `1px solid ${darkTheme.background.glass}`,
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(`tel:${business.phone || ''}`, '_self');
-                        }}
-                      >
-                        <Phone size={14} />
-                        <span>Call</span>
-                      </button>
-                      <button 
-                        className="py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1"
-                        style={{
-                          background: darkTheme.neon.purple,
-                          color: 'white',
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(`https://maps.google.com/?q=${encodeURIComponent(business.name)}`, '_blank');
-                        }}
-                      >
-                        <MapPin size={14} />
-                        <span>Visit</span>
-                      </button>
+                      {/* Business Info */}
+                      <div className="p-3">
+                        <h3 
+                          className="font-semibold text-sm mb-1 line-clamp-1"
+                          style={{ color: darkTheme.text.primary }}
+                        >
+                          {business.name}
+                        </h3>
+                        
+                        <p 
+                          className="text-xs mb-2 line-clamp-2"
+                          style={{ color: darkTheme.text.secondary }}
+                        >
+                          {business.descriptions?.[0]?.description || business.type}
+                        </p>
+
+                        {/* Rating */}
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-1">
+                            <Star size={12} className="fill-current text-yellow-400" />
+                            <span style={{ color: darkTheme.text.primary }}>
+                              {business.rating?.toFixed(1) || '4.5'}
+                            </span>
+                          </div>
+                          <span style={{ color: darkTheme.text.muted }}>
+                            {business.distance || '1.2km'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+
+                {/* Right Column */}
+                <div className="space-y-3 md:space-y-4">
+                  {getColumnData(businesses, 1).map((business) => (
+                    <div 
+                      key={business.id}
+                      className="rounded-xl border overflow-hidden transition-all hover:scale-[1.02] cursor-pointer"
+                      style={{
+                        background: darkTheme.background.card,
+                        borderColor: darkTheme.background.glass,
+                      }}
+                      onClick={() => window.location.href = `/businesses/${business.id}`}
+                    >
+                      {/* Business Image - 随机高度营造瀑布流效果 */}
+                      <div 
+                        className="relative overflow-hidden"
+                        style={{ 
+                          height: `${160 + ((parseInt(business.id) + 1) % 3) * 40}px`, // 不同的随机高度
+                          background: business.cover_photo_url 
+                            ? `url(${business.cover_photo_url}) center/cover` 
+                            : `linear-gradient(135deg, ${darkTheme.neon.purple}, ${darkTheme.neon.blue})` 
+                        }}
+                      >
+                        {!business.cover_photo_url && (
+                          <div className="absolute inset-0 flex items-center justify-center text-white">
+                            <Store size={24} />
+                          </div>
+                        )}
+                        
+                        {/* Heart Button */}
+                        <button 
+                          className="absolute top-2 right-2 w-7 h-7 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/40 transition-all"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          <Heart size={14} className="text-white" />
+                        </button>
+                      </div>
+
+                      {/* Business Info */}
+                      <div className="p-3">
+                        <h3 
+                          className="font-semibold text-sm mb-1 line-clamp-1"
+                          style={{ color: darkTheme.text.primary }}
+                        >
+                          {business.name}
+                        </h3>
+                        
+                        <p 
+                          className="text-xs mb-2 line-clamp-2"
+                          style={{ color: darkTheme.text.secondary }}
+                        >
+                          {business.descriptions?.[0]?.description || business.type}
+                        </p>
+
+                        {/* Rating */}
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-1">
+                            <Star size={12} className="fill-current text-yellow-400" />
+                            <span style={{ color: darkTheme.text.primary }}>
+                              {business.rating?.toFixed(1) || '4.5'}
+                            </span>
+                          </div>
+                          <span style={{ color: darkTheme.text.muted }}>
+                            {business.distance || '1.2km'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Load More Button */}
-            {hasMore && (
+            {hasMore && businesses.length > 0 && (
               <div className="flex justify-center">
                 <button
                   onClick={handleLoadMore}
@@ -559,7 +472,19 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
         </div>
       </div>
 
-      {/* Business Upgrade Modal */}
+      {/* Floating Business Action Button - 类似Trending页面的发布按钮 */}
+      <button
+        onClick={handleBusinessAction}
+        className="fixed bottom-20 right-4 md:right-6 w-14 h-14 rounded-full shadow-lg transition-all hover:scale-110 z-50"
+        style={{
+          background: `linear-gradient(135deg, ${darkTheme.neon.purple}, ${darkTheme.neon.pink})`,
+          boxShadow: `0 8px 32px ${darkTheme.neon.purple}40`,
+        }}
+      >
+        <Building2 className="w-6 h-6 text-white" />
+      </button>
+
+      {/* Business Modal */}
       {showBusinessModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div 
@@ -569,59 +494,111 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
               borderColor: darkTheme.background.glass,
             }}
           >
-            <div className="text-center mb-6">
-              <Building2 size={48} style={{ color: darkTheme.neon.purple }} className="mx-auto mb-4" />
-              <h3 className="text-lg font-bold mb-2" style={{ color: darkTheme.text.primary }}>
-                Upgrade to Business Member
-              </h3>
-              <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                Access business features like claiming your business and managing listings.
-              </p>
-            </div>
+            {!isBusinessMember ? (
+              // Upgrade Modal
+              <>
+                <div className="text-center mb-6">
+                  <Building2 size={48} style={{ color: darkTheme.neon.purple }} className="mx-auto mb-4" />
+                  <h3 className="text-lg font-bold mb-2" style={{ color: darkTheme.text.primary }}>
+                    Upgrade to Business Member
+                  </h3>
+                  <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
+                    Access business features like claiming your business and managing listings.
+                  </p>
+                </div>
 
-            <div className="space-y-3 mb-6">
-              <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: darkTheme.background.secondary }}>
-                <Store size={16} style={{ color: darkTheme.neon.purple }} />
-                <span className="text-sm" style={{ color: darkTheme.text.primary }}>
-                  Claim and manage your business
-                </span>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: darkTheme.background.secondary }}>
-                <Camera size={16} style={{ color: darkTheme.neon.purple }} />
-                <span className="text-sm" style={{ color: darkTheme.text.primary }}>
-                  Upload photos and menus
-                </span>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: darkTheme.background.secondary }}>
-                <Sparkles size={16} style={{ color: darkTheme.neon.purple }} />
-                <span className="text-sm" style={{ color: darkTheme.text.primary }}>
-                  Enhanced visibility and analytics
-                </span>
-              </div>
-            </div>
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: darkTheme.background.secondary }}>
+                    <Store size={16} style={{ color: darkTheme.neon.purple }} />
+                    <span className="text-sm" style={{ color: darkTheme.text.primary }}>
+                      Claim and manage your business
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: darkTheme.background.secondary }}>
+                    <Camera size={16} style={{ color: darkTheme.neon.purple }} />
+                    <span className="text-sm" style={{ color: darkTheme.text.primary }}>
+                      Upload photos and menus
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: darkTheme.background.secondary }}>
+                    <Sparkles size={16} style={{ color: darkTheme.neon.purple }} />
+                    <span className="text-sm" style={{ color: darkTheme.text.primary }}>
+                      Enhanced visibility and analytics
+                    </span>
+                  </div>
+                </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowBusinessModal(false)}
-                className="flex-1 py-3 px-4 rounded-lg font-medium transition-colors"
-                style={{
-                  background: darkTheme.background.secondary,
-                  color: darkTheme.text.primary,
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUpgradeToBusiness}
-                className="flex-1 py-3 px-4 rounded-lg font-medium transition-colors"
-                style={{
-                  background: darkTheme.neon.purple,
-                  color: 'white',
-                }}
-              >
-                Upgrade Now
-              </button>
-            </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowBusinessModal(false)}
+                    className="flex-1 py-3 px-4 rounded-lg font-medium transition-colors"
+                    style={{
+                      background: darkTheme.background.secondary,
+                      color: darkTheme.text.primary,
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpgradeToBusiness}
+                    className="flex-1 py-3 px-4 rounded-lg font-medium transition-colors"
+                    style={{
+                      background: darkTheme.neon.purple,
+                      color: 'white',
+                    }}
+                  >
+                    Upgrade Now
+                  </button>
+                </div>
+              </>
+            ) : (
+              // Business Actions Modal
+              <>
+                <div className="text-center mb-6">
+                  <Building2 size={48} style={{ color: darkTheme.neon.purple }} className="mx-auto mb-4" />
+                  <h3 className="text-lg font-bold mb-2" style={{ color: darkTheme.text.primary }}>
+                    Business Actions
+                  </h3>
+                  <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
+                    Choose an action for your business
+                  </p>
+                </div>
+
+                <div className="space-y-3 mb-6">
+                  <button
+                    onClick={() => window.location.href = '/business/claim'}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg transition-colors hover:bg-opacity-80"
+                    style={{ background: darkTheme.background.secondary }}
+                  >
+                    <Building2 size={16} style={{ color: darkTheme.neon.purple }} />
+                    <span className="text-sm" style={{ color: darkTheme.text.primary }}>
+                      Claim Business
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => window.location.href = '/business/join'}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg transition-colors hover:bg-opacity-80"
+                    style={{ background: darkTheme.background.secondary }}
+                  >
+                    <UserPlus size={16} style={{ color: darkTheme.neon.purple }} />
+                    <span className="text-sm" style={{ color: darkTheme.text.primary }}>
+                      Join Business
+                    </span>
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setShowBusinessModal(false)}
+                  className="w-full py-3 px-4 rounded-lg font-medium transition-colors"
+                  style={{
+                    background: darkTheme.background.secondary,
+                    color: darkTheme.text.primary,
+                  }}
+                >
+                  Cancel
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -646,65 +623,37 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
           display: none;
         }
 
-        /* 确保网格布局稳定 */
-        .grid {
-          display: grid;
-        }
-
-        .grid-cols-1 {
-          grid-template-columns: repeat(1, minmax(0, 1fr));
+        /* 瀑布流布局优化 */
+        .grid-cols-2 {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0.75rem;
         }
 
         @media (min-width: 768px) {
-          .md\\:grid-cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+          .grid-cols-2 {
+            gap: 1rem;
           }
-        }
-
-        @media (min-width: 1024px) {
-          .lg\\:grid-cols-3 {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-          }
-        }
-
-        /* 确保卡片高度一致 */
-        .business-card {
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-        }
-
-        .business-content {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .business-actions {
-          margin-top: auto;
         }
 
         /* 移动端优化 */
         @media (max-width: 767px) {
-          .gap-4 {
-            gap: 1rem;
-          }
-          
-          .p-4 {
-            padding: 1rem;
+          .p-3 {
+            padding: 0.75rem;
           }
         }
 
-        /* 防止按钮文字换行 */
-        .grid-cols-2 button {
-          white-space: nowrap;
-          min-width: 0;
+        /* 悬浮按钮动画 */
+        .floating-button {
+          animation: float 3s ease-in-out infinite;
         }
 
-        /* 统一图像高度 */
-        .business-image {
-          height: 12rem; /* 192px */
-          object-fit: cover;
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-6px);
+          }
         }
       `}</style>
     </div>
