@@ -406,21 +406,21 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
               </div>
             )}
 
-            {/* Business Grid */}
+            {/* Business Grid - 修复布局 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
               {businesses.map((business, index) => (
                 <div 
                   key={`${business.id}-${index}`}
-                  className="rounded-xl border overflow-hidden transition-all hover:scale-[1.02] cursor-pointer"
+                  className="rounded-xl border overflow-hidden transition-all hover:scale-[1.02] cursor-pointer flex flex-col"
                   style={{
                     background: darkTheme.background.card,
                     borderColor: darkTheme.background.glass,
                   }}
                   onClick={() => window.location.href = `/businesses/${business.id}`}
                 >
-                  {/* Business Image */}
+                  {/* Business Image - 统一高度 */}
                   <div 
-                    className="h-32 md:h-40 flex items-center justify-center text-white font-bold text-lg"
+                    className="h-48 flex items-center justify-center text-white font-bold text-lg relative overflow-hidden"
                     style={{ 
                       background: business.cover_photo_url 
                         ? `url(${business.cover_photo_url}) center/cover` 
@@ -428,35 +428,44 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                     }}
                   >
                     {!business.cover_photo_url && (
-                      <Store size={24} />
+                      <Store size={32} />
                     )}
+                    
+                    {/* Heart Button */}
+                    <button 
+                      className="absolute top-3 right-3 w-8 h-8 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/40 transition-all"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Handle favorite logic here
+                      }}
+                    >
+                      <Heart size={16} className="text-white" />
+                    </button>
                   </div>
 
-                  {/* Business Info */}
-                  <div className="p-3 md:p-4">
-                    <div className="flex items-start justify-between mb-2">
+                  {/* Business Info - 固定结构 */}
+                  <div className="p-4 flex-1 flex flex-col">
+                    {/* 标题和基本信息 */}
+                    <div className="mb-3">
                       <h3 
-                        className="font-semibold text-sm md:text-base line-clamp-2"
+                        className="font-semibold text-base mb-2 line-clamp-1"
                         style={{ color: darkTheme.text.primary }}
                       >
                         {business.name}
                       </h3>
-                      <button className="ml-2 hover:scale-110 transition-transform">
-                        <Heart size={16} style={{ color: darkTheme.text.muted }} />
-                      </button>
+                      
+                      <p 
+                        className="text-sm mb-2 line-clamp-2"
+                        style={{ color: darkTheme.text.secondary }}
+                      >
+                        {business.descriptions?.[0]?.description || business.type}
+                      </p>
                     </div>
 
-                    <p 
-                      className="text-xs md:text-sm mb-2 line-clamp-2"
-                      style={{ color: darkTheme.text.secondary }}
-                    >
-                      {business.descriptions?.[0]?.description || business.type}
-                    </p>
-
                     {/* Rating and Distance */}
-                    <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center justify-between text-sm mb-3">
                       <div className="flex items-center gap-1">
-                        <Star size={12} className="fill-current" style={{ color: '#fbbf24' }} />
+                        <Star size={14} className="fill-current text-yellow-400" />
                         <span style={{ color: darkTheme.text.primary }}>
                           {business.rating?.toFixed(1) || '4.5'}
                         </span>
@@ -464,40 +473,57 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                           ({business.review_count || 0})
                         </span>
                       </div>
-                      <span style={{ color: darkTheme.text.muted }}>
+                      <span className="text-sm" style={{ color: darkTheme.text.muted }}>
                         {business.distance || '1.2km'}
                       </span>
                     </div>
 
-                    {/* Quick Actions */}
-                    <div className="flex gap-2 mt-3">
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {business.tags?.slice(0, 2).map((tag, tagIdx) => (
+                        <span 
+                          key={tagIdx}
+                          className="px-2 py-1 rounded-full text-xs font-medium"
+                          style={{
+                            background: `${darkTheme.neon.purple}20`,
+                            color: darkTheme.neon.purple,
+                          }}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Quick Actions - 固定在底部 */}
+                    <div className="grid grid-cols-2 gap-2 mt-auto">
                       <button 
-                        className="flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors"
+                        className="py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1"
                         style={{
                           background: darkTheme.background.secondary,
                           color: darkTheme.text.primary,
+                          border: `1px solid ${darkTheme.background.glass}`,
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
                           window.open(`tel:${business.phone || ''}`, '_self');
                         }}
                       >
-                        <Phone size={12} className="inline mr-1" />
-                        Call
+                        <Phone size={14} />
+                        <span>Call</span>
                       </button>
                       <button 
-                        className="flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors"
+                        className="py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1"
                         style={{
                           background: darkTheme.neon.purple,
                           color: 'white',
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          // Navigate to business details
+                          window.open(`https://maps.google.com/?q=${encodeURIComponent(business.name)}`, '_blank');
                         }}
                       >
-                        <MapPin size={12} className="inline mr-1" />
-                        Visit
+                        <MapPin size={14} />
+                        <span>Visit</span>
                       </button>
                     </div>
                   </div>
@@ -602,6 +628,13 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
 
       {/* Custom Styles */}
       <style jsx>{`
+        .line-clamp-1 {
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        
         .line-clamp-2 {
           display: -webkit-box;
           -webkit-line-clamp: 2;
@@ -613,16 +646,65 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
           display: none;
         }
 
-        @media (max-width: 768px) {
-          .grid-cols-3 {
+        /* 确保网格布局稳定 */
+        .grid {
+          display: grid;
+        }
+
+        .grid-cols-1 {
+          grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        @media (min-width: 768px) {
+          .md\\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .lg\\:grid-cols-3 {
             grid-template-columns: repeat(3, minmax(0, 1fr));
           }
         }
 
-        @media (min-width: 768px) {
-          .md\\:grid-cols-6 {
-            grid-template-columns: repeat(6, minmax(0, 1fr));
+        /* 确保卡片高度一致 */
+        .business-card {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
+
+        .business-content {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .business-actions {
+          margin-top: auto;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 767px) {
+          .gap-4 {
+            gap: 1rem;
           }
+          
+          .p-4 {
+            padding: 1rem;
+          }
+        }
+
+        /* 防止按钮文字换行 */
+        .grid-cols-2 button {
+          white-space: nowrap;
+          min-width: 0;
+        }
+
+        /* 统一图像高度 */
+        .business-image {
+          height: 12rem; /* 192px */
+          object-fit: cover;
         }
       `}</style>
     </div>
