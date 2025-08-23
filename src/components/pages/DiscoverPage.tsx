@@ -1,20 +1,29 @@
 // src/components/pages/DiscoverPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Heart, Camera, Star, Phone, MapPin, Sparkles, Search, Loader2 } from 'lucide-react';
+import { Heart, Camera, Star, Phone, MapPin, Sparkles, Search, Loader2, UserPlus, Store, Building2, Filter } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
 import { discoverCategories, discoverContent } from '../../lib/mockData';
 import { businessService, Business, BusinessFilters } from '../../lib/businessService';
+import { getCurrentUser } from '../../lib/authService';
 
 interface DiscoverPageProps {
   selectedServiceCategory: string;
   setSelectedServiceCategory: (category: string) => void;
 }
 
+// Discovery menu options
+const discoveryMenus = [
+  { id: 'following', label: 'Following', icon: Heart, description: 'Businesses you follow' },
+  { id: 'recommend', label: 'Recommend', icon: Sparkles, description: 'AI recommendations for you' },
+  { id: 'nearby', label: 'Nearby', icon: MapPin, description: 'Businesses near your location' }
+];
+
 const DiscoverPage: React.FC<DiscoverPageProps> = ({
   selectedServiceCategory,
   setSelectedServiceCategory
 }) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedDiscoveryMenu, setSelectedDiscoveryMenu] = useState('recommend');
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   
@@ -26,17 +35,33 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
+  // User state for business features
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [showBusinessModal, setShowBusinessModal] = useState(false);
+
+  // Load user on component mount
+  useEffect(() => {
+    loadCurrentUser();
+  }, []);
+
   // Load businesses on component mount and category change
   useEffect(() => {
     loadBusinesses();
-  }, [selectedServiceCategory, searchQuery]);
+  }, [selectedServiceCategory, selectedDiscoveryMenu, searchQuery]);
+
+  const loadCurrentUser = async () => {
+    const result = await getCurrentUser();
+    if (result.success) {
+      setCurrentUser(result.user);
+    }
+  };
 
   const loadBusinesses = async (page: number = 1, append: boolean = false) => {
     try {
       setLoading(true);
       setError(null);
 
-      const filters: BusinessFilters = {
+      let filters: BusinessFilters = {
         page,
         limit: 20,
         category: selectedServiceCategory === 'all' ? undefined : selectedServiceCategory,
@@ -44,6 +69,23 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
         sortBy: 'rating',
         sortOrder: 'desc'
       };
+
+      // Apply discovery menu filters
+      switch (selectedDiscoveryMenu) {
+        case 'following':
+          // Filter for followed businesses (mock implementation)
+          filters.sortBy = 'name';
+          break;
+        case 'nearby':
+          // Filter for nearby businesses (mock implementation)
+          filters.sortBy = 'name';
+          break;
+        case 'recommend':
+        default:
+          // AI recommendations (default behavior)
+          filters.sortBy = 'rating';
+          break;
+      }
 
       const response = await businessService.getBusinesses(filters);
       
@@ -57,27 +99,28 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
       setCurrentPage(page);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load businesses');
-      console.error('Error loading businesses:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleLoadMore = () => {
-    if (!loading && hasMore) {
+    if (hasMore && !loading) {
       loadBusinesses(currentPage + 1, true);
     }
   };
 
+  // Check if user is a business member
+  const isBusinessMember = currentUser && ['free_business', 'professional_business', 'enterprise_business'].includes(currentUser.user_type);
+
+  // Handle scroll for header visibility
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down and past initial 100px
         setIsHeaderVisible(false);
       } else {
-        // Scrolling up
         setIsHeaderVisible(true);
       }
       
@@ -87,24 +130,62 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
-  
-  const getFilteredContent = () => {
-    if (selectedServiceCategory === 'all') return discoverContent;
-    return discoverContent.filter(item => item.category === selectedServiceCategory);
+
+  const handleClaimBusiness = () => {
+    if (!currentUser) {
+      // Redirect to login
+      window.location.href = '/auth/login';
+      return;
+    }
+    
+    if (!isBusinessMember) {
+      // Show upgrade to business member modal
+      setShowBusinessModal(true);
+      return;
+    }
+    
+    // Redirect to claim business page
+    window.location.href = '/business/claim';
+  };
+
+  const handleJoinBusiness = () => {
+    if (!currentUser) {
+      // Redirect to login
+      window.location.href = '/auth/login';
+      return;
+    }
+    
+    if (!isBusinessMember) {
+      // Show upgrade to business member modal
+      setShowBusinessModal(true);
+      return;
+    }
+    
+    // Redirect to join business page
+    window.location.href = '/business/join';
+  };
+
+  const handleUpgradeToBusiness = () => {
+    // Redirect to business registration page
+    window.location.href = '/auth/register?type=business';
   };
 
   return (
-    <div className="h-full overflow-y-auto pb-20" style={{ background: darkTheme.background.primary, WebkitOverflowScrolling: 'touch' }}>
-      <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
-        <div className="relative z-10 max-w-6xl mx-auto">
-          {/* Header - Scrollable */}
-          <div 
-            className={`transition-transform duration-300 ease-in-out ${
-              isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
-            }`}
-          >
+    <div className="min-h-screen" style={{ background: darkTheme.background.primary }}>
+      {/* Fixed Header */}
+      <div
+        className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
+          isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
+        }`}
+        style={{
+          background: `${darkTheme.background.primary}95`,
+          backdropFilter: 'blur(10px)',
+        }}
+      >
+        <div className="px-4 md:px-6 lg:px-8 py-4">
+          <div className="max-w-6xl mx-auto">
             {/* Header */}
-            <div className="mb-6">
+            <div className="mb-4">
               <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
                 Discover
               </h2>
@@ -113,6 +194,114 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
               </p>
             </div>
 
+            {/* Discovery Menu - Following/Recommend/Nearby */}
+            <div className="mb-4">
+              <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {discoveryMenus.map((menu) => (
+                  <button
+                    key={menu.id}
+                    onClick={() => setSelectedDiscoveryMenu(menu.id)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl border transition-all hover:scale-105 whitespace-nowrap"
+                    style={{
+                      background: selectedDiscoveryMenu === menu.id ? `${darkTheme.neon.purple}20` : darkTheme.background.card,
+                      borderColor: selectedDiscoveryMenu === menu.id ? `${darkTheme.neon.purple}40` : darkTheme.background.glass,
+                    }}
+                  >
+                    <menu.icon 
+                      size={16} 
+                      style={{ color: selectedDiscoveryMenu === menu.id ? darkTheme.neon.purple : darkTheme.text.muted }} 
+                    />
+                    <span 
+                      className="text-sm font-medium"
+                      style={{ 
+                        color: selectedDiscoveryMenu === menu.id ? darkTheme.neon.purple : darkTheme.text.secondary 
+                      }}
+                    >
+                      {menu.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Business Member Actions - Only show to business members */}
+            <div className="mb-4">
+              <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                <button
+                  onClick={handleClaimBusiness}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl border transition-all hover:scale-105 whitespace-nowrap"
+                  style={{
+                    background: darkTheme.background.card,
+                    borderColor: darkTheme.background.glass,
+                  }}
+                >
+                  <Building2 
+                    size={16} 
+                    style={{ color: darkTheme.text.muted }} 
+                  />
+                  <span 
+                    className="text-sm font-medium"
+                    style={{ color: darkTheme.text.secondary }}
+                  >
+                    Claim Business
+                  </span>
+                </button>
+                
+                <button
+                  onClick={handleJoinBusiness}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl border transition-all hover:scale-105 whitespace-nowrap"
+                  style={{
+                    background: darkTheme.background.card,
+                    borderColor: darkTheme.background.glass,
+                  }}
+                >
+                  <UserPlus 
+                    size={16} 
+                    style={{ color: darkTheme.text.muted }} 
+                  />
+                  <span 
+                    className="text-sm font-medium"
+                    style={{ color: darkTheme.text.secondary }}
+                  >
+                    Join Business
+                  </span>
+                </button>
+              </div>
+              
+              {!isBusinessMember && currentUser && (
+                <div className="mt-2 text-xs" style={{ color: darkTheme.text.muted }}>
+                  <span>Business member features require upgrading your account. </span>
+                  <button 
+                    onClick={handleUpgradeToBusiness}
+                    className="underline hover:text-purple-400 transition-colors"
+                    style={{ color: darkTheme.neon.purple }}
+                  >
+                    Upgrade now
+                  </button>
+                </div>
+              )}
+              
+              {!currentUser && (
+                <div className="mt-2 text-xs" style={{ color: darkTheme.text.muted }}>
+                  <span>Business features require account registration. </span>
+                  <button 
+                    onClick={() => window.location.href = '/auth/register'}
+                    className="underline hover:text-purple-400 transition-colors"
+                    style={{ color: darkTheme.neon.purple }}
+                  >
+                    Sign up
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="pt-40">
+        <div className="px-4 md:px-6 lg:px-8 pb-8">
+          <div className="max-w-6xl mx-auto">
             {/* Search Bar */}
             <div className="mb-6">
               <div className="relative">
@@ -155,7 +344,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                       <span 
                         className="text-xs font-medium text-center leading-tight"
                         style={{ 
-                          color: selectedServiceCategory === category.id ? category.color : darkTheme.text.muted 
+                          color: selectedServiceCategory === category.id ? category.color : darkTheme.text.secondary 
                         }}
                       >
                         {category.name}
@@ -165,405 +354,251 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                 ))}
               </div>
             </div>
-          </div>
 
-          {/* Loading State */}
-          {loading && businesses.length === 0 && (
-            <div className="flex items-center justify-center py-12">
-              <div className="flex items-center gap-3">
-                <Loader2 className="w-6 h-6 animate-spin" style={{ color: darkTheme.neon.purple }} />
-                <span style={{ color: darkTheme.text.secondary }}>Loading businesses...</span>
+            {/* Current Discovery Menu Info */}
+            <div className="mb-6">
+              <div className="flex items-center gap-3 p-4 rounded-xl border" style={{
+                background: darkTheme.background.card,
+                borderColor: darkTheme.background.glass,
+              }}>
+                {(() => {
+                  const currentMenu = discoveryMenus.find(m => m.id === selectedDiscoveryMenu);
+                  return currentMenu ? (
+                    <>
+                      <currentMenu.icon size={20} style={{ color: darkTheme.neon.purple }} />
+                      <div>
+                        <h3 className="font-medium text-sm" style={{ color: darkTheme.text.primary }}>
+                          {currentMenu.label}
+                        </h3>
+                        <p className="text-xs" style={{ color: darkTheme.text.muted }}>
+                          {currentMenu.description}
+                        </p>
+                      </div>
+                    </>
+                  ) : null;
+                })()}
               </div>
             </div>
-          )}
 
-          {/* Error State */}
-          {error && businesses.length === 0 && (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <p className="text-red-400 mb-2">Failed to load businesses</p>
-                <button
+            {/* Error State */}
+            {error && (
+              <div className="mb-6 p-4 rounded-xl border" style={{
+                background: `${darkTheme.neon.red}10`,
+                borderColor: `${darkTheme.neon.red}30`,
+              }}>
+                <p className="text-sm" style={{ color: darkTheme.neon.red }}>
+                  {error}
+                </p>
+                <button 
                   onClick={() => loadBusinesses()}
-                  className="px-4 py-2 rounded-lg font-medium transition-all"
-                  style={{ background: darkTheme.neon.purple, color: 'white' }}
+                  className="text-xs underline mt-2 hover:no-underline"
+                  style={{ color: darkTheme.neon.red }}
                 >
-                  Try Again
+                  Try again
                 </button>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Content Layout - Pinterest/Small Red Book Style Two Column Grid */}
-          {businesses.length > 0 && (
-            <div className="grid grid-cols-2 gap-3 md:gap-4">
-            {/* Left Column */}
-            <div className="space-y-3 md:space-y-4">
-              {getFilteredContent().filter((_, index) => index % 2 === 0).map((item) => (
-                <div 
-                  key={item.id}
-                  className="rounded-xl border overflow-hidden cursor-pointer transition-all hover:scale-[1.02]"
-                  style={{
-                    background: darkTheme.background.card,
-                    borderColor: darkTheme.background.glass,
-                  }}
-                >
-                  <div 
-                    className={`h-32 md:h-40 bg-gradient-to-br ${item.image} relative`}
-                  >
-                    <div className="absolute inset-0 bg-black/20"></div>
-                    <div className="absolute top-3 left-3">
-                      <div className="flex flex-wrap gap-1">
-                        {item.tags.slice(0, 2).map((tag, tagIdx) => (
-                          <span 
-                            key={tagIdx} 
-                            className="bg-white/80 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-full font-medium"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="absolute top-3 right-3">
-                      <button className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
-                        <Heart className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <div className="absolute bottom-3 right-3">
-                      <span className="bg-black/40 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-                        {item.readTime}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="p-3 md:p-4">
-                    <h3 className="font-semibold text-sm md:text-base mb-2 line-clamp-2" style={{ color: darkTheme.text.primary }}>
-                      {item.title}
-                    </h3>
-                    <p className="text-xs md:text-sm mb-3 line-clamp-2" style={{ color: darkTheme.text.secondary }}>
-                      {item.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center"
-                          style={{ background: darkTheme.neon.purple }}
-                        >
-                          <span className="text-white text-xs">👤</span>
-                        </div>
-                        <span className="text-xs md:text-sm" style={{ color: darkTheme.text.muted }}>
-                          {item.author}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Heart className="w-3 h-3 md:w-4 md:h-4" style={{ color: darkTheme.neon.pink }} />
-                        <span className="text-xs md:text-sm font-medium" style={{ color: darkTheme.neon.pink }}>
-                          {item.likes}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            {/* Loading State */}
+            {loading && businesses.length === 0 && (
+              <div className="flex justify-center items-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin" style={{ color: darkTheme.neon.purple }} />
+              </div>
+            )}
 
-              {/* Business cards in left column */}
-              {businesses.filter((_, index) => index % 2 === 0).map((business: Business) => (
+            {/* Business Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+              {businesses.map((business, index) => (
                 <div 
-                  key={business.id}
-                  className="rounded-xl border overflow-hidden cursor-pointer transition-all hover:scale-[1.02]"
+                  key={`${business.id}-${index}`}
+                  className="rounded-xl border overflow-hidden transition-all hover:scale-[1.02] cursor-pointer"
                   style={{
                     background: darkTheme.background.card,
                     borderColor: darkTheme.background.glass,
                   }}
                   onClick={() => window.location.href = `/businesses/${business.id}`}
                 >
+                  {/* Business Image */}
                   <div 
-                    className={`h-20 md:h-24 bg-gradient-to-br ${business.image} relative`}
+                    className="h-32 md:h-40 flex items-center justify-center text-white font-bold text-lg"
+                    style={{ 
+                      background: business.cover_photo_url 
+                        ? `url(${business.cover_photo_url}) center/cover` 
+                        : `linear-gradient(135deg, ${darkTheme.neon.purple}, ${darkTheme.neon.blue})` 
+                    }}
                   >
-                    <div className="absolute inset-0 bg-black/20"></div>
-                    <div className="absolute top-3 left-3">
-                      <span 
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          business.isOpen 
-                            ? 'bg-green-500/80 text-white' 
-                            : 'bg-red-500/80 text-white'
-                        }`}
-                      >
-                        {business.isOpen ? 'Open' : 'Closed'}
-                      </span>
-                    </div>
+                    {!business.cover_photo_url && (
+                      <Store size={24} />
+                    )}
                   </div>
-                  
+
+                  {/* Business Info */}
                   <div className="p-3 md:p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm md:text-base mb-1 truncate" style={{ color: darkTheme.text.primary }}>
-                          {business.name}
-                        </h3>
-                        <p className="text-xs md:text-sm mb-1" style={{ color: darkTheme.text.secondary }}>
-                          {business.type}
-                        </p>
-                        <div className="flex items-center gap-1 text-xs md:text-sm" style={{ color: darkTheme.text.muted }}>
-                          <MapPin size={12} />
-                          <span>{business.distance}</span>
-                        </div>
-                      </div>
-                      <div className="text-right flex-shrink-0 ml-2">
-                        <div className="flex items-center gap-1 mb-1">
-                          <Star size={12} style={{ color: darkTheme.neon.yellow, fill: darkTheme.neon.yellow }} />
-                          <span className="font-medium text-xs md:text-sm" style={{ color: darkTheme.text.primary }}>
-                            {business.rating}
-                          </span>
-                          <span className="text-xs" style={{ color: darkTheme.text.muted }}>({business.review_count})</span>
-                        </div>
-                        <p className="font-medium text-xs md:text-sm" style={{ color: darkTheme.neon.green }}>
-                          {business.price}
-                        </p>
-                      </div>
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 
+                        className="font-semibold text-sm md:text-base line-clamp-2"
+                        style={{ color: darkTheme.text.primary }}
+                      >
+                        {business.name}
+                      </h3>
+                      <button className="ml-2 hover:scale-110 transition-transform">
+                        <Heart size={16} style={{ color: darkTheme.text.muted }} />
+                      </button>
                     </div>
 
-                    <div 
-                      className="rounded-lg p-3 mb-3"
-                      style={{
-                        background: `${darkTheme.neon.purple}15`,
-                        border: `1px solid ${darkTheme.neon.purple}30`,
-                      }}
+                    <p 
+                      className="text-xs md:text-sm mb-2 line-clamp-2"
+                      style={{ color: darkTheme.text.secondary }}
                     >
-                      <div className="flex items-start gap-2">
-                        <Sparkles size={12} style={{ color: darkTheme.neon.purple }} className="flex-shrink-0 mt-0.5" />
-                        <p className="text-xs md:text-sm" style={{ color: darkTheme.text.primary }}>
-                          {business.aiReason}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <button 
-                        onClick={() => window.open(`tel:${business.phone}`)}
-                        className="py-2 px-3 rounded-lg font-medium flex items-center justify-center gap-1 text-xs md:text-sm transition-all"
-                        style={{ background: darkTheme.neon.purple, color: 'white' }}
-                      >
-                        <Phone size={12} />
-                        <span>Call</span>
-                      </button>
-                      
-                      <button 
-                        onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(business.name + ' Auckland')}`)}
-                        className="py-2 px-3 rounded-lg font-medium flex items-center justify-center gap-1 text-xs md:text-sm transition-all"
-                        style={{
-                          background: darkTheme.background.secondary,
-                          color: darkTheme.text.primary,
-                          border: `1px solid ${darkTheme.text.primary}40`,
-                        }}
-                      >
-                        <MapPin size={12} />
-                        <span>Directions</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Right Column */}
-            <div className="space-y-3 md:space-y-4">
-              {getFilteredContent().filter((_, index) => index % 2 === 1).map((item) => (
-                <div 
-                  key={item.id}
-                  className="rounded-xl border overflow-hidden cursor-pointer transition-all hover:scale-[1.02]"
-                  style={{
-                    background: darkTheme.background.card,
-                    borderColor: darkTheme.background.glass,
-                  }}
-                >
-                  <div 
-                    className={`h-32 md:h-40 bg-gradient-to-br ${item.image} relative`}
-                  >
-                    <div className="absolute inset-0 bg-black/20"></div>
-                    <div className="absolute top-3 left-3">
-                      <div className="flex flex-wrap gap-1">
-                        {item.tags.slice(0, 2).map((tag, tagIdx) => (
-                          <span 
-                            key={tagIdx} 
-                            className="bg-white/80 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-full font-medium"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="absolute top-3 right-3">
-                      <button className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
-                        <Heart className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <div className="absolute bottom-3 right-3">
-                      <span className="bg-black/40 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-                        {item.readTime}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="p-3 md:p-4">
-                    <h3 className="font-semibold text-sm md:text-base mb-2 line-clamp-2" style={{ color: darkTheme.text.primary }}>
-                      {item.title}
-                    </h3>
-                    <p className="text-xs md:text-sm mb-3 line-clamp-2" style={{ color: darkTheme.text.secondary }}>
-                      {item.description}
+                      {business.descriptions?.[0]?.description || business.type}
                     </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center"
-                          style={{ background: darkTheme.neon.purple }}
-                        >
-                          <span className="text-white text-xs">👤</span>
-                        </div>
-                        <span className="text-xs md:text-sm" style={{ color: darkTheme.text.muted }}>
-                          {item.author}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Heart className="w-3 h-3 md:w-4 md:h-4" style={{ color: darkTheme.neon.pink }} />
-                        <span className="text-xs md:text-sm font-medium" style={{ color: darkTheme.neon.pink }}>
-                          {item.likes}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
 
-              {/* Business cards in right column */}
-              {businesses.filter((_, index) => index % 2 === 1).map((business: Business) => (
-                <div 
-                  key={business.id}
-                  className="rounded-xl border overflow-hidden cursor-pointer transition-all hover:scale-[1.02]"
-                  style={{
-                    background: darkTheme.background.card,
-                    borderColor: darkTheme.background.glass,
-                  }}
-                  onClick={() => window.location.href = `/businesses/${business.id}`}
-                >
-                  <div 
-                    className={`h-20 md:h-24 bg-gradient-to-br ${business.image} relative`}
-                  >
-                    <div className="absolute inset-0 bg-black/20"></div>
-                    <div className="absolute top-3 left-3">
-                      <span 
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          business.isOpen 
-                            ? 'bg-green-500/80 text-white' 
-                            : 'bg-red-500/80 text-white'
-                        }`}
-                      >
-                        {business.isOpen ? 'Open' : 'Closed'}
+                    {/* Rating and Distance */}
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1">
+                        <Star size={12} className="fill-current" style={{ color: '#fbbf24' }} />
+                        <span style={{ color: darkTheme.text.primary }}>
+                          {business.rating?.toFixed(1) || '4.5'}
+                        </span>
+                        <span style={{ color: darkTheme.text.muted }}>
+                          ({business.review_count || 0})
+                        </span>
+                      </div>
+                      <span style={{ color: darkTheme.text.muted }}>
+                        {business.distance || '1.2km'}
                       </span>
                     </div>
-                  </div>
-                  
-                  <div className="p-3 md:p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm md:text-base mb-1 truncate" style={{ color: darkTheme.text.primary }}>
-                          {business.name}
-                        </h3>
-                        <p className="text-xs md:text-sm mb-1" style={{ color: darkTheme.text.secondary }}>
-                          {business.type}
-                        </p>
-                        <div className="flex items-center gap-1 text-xs md:text-sm" style={{ color: darkTheme.text.muted }}>
-                          <MapPin size={12} />
-                          <span>{business.distance}</span>
-                        </div>
-                      </div>
-                      <div className="text-right flex-shrink-0 ml-2">
-                        <div className="flex items-center gap-1 mb-1">
-                          <Star size={12} style={{ color: darkTheme.neon.yellow, fill: darkTheme.neon.yellow }} />
-                          <span className="font-medium text-xs md:text-sm" style={{ color: darkTheme.text.primary }}>
-                            {business.rating}
-                          </span>
-                          <span className="text-xs" style={{ color: darkTheme.text.muted }}>({business.review_count})</span>
-                        </div>
-                        <p className="font-medium text-xs md:text-sm" style={{ color: darkTheme.neon.green }}>
-                          {business.price}
-                        </p>
-                      </div>
-                    </div>
 
-                    <div 
-                      className="rounded-lg p-3 mb-3"
-                      style={{
-                        background: `${darkTheme.neon.purple}15`,
-                        border: `1px solid ${darkTheme.neon.purple}30`,
-                      }}
-                    >
-                      <div className="flex items-start gap-2">
-                        <Sparkles size={12} style={{ color: darkTheme.neon.purple }} className="flex-shrink-0 mt-0.5" />
-                        <p className="text-xs md:text-sm" style={{ color: darkTheme.text.primary }}>
-                          {business.aiReason}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
+                    {/* Quick Actions */}
+                    <div className="flex gap-2 mt-3">
                       <button 
-                        onClick={() => window.open(`tel:${business.phone}`)}
-                        className="py-2 px-3 rounded-lg font-medium flex items-center justify-center gap-1 text-xs md:text-sm transition-all"
-                        style={{ background: darkTheme.neon.purple, color: 'white' }}
-                      >
-                        <Phone size={12} />
-                        <span>Call</span>
-                      </button>
-                      
-                      <button 
-                        onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(business.name + ' Auckland')}`)}
-                        className="py-2 px-3 rounded-lg font-medium flex items-center justify-center gap-1 text-xs md:text-sm transition-all"
+                        className="flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors"
                         style={{
                           background: darkTheme.background.secondary,
                           color: darkTheme.text.primary,
-                          border: `1px solid ${darkTheme.text.primary}40`,
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`tel:${business.phone || ''}`, '_self');
                         }}
                       >
-                        <MapPin size={12} />
-                        <span>Directions</span>
+                        <Phone size={12} className="inline mr-1" />
+                        Call
+                      </button>
+                      <button 
+                        className="flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors"
+                        style={{
+                          background: darkTheme.neon.purple,
+                          color: 'white',
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Navigate to business details
+                        }}
+                      >
+                        <MapPin size={12} className="inline mr-1" />
+                        Visit
                       </button>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
+
+            {/* Load More Button */}
+            {hasMore && (
+              <div className="flex justify-center">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={loading}
+                  className="px-6 py-3 rounded-xl font-medium transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    background: loading ? darkTheme.background.secondary : darkTheme.neon.purple, 
+                    color: 'white',
+                    opacity: loading ? 0.6 : 1
+                  }}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load More'
+                  )}
+                </button>
+              </div>
+            )}
           </div>
-          )}
-
-          {/* Load More Button */}
-          {hasMore && businesses.length > 0 && (
-            <div className="flex justify-center mt-8">
-              <button
-                onClick={handleLoadMore}
-                disabled={loading}
-                className="px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2"
-                style={{ 
-                  background: loading ? darkTheme.background.secondary : darkTheme.neon.purple, 
-                  color: 'white',
-                  opacity: loading ? 0.6 : 1
-                }}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Loading...
-                  </>
-                ) : (
-                  'Load More'
-                )}
-              </button>
-            </div>
-          )}
-
-          {/* Create Content Section - Removed */}
         </div>
       </div>
+
+      {/* Business Upgrade Modal */}
+      {showBusinessModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div 
+            className="max-w-md w-full rounded-xl p-6 border"
+            style={{
+              background: darkTheme.background.card,
+              borderColor: darkTheme.background.glass,
+            }}
+          >
+            <div className="text-center mb-6">
+              <Building2 size={48} style={{ color: darkTheme.neon.purple }} className="mx-auto mb-4" />
+              <h3 className="text-lg font-bold mb-2" style={{ color: darkTheme.text.primary }}>
+                Upgrade to Business Member
+              </h3>
+              <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
+                Access business features like claiming your business and managing listings.
+              </p>
+            </div>
+
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: darkTheme.background.secondary }}>
+                <Store size={16} style={{ color: darkTheme.neon.purple }} />
+                <span className="text-sm" style={{ color: darkTheme.text.primary }}>
+                  Claim and manage your business
+                </span>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: darkTheme.background.secondary }}>
+                <Camera size={16} style={{ color: darkTheme.neon.purple }} />
+                <span className="text-sm" style={{ color: darkTheme.text.primary }}>
+                  Upload photos and menus
+                </span>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: darkTheme.background.secondary }}>
+                <Sparkles size={16} style={{ color: darkTheme.neon.purple }} />
+                <span className="text-sm" style={{ color: darkTheme.text.primary }}>
+                  Enhanced visibility and analytics
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowBusinessModal(false)}
+                className="flex-1 py-3 px-4 rounded-lg font-medium transition-colors"
+                style={{
+                  background: darkTheme.background.secondary,
+                  color: darkTheme.text.primary,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpgradeToBusiness}
+                className="flex-1 py-3 px-4 rounded-lg font-medium transition-colors"
+                style={{
+                  background: darkTheme.neon.purple,
+                  color: 'white',
+                }}
+              >
+                Upgrade Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Custom Styles */}
       <style jsx>{`
