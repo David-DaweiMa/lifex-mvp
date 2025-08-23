@@ -1,4 +1,4 @@
-// src/components/pages/TrendingPage.tsx - Version 12 (修复版本)
+// src/components/pages/TrendingPage.tsx - Version 12 (English Version)
 import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, 
@@ -24,7 +24,7 @@ import { darkTheme } from '../../lib/theme';
 import { trendingData } from '../../lib/mockData';
 import { typedSupabase } from '../../lib/supabase';
 
-// 真实的数据库接口
+// Real database interface
 interface TrendingPost {
   id: string;
   content: string;
@@ -40,7 +40,7 @@ interface TrendingPost {
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  // 从视图中获取的用户信息
+  // User info from view
   username?: string;
   full_name?: string;
   avatar_url?: string;
@@ -123,7 +123,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
       }
     } catch (error) {
       console.error('Upload failed:', error);
-      alert('文件上传失败，请重试');
+      alert('File upload failed, please try again');
     } finally {
       setUploadingFiles(false);
     }
@@ -170,7 +170,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold" style={{ color: darkTheme.text.primary }}>
-            发布内容
+            Create Post
           </h3>
           <button
             onClick={onClose}
@@ -185,7 +185,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="分享你的想法..."
+          placeholder="Share your thoughts..."
           className="w-full p-4 rounded-xl border resize-none focus:outline-none focus:ring-2"
           style={{
             background: darkTheme.background.primary,
@@ -208,10 +208,12 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
                 className="hidden"
                 disabled={uploadingFiles}
               />
-              <ImageIcon size={16} />
-              <span className="text-sm">添加图片</span>
-              {uploadingFiles && <Loader2 size={14} className="animate-spin" />}
+              <ImageIcon size={16} style={{ color: darkTheme.text.muted }} />
+              <span className="text-sm" style={{ color: darkTheme.text.secondary }}>
+                Photo
+              </span>
             </label>
+            
             <label className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors cursor-pointer hover:bg-opacity-80">
               <input
                 type="file"
@@ -221,52 +223,35 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
                 className="hidden"
                 disabled={uploadingFiles}
               />
-              <Video size={16} />
-              <span className="text-sm">添加视频</span>
+              <Video size={16} style={{ color: darkTheme.text.muted }} />
+              <span className="text-sm" style={{ color: darkTheme.text.secondary }}>
+                Video
+              </span>
             </label>
           </div>
 
-          {/* Media Preview Grid */}
+          {/* Media Preview */}
           {(images.length > 0 || videos.length > 0) && (
             <div className="grid grid-cols-3 gap-2 mb-4">
-              {images.map((image, index) => (
-                <div 
-                  key={`img-${index}`}
-                  className="aspect-square rounded-lg relative overflow-hidden"
-                >
-                  <img 
-                    src={image} 
-                    alt={`Upload ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
+              {images.map((url, index) => (
+                <div key={index} className="relative aspect-square rounded-lg overflow-hidden">
+                  <img src={url} alt="Upload" className="w-full h-full object-cover" />
                   <button
                     onClick={() => setImages(images.filter((_, i) => i !== index))}
-                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
-                    style={{ background: darkTheme.neon.purple }}
+                    className="absolute top-1 right-1 p-1 rounded-full bg-black/50"
                   >
-                    <X size={12} style={{ color: 'white' }} />
+                    <X size={12} className="text-white" />
                   </button>
                 </div>
               ))}
-              {videos.map((video, index) => (
-                <div 
-                  key={`vid-${index}`}
-                  className="aspect-square rounded-lg relative overflow-hidden"
-                >
-                  <video 
-                    src={video} 
-                    className="w-full h-full object-cover"
-                    controls={false}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40">
-                    <Video size={24} style={{ color: 'white' }} />
-                  </div>
+              {videos.map((url, index) => (
+                <div key={index} className="relative aspect-square rounded-lg overflow-hidden">
+                  <video src={url} className="w-full h-full object-cover" />
                   <button
                     onClick={() => setVideos(videos.filter((_, i) => i !== index))}
-                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
-                    style={{ background: darkTheme.neon.purple }}
+                    className="absolute top-1 right-1 p-1 rounded-full bg-black/50"
                   >
-                    <X size={12} style={{ color: 'white' }} />
+                    <X size={12} className="text-white" />
                   </button>
                 </div>
               ))}
@@ -274,39 +259,47 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
           )}
         </div>
 
-        {/* Tags */}
+        {/* Tags Input */}
         <div className="mt-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Hash size={16} style={{ color: darkTheme.text.muted }} />
-            <input
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
-              placeholder="添加标签"
-              className="flex-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
-              style={{
-                background: darkTheme.background.primary,
-                borderColor: darkTheme.background.glass,
-                color: darkTheme.text.primary,
-                '--tw-ring-color': darkTheme.neon.purple,
-              } as React.CSSProperties}
-            />
+          <div className="flex gap-2 mb-2">
+            <div className="flex-1 relative">
+              <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                placeholder="Add tags..."
+                className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2"
+                style={{
+                  background: darkTheme.background.primary,
+                  borderColor: darkTheme.background.glass,
+                  color: darkTheme.text.primary,
+                  '--tw-ring-color': darkTheme.neon.purple,
+                } as React.CSSProperties}
+              />
+            </div>
             <button
               onClick={handleAddTag}
-              className="px-3 py-2 rounded-lg text-sm font-medium"
-              style={{ background: darkTheme.neon.purple, color: 'white' }}
+              disabled={!tagInput.trim() || tags.length >= 5}
+              className="px-4 py-2 rounded-lg border transition-colors disabled:opacity-50"
+              style={{
+                background: darkTheme.background.glass,
+                borderColor: darkTheme.background.glass,
+                color: darkTheme.text.primary,
+              }}
             >
-              添加
+              Add
             </button>
           </div>
-          
-          {/* Tag List */}
+
+          {/* Tags Display */}
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-4">
               {tags.map((tag) => (
-                <span
+                <span 
                   key={tag}
-                  className="px-3 py-1 rounded-full text-sm flex items-center gap-1"
+                  className="flex items-center gap-2 px-3 py-1 rounded-full text-sm"
                   style={{
                     background: `${darkTheme.neon.purple}20`,
                     color: darkTheme.neon.purple,
@@ -316,7 +309,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
                   #{tag}
                   <button
                     onClick={() => handleRemoveTag(tag)}
-                    className="ml-1"
+                    className="hover:bg-opacity-20 rounded-full p-0.5"
                   >
                     <X size={12} />
                   </button>
@@ -326,15 +319,16 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
           )}
         </div>
 
-        {/* Location */}
+        {/* Location Input */}
         <div className="mt-4">
-          <div className="flex items-center gap-2">
-            <MapPin size={16} style={{ color: darkTheme.text.muted }} />
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
             <input
+              type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="添加位置"
-              className="flex-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              placeholder="Add location..."
+              className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{
                 background: darkTheme.background.primary,
                 borderColor: darkTheme.background.glass,
@@ -345,24 +339,14 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3 mt-6 pt-4 border-t" style={{ borderColor: darkTheme.background.glass }}>
-          <button
-            onClick={onClose}
-            disabled={uploading}
-            className="flex-1 py-3 rounded-xl font-medium transition-colors"
-            style={{
-              background: darkTheme.background.glass,
-              color: darkTheme.text.secondary
-            }}
-          >
-            取消
-          </button>
+        {/* Submit Button */}
+        <div className="mt-6 flex justify-end">
           <button
             onClick={handlePost}
             disabled={!content.trim() || uploading || uploadingFiles}
-            className={`flex-1 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
-              (!content.trim() || uploading || uploadingFiles) ? 'opacity-50 cursor-not-allowed' : ''
+            className={`px-6 py-3 rounded-xl font-medium transition-all ${
+              (!content.trim() || uploading || uploadingFiles) ? 
+                'opacity-50 cursor-not-allowed' : ''
             }`}
             style={{
               background: darkTheme.neon.purple,
@@ -370,7 +354,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
             }}
           >
             {uploading && <Loader2 size={16} className="animate-spin" />}
-            {uploading ? '发布中...' : '发布'}
+            {uploading ? 'Publishing...' : 'Publish'}
           </button>
         </div>
       </div>
@@ -380,7 +364,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
 
 const TrendingPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [selectedMainCategory, setSelectedMainCategory] = useState('热点');
+  const [selectedMainCategory, setSelectedMainCategory] = useState('Hot');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -392,7 +376,7 @@ const TrendingPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
 
-  // 检查用户登录状态
+  // Check user login status
   useEffect(() => {
     const checkUser = async () => {
       try {
@@ -422,12 +406,12 @@ const TrendingPage: React.FC = () => {
     checkUser();
   }, []);
 
-  // 加载trending posts
+  // Load trending posts
   useEffect(() => {
     loadTrendingPosts();
   }, [selectedTags]);
 
-  // 检查用户点赞状态
+  // Check user like status
   useEffect(() => {
     if (user && posts.length > 0) {
       checkLikedPosts();
@@ -446,7 +430,7 @@ const TrendingPage: React.FC = () => {
         .order('created_at', { ascending: false })
         .limit(20);
 
-      // 根据标签过滤
+      // Filter by tags
       if (selectedTags.length > 0) {
         query = query.overlaps('hashtags', selectedTags);
       }
@@ -458,7 +442,7 @@ const TrendingPage: React.FC = () => {
       setPosts(data || []);
     } catch (error) {
       console.error('Error loading posts:', error);
-      setError('加载内容失败，请重试');
+      setError('Failed to load content, please try again');
     } finally {
       setLoading(false);
     }
@@ -503,7 +487,7 @@ const TrendingPage: React.FC = () => {
 
       if (error) throw error;
 
-      // 添加到本地状态
+      // Add to local state
       const newPost: TrendingPost = {
         ...data,
         username: user.username,
@@ -529,7 +513,7 @@ const TrendingPage: React.FC = () => {
 
     const isCurrentlyLiked = likedPosts.has(postId);
     
-    // 乐观更新
+    // Optimistic update
     setLikedPosts(prev => {
       const newSet = new Set(prev);
       if (isCurrentlyLiked) {
@@ -543,33 +527,27 @@ const TrendingPage: React.FC = () => {
     setPosts(prev => prev.map(post => 
       post.id === postId 
         ? { ...post, like_count: Math.max(0, post.like_count + (isCurrentlyLiked ? -1 : 1)) }
-        : post
+          : post
     ));
 
     try {
       if (isCurrentlyLiked) {
-        // 取消点赞
-        const { error } = await typedSupabase
+        await typedSupabase
           .from('post_likes')
           .delete()
           .eq('user_id', user.id)
           .eq('post_id', postId);
-
-        if (error) throw error;
       } else {
-        // 点赞
-        const { error } = await typedSupabase
+        await typedSupabase
           .from('post_likes')
           .insert({
             user_id: user.id,
             post_id: postId,
           });
-
-        if (error) throw error;
       }
     } catch (error) {
-      console.error('Error toggling like:', error);
-      // 回滚乐观更新
+      console.error('Error updating like:', error);
+      // Revert optimistic update
       setLikedPosts(prev => {
         const newSet = new Set(prev);
         if (isCurrentlyLiked) {
@@ -595,7 +573,7 @@ const TrendingPage: React.FC = () => {
     }
     
     try {
-      // 记录分享
+      // Record share
       await typedSupabase
         .from('post_shares')
         .insert({
@@ -605,53 +583,53 @@ const TrendingPage: React.FC = () => {
           platform: 'app',
         });
 
-      // 更新分享计数
+      // Update share count
       setPosts(prev => prev.map(post => 
         post.id === postId 
           ? { ...post, share_count: post.share_count + 1 }
           : post
       ));
       
-      // 分享功能
+      // Share functionality
       if (navigator.share) {
         try {
           await navigator.share({
-            title: 'LifeX - 分享精彩内容',
+            title: 'LifeX - Share Amazing Content',
             url: `${window.location.origin}/trending/post/${postId}`
           });
         } catch (err) {
-          // 用户取消分享
+          // User canceled share
         }
       } else {
-        // 复制链接到剪贴板
+        // Copy link to clipboard
         const url = `${window.location.origin}/trending/post/${postId}`;
         await navigator.clipboard.writeText(url);
-        alert('链接已复制到剪贴板');
+        alert('Link copied to clipboard');
       }
     } catch (error) {
       console.error('Error sharing post:', error);
     }
   };
 
-  // 主分类数据
+  // Main category data
   const mainCategories = [
-    { key: '热点', label: '热点', icon: TrendingUp },
-    { key: '推荐', label: '推荐', icon: Star },
-    { key: '附近', label: '附近', icon: MapPin }
+    { key: 'Hot', label: 'Hot', icon: TrendingUp },
+    { key: 'Recommended', label: 'Recommended', icon: Star },
+    { key: 'Nearby', label: 'Nearby', icon: MapPin }
   ];
 
-  // 细分标签数据
+  // Content tags data
   const contentTags = [
-    { key: 'all', label: '全部', active: selectedTags.length === 0 },
-    { key: '科技', label: '科技', active: selectedTags.includes('科技') },
-    { key: '美食', label: '美食', active: selectedTags.includes('美食') },
-    { key: '生活方式', label: '生活方式', active: selectedTags.includes('生活方式') },
-    { key: '旅行', label: '旅行', active: selectedTags.includes('旅行') },
-    { key: '时尚', label: '时尚', active: selectedTags.includes('时尚') },
-    { key: '健身', label: '健身', active: selectedTags.includes('健身') },
-    { key: '艺术', label: '艺术', active: selectedTags.includes('艺术') },
-    { key: '音乐', label: '音乐', active: selectedTags.includes('音乐') },
-    { key: '商业', label: '商业', active: selectedTags.includes('商业') }
+    { key: 'all', label: 'All', active: selectedTags.length === 0 },
+    { key: 'Tech', label: 'Tech', active: selectedTags.includes('Tech') },
+    { key: 'Food', label: 'Food', active: selectedTags.includes('Food') },
+    { key: 'Lifestyle', label: 'Lifestyle', active: selectedTags.includes('Lifestyle') },
+    { key: 'Travel', label: 'Travel', active: selectedTags.includes('Travel') },
+    { key: 'Fashion', label: 'Fashion', active: selectedTags.includes('Fashion') },
+    { key: 'Fitness', label: 'Fitness', active: selectedTags.includes('Fitness') },
+    { key: 'Art', label: 'Art', active: selectedTags.includes('Art') },
+    { key: 'Music', label: 'Music', active: selectedTags.includes('Music') },
+    { key: 'Business', label: 'Business', active: selectedTags.includes('Business') }
   ];
 
   useEffect(() => {
@@ -696,7 +674,7 @@ const TrendingPage: React.FC = () => {
       <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
         <div className="relative z-10 max-w-4xl mx-auto">
           
-          {/* 第一层：主分类切换 */}
+          {/* First layer: Main category switching */}
           <div 
             className={`transition-transform duration-300 ease-in-out ${
               isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
@@ -731,7 +709,7 @@ const TrendingPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* 第二层：细分标签 */}
+              {/* Second layer: Content tags */}
               <div className="overflow-x-auto pb-2">
                 <div className="flex gap-2 min-w-max">
                   {contentTags.map((tag) => (
@@ -762,11 +740,54 @@ const TrendingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* 内容区域 - 瀑布流布局 */}
+          {/* Loading state */}
+          {loading && (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 size={24} className="animate-spin" style={{ color: darkTheme.neon.purple }} />
+              <span className="ml-2" style={{ color: darkTheme.text.secondary }}>
+                Loading...
+              </span>
+            </div>
+          )}
+
+          {/* Error state */}
+          {error && (
+            <div className="flex items-center justify-center py-8">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ background: `${darkTheme.neon.pink}20` }}>
+                <AlertCircle size={16} style={{ color: darkTheme.neon.pink }} />
+                <span style={{ color: darkTheme.neon.pink }}>{error}</span>
+                <button 
+                  onClick={() => {
+                    setError(null);
+                    loadTrendingPosts();
+                  }}
+                  className="ml-2 p-1 rounded hover:bg-opacity-20"
+                  style={{ background: `${darkTheme.neon.pink}10` }}
+                >
+                  <RefreshCw size={14} style={{ color: darkTheme.neon.pink }} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!loading && posts.length === 0 && !error && (
+            <div className="text-center py-12">
+              <Camera size={48} className="mx-auto mb-4 opacity-50" style={{ color: darkTheme.text.muted }} />
+              <h3 className="text-lg font-medium mb-2" style={{ color: darkTheme.text.primary }}>
+                No content yet
+              </h3>
+              <p style={{ color: darkTheme.text.secondary }}>
+                Be the first to share amazing content!
+              </p>
+            </div>
+          )}
+
+          {/* Content area - Waterfall layout */}
           <div className="grid grid-cols-2 gap-3 md:gap-4">
-            {/* 左列 */}
+            {/* Left column */}
             <div className="space-y-3 md:space-y-4">
-              {/* 热门趋势 - 左列 */}
+              {/* Hot trends - Left column */}
               {trendingData.filter((_, index) => index % 2 === 0).map((trend, idx) => (
                 <div 
                   key={trend.id}
@@ -818,7 +839,7 @@ const TrendingPage: React.FC = () => {
                 </div>
               ))}
 
-              {/* 用户发布的内容 - 左列 */}
+              {/* User posts - Left column */}
               {posts.filter((_, index) => index % 2 === 0).map((post) => (
                 <div 
                   key={post.id}
@@ -841,118 +862,138 @@ const TrendingPage: React.FC = () => {
                         {post.avatar_url ? (
                           <img 
                             src={post.avatar_url} 
-                            alt={post.username || post.full_name || 'User'}
+                            alt={post.username || post.full_name || 'User'} 
                             className="w-full h-full rounded-full object-cover"
                           />
                         ) : (
-                          <span className="text-white text-sm font-medium">
-                            {(post.username || post.full_name || 'U').charAt(0).toUpperCase()}
+                          <span className="text-white font-medium text-sm">
+                            {(post.username || post.full_name || 'U')[0].toUpperCase()}
                           </span>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm md:text-base" style={{ color: darkTheme.text.primary }}>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm truncate" style={{ color: darkTheme.text.primary }}>
                           {post.username || post.full_name || 'Anonymous'}
                         </h4>
-                        {post.location && typeof post.location === 'object' && post.location.description && (
-                          <p className="text-xs flex items-center gap-1" style={{ color: darkTheme.text.muted }}>
-                            <MapPin size={10} />
-                            {post.location.description}
-                          </p>
-                        )}
+                        <p className="text-xs" style={{ color: darkTheme.text.muted }}>
+                          {new Date(post.created_at).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
-
-                    <p className="text-sm md:text-base mb-3" style={{ color: darkTheme.text.primary }}>
+                    
+                    <p className="text-sm mb-3 leading-relaxed" style={{ color: darkTheme.text.secondary }}>
                       {post.content}
                     </p>
 
+                    {/* Images */}
+                    {post.images && post.images.length > 0 && (
+                      <div className="mb-3 rounded-lg overflow-hidden">
+                        {post.images.length === 1 ? (
+                          <img 
+                            src={post.images[0]} 
+                            alt="Post content" 
+                            className="w-full h-48 object-cover"
+                          />
+                        ) : (
+                          <div className="grid grid-cols-2 gap-1">
+                            {post.images.slice(0, 4).map((img, idx) => (
+                              <div key={idx} className="relative aspect-square">
+                                <img 
+                                  src={img} 
+                                  alt={`Post content ${idx + 1}`} 
+                                  className="w-full h-full object-cover"
+                                />
+                                {idx === 3 && post.images.length > 4 && (
+                                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                    <span className="text-white font-medium">
+                                      +{post.images.length - 4}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Hashtags */}
                     {post.hashtags && post.hashtags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-3">
-                        {post.hashtags.map((tag, tagIdx) => (
+                        {post.hashtags.slice(0, 3).map((tag) => (
                           <span 
-                            key={tagIdx}
-                            className="text-xs px-2 py-1 rounded-full"
+                            key={tag}
+                            className="px-2 py-1 rounded-full text-xs"
                             style={{
-                              background: `${darkTheme.neon.blue}20`,
-                              color: darkTheme.neon.blue
+                              background: `${darkTheme.neon.purple}15`,
+                              color: darkTheme.neon.purple
                             }}
                           >
                             #{tag}
                           </span>
                         ))}
+                        {post.hashtags.length > 3 && (
+                          <span className="text-xs" style={{ color: darkTheme.text.muted }}>
+                            +{post.hashtags.length - 3} more
+                          </span>
+                        )}
                       </div>
                     )}
 
-                    {post.images && post.images.length > 0 && (
-                      <div className={`grid ${post.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'} gap-2 mb-3`}>
-                        {post.images.map((image, imgIdx) => (
-                          <div 
-                            key={imgIdx}
-                            className="rounded-xl h-24 md:h-32 relative overflow-hidden"
-                          >
-                            <img 
-                              src={image} 
-                              alt={`Post image ${imgIdx + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: darkTheme.background.glass }}>
+                    {/* Actions */}
+                    <div className="flex items-center justify-between pt-2">
                       <div className="flex items-center gap-4">
-                        <button 
-                          className="flex items-center gap-1 transition-colors hover:scale-105"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleLikeClick(post.id);
-                          }}
+                        <button
+                          onClick={() => handleLikeClick(post.id)}
+                          className="flex items-center gap-1 transition-colors"
                         >
                           <Heart 
-                            size={14} 
-                            className="md:w-4 md:h-4" 
+                            size={16} 
+                            className={likedPosts.has(post.id) ? 'fill-current' : ''}
                             style={{ 
-                              color: likedPosts.has(post.id) ? darkTheme.neon.pink : darkTheme.text.muted,
-                              fill: likedPosts.has(post.id) ? darkTheme.neon.pink : 'none'
+                              color: likedPosts.has(post.id) 
+                                ? darkTheme.neon.pink 
+                                : darkTheme.text.muted 
                             }} 
                           />
-                          <span className="text-xs md:text-sm" style={{ color: darkTheme.text.muted }}>
+                          <span 
+                            className="text-xs"
+                            style={{ color: darkTheme.text.muted }}
+                          >
                             {post.like_count}
                           </span>
                         </button>
-                        <button className="flex items-center gap-1 transition-colors hover:scale-105">
-                          <MessageCircle size={14} className="md:w-4 md:h-4" style={{ color: darkTheme.text.muted }} />
-                          <span className="text-xs md:text-sm" style={{ color: darkTheme.text.muted }}>
+
+                        <button className="flex items-center gap-1 transition-colors">
+                          <MessageCircle size={16} style={{ color: darkTheme.text.muted }} />
+                          <span className="text-xs" style={{ color: darkTheme.text.muted }}>
                             {post.comment_count}
                           </span>
                         </button>
+
                         <button 
-                          className="flex items-center gap-1 transition-colors hover:scale-105"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleShareClick(post.id);
-                          }}
+                          onClick={() => handleShareClick(post.id)}
+                          className="flex items-center gap-1 transition-colors"
                         >
-                          <Share2 size={14} className="md:w-4 md:h-4" style={{ color: darkTheme.text.muted }} />
-                          <span className="text-xs md:text-sm" style={{ color: darkTheme.text.muted }}>
+                          <Share2 size={16} style={{ color: darkTheme.text.muted }} />
+                          <span className="text-xs" style={{ color: darkTheme.text.muted }}>
                             {post.share_count}
                           </span>
                         </button>
                       </div>
-                      <div className="text-xs" style={{ color: darkTheme.text.muted }}>
-                        {post.view_count} 浏览
-                      </div>
+
+                      <span className="text-xs" style={{ color: darkTheme.text.muted }}>
+                        {post.view_count} views
+                      </span>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* 右列 */}
+            {/* Right column */}
             <div className="space-y-3 md:space-y-4">
-              {/* 热门趋势 - 右列 */}
+              {/* Hot trends - Right column */}
               {trendingData.filter((_, index) => index % 2 === 1).map((trend, idx) => (
                 <div 
                   key={trend.id}
@@ -1004,7 +1045,7 @@ const TrendingPage: React.FC = () => {
                 </div>
               ))}
 
-              {/* 用户发布的内容 - 右列 */}
+              {/* User posts - Right column */}
               {posts.filter((_, index) => index % 2 === 1).map((post) => (
                 <div 
                   key={post.id}
@@ -1027,248 +1068,199 @@ const TrendingPage: React.FC = () => {
                         {post.avatar_url ? (
                           <img 
                             src={post.avatar_url} 
-                            alt={post.username || post.full_name || 'User'}
+                            alt={post.username || post.full_name || 'User'} 
                             className="w-full h-full rounded-full object-cover"
                           />
                         ) : (
-                          <span className="text-white text-sm font-medium">
-                            {(post.username || post.full_name || 'U').charAt(0).toUpperCase()}
+                          <span className="text-white font-medium text-sm">
+                            {(post.username || post.full_name || 'U')[0].toUpperCase()}
                           </span>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm md:text-base" style={{ color: darkTheme.text.primary }}>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm truncate" style={{ color: darkTheme.text.primary }}>
                           {post.username || post.full_name || 'Anonymous'}
                         </h4>
-                        {post.location && typeof post.location === 'object' && post.location.description && (
-                          <p className="text-xs flex items-center gap-1" style={{ color: darkTheme.text.muted }}>
-                            <MapPin size={10} />
-                            {post.location.description}
-                          </p>
-                        )}
+                        <p className="text-xs" style={{ color: darkTheme.text.muted }}>
+                          {new Date(post.created_at).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
-
-                    <p className="text-sm md:text-base mb-3" style={{ color: darkTheme.text.primary }}>
+                    
+                    <p className="text-sm mb-3 leading-relaxed" style={{ color: darkTheme.text.secondary }}>
                       {post.content}
                     </p>
 
+                    {/* Images */}
+                    {post.images && post.images.length > 0 && (
+                      <div className="mb-3 rounded-lg overflow-hidden">
+                        {post.images.length === 1 ? (
+                          <img 
+                            src={post.images[0]} 
+                            alt="Post content" 
+                            className="w-full h-48 object-cover"
+                          />
+                        ) : (
+                          <div className="grid grid-cols-2 gap-1">
+                            {post.images.slice(0, 4).map((img, idx) => (
+                              <div key={idx} className="relative aspect-square">
+                                <img 
+                                  src={img} 
+                                  alt={`Post content ${idx + 1}`} 
+                                  className="w-full h-full object-cover"
+                                />
+                                {idx === 3 && post.images.length > 4 && (
+                                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                    <span className="text-white font-medium">
+                                      +{post.images.length - 4}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Hashtags */}
                     {post.hashtags && post.hashtags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-3">
-                        {post.hashtags.map((tag, tagIdx) => (
+                        {post.hashtags.slice(0, 3).map((tag) => (
                           <span 
-                            key={tagIdx}
-                            className="text-xs px-2 py-1 rounded-full"
+                            key={tag}
+                            className="px-2 py-1 rounded-full text-xs"
                             style={{
-                              background: `${darkTheme.neon.blue}20`,
-                              color: darkTheme.neon.blue
+                              background: `${darkTheme.neon.purple}15`,
+                              color: darkTheme.neon.purple
                             }}
                           >
                             #{tag}
                           </span>
                         ))}
+                        {post.hashtags.length > 3 && (
+                          <span className="text-xs" style={{ color: darkTheme.text.muted }}>
+                            +{post.hashtags.length - 3} more
+                          </span>
+                        )}
                       </div>
                     )}
 
-                    {post.images && post.images.length > 0 && (
-                      <div className={`grid ${post.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'} gap-2 mb-3`}>
-                        {post.images.map((image, imgIdx) => (
-                          <div 
-                            key={imgIdx}
-                            className="rounded-xl h-24 md:h-32 relative overflow-hidden"
-                          >
-                            <img 
-                              src={image} 
-                              alt={`Post image ${imgIdx + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: darkTheme.background.glass }}>
+                    {/* Actions */}
+                    <div className="flex items-center justify-between pt-2">
                       <div className="flex items-center gap-4">
-                        <button 
-                          className="flex items-center gap-1 transition-colors hover:scale-105"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleLikeClick(post.id);
-                          }}
+                        <button
+                          onClick={() => handleLikeClick(post.id)}
+                          className="flex items-center gap-1 transition-colors"
                         >
                           <Heart 
-                            size={14} 
-                            className="md:w-4 md:h-4" 
+                            size={16} 
+                            className={likedPosts.has(post.id) ? 'fill-current' : ''}
                             style={{ 
-                              color: likedPosts.has(post.id) ? darkTheme.neon.pink : darkTheme.text.muted,
-                              fill: likedPosts.has(post.id) ? darkTheme.neon.pink : 'none'
+                              color: likedPosts.has(post.id) 
+                                ? darkTheme.neon.pink 
+                                : darkTheme.text.muted 
                             }} 
                           />
-                          <span className="text-xs md:text-sm" style={{ color: darkTheme.text.muted }}>
+                          <span 
+                            className="text-xs"
+                            style={{ color: darkTheme.text.muted }}
+                          >
                             {post.like_count}
                           </span>
                         </button>
-                        <button className="flex items-center gap-1 transition-colors hover:scale-105">
-                          <MessageCircle size={14} className="md:w-4 md:h-4" style={{ color: darkTheme.text.muted }} />
-                          <span className="text-xs md:text-sm" style={{ color: darkTheme.text.muted }}>
+
+                        <button className="flex items-center gap-1 transition-colors">
+                          <MessageCircle size={16} style={{ color: darkTheme.text.muted }} />
+                          <span className="text-xs" style={{ color: darkTheme.text.muted }}>
                             {post.comment_count}
                           </span>
                         </button>
+
                         <button 
-                          className="flex items-center gap-1 transition-colors hover:scale-105"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleShareClick(post.id);
-                          }}
+                          onClick={() => handleShareClick(post.id)}
+                          className="flex items-center gap-1 transition-colors"
                         >
-                          <Share2 size={14} className="md:w-4 md:h-4" style={{ color: darkTheme.text.muted }} />
-                          <span className="text-xs md:text-sm" style={{ color: darkTheme.text.muted }}>
+                          <Share2 size={16} style={{ color: darkTheme.text.muted }} />
+                          <span className="text-xs" style={{ color: darkTheme.text.muted }}>
                             {post.share_count}
                           </span>
                         </button>
                       </div>
-                      <div className="text-xs" style={{ color: darkTheme.text.muted }}>
-                        {post.view_count} 浏览
-                      </div>
+
+                      <span className="text-xs" style={{ color: darkTheme.text.muted }}>
+                        {post.view_count} views
+                      </span>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-
-          {/* 加载状态 */}
-          {loading && (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 size={24} className="animate-spin" style={{ color: darkTheme.neon.purple }} />
-              <span className="ml-2" style={{ color: darkTheme.text.secondary }}>
-                加载中...
-              </span>
-            </div>
-          )}
-
-          {/* 错误状态 */}
-          {error && (
-            <div className="flex items-center justify-center py-8">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ background: `${darkTheme.neon.pink}20` }}>
-                <AlertCircle size={16} style={{ color: darkTheme.neon.pink }} />
-                <span style={{ color: darkTheme.neon.pink }}>{error}</span>
-                <button 
-                  onClick={() => {
-                    setError(null);
-                    loadTrendingPosts();
-                  }}
-                  className="ml-2 p-1 rounded hover:bg-opacity-20"
-                  style={{ background: `${darkTheme.neon.pink}10` }}
-                >
-                  <RefreshCw size={14} style={{ color: darkTheme.neon.pink }} />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* 空状态 */}
-          {!loading && posts.length === 0 && !error && (
-            <div className="text-center py-12">
-              <Camera size={48} className="mx-auto mb-4 opacity-50" style={{ color: darkTheme.text.muted }} />
-              <h3 className="text-lg font-medium mb-2" style={{ color: darkTheme.text.primary }}>
-                还没有内容
-              </h3>
-              <p style={{ color: darkTheme.text.secondary }}>
-                成为第一个分享精彩内容的人！
-              </p>
-            </div>
-          )}
-
-          {/* 发布按钮 - 悬浮操作按钮 */}
-          <div className="fixed bottom-24 right-4 md:right-6 z-40">
-            <button 
-              onClick={handleCreatePostClick}
-              className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95"
-              style={{ 
-                background: `linear-gradient(135deg, ${darkTheme.neon.purple}, ${darkTheme.neon.pink})`,
-                boxShadow: `0 8px 20px ${darkTheme.neon.purple}40`
-              }}
-            >
-              <Camera className="w-6 h-6 md:w-7 md:h-7 text-white" />
-            </button>
-          </div>
         </div>
       </div>
 
-      {/* 创建内容模态框 */}
-      <CreatePostModal 
+      {/* Floating Create Button */}
+      <button
+        onClick={handleCreatePostClick}
+        className="fixed bottom-20 right-4 md:right-6 w-14 h-14 rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 z-40"
+        style={{
+          background: `linear-gradient(135deg, ${darkTheme.neon.purple} 0%, ${darkTheme.neon.pink} 100%)`,
+          boxShadow: `0 8px 32px ${darkTheme.neon.purple}40`
+        }}
+      >
+        <Plus size={24} className="text-white" />
+      </button>
+
+      {/* Create Post Modal */}
+      <CreatePostModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onPost={handleCreatePost}
         uploading={isCreatingPost}
       />
 
-      {/* 登录提示模态框 */}
+      {/* Login Prompt */}
       {showLoginPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div 
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setShowLoginPrompt(false)}
           />
-          
           <div 
-            className="relative w-full max-w-sm mx-4 rounded-2xl p-6"
+            className="relative mx-4 p-6 rounded-2xl text-center max-w-sm"
             style={{ background: darkTheme.background.card }}
           >
-            <div className="text-center">
-              <div 
-                className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
-                style={{ background: `${darkTheme.neon.purple}20` }}
+            <h3 className="text-lg font-semibold mb-2" style={{ color: darkTheme.text.primary }}>
+              Login Required
+            </h3>
+            <p className="mb-4" style={{ color: darkTheme.text.secondary }}>
+              Please login to interact with posts and create content.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowLoginPrompt(false)}
+                className="flex-1 px-4 py-2 rounded-lg border"
+                style={{
+                  borderColor: darkTheme.background.glass,
+                  color: darkTheme.text.secondary
+                }}
               >
-                <Camera size={24} style={{ color: darkTheme.neon.purple }} />
-              </div>
-              
-              <h3 className="text-lg font-semibold mb-2" style={{ color: darkTheme.text.primary }}>
-                登录后发布内容
-              </h3>
-              
-              <p className="text-sm mb-6" style={{ color: darkTheme.text.secondary }}>
-                注册或登录账户，即可分享你的精彩瞬间
-              </p>
-              
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowLoginPrompt(false)}
-                  className="flex-1 py-3 rounded-xl font-medium transition-colors"
-                  style={{
-                    background: darkTheme.background.glass,
-                    color: darkTheme.text.secondary
-                  }}
-                >
-                  取消
-                </button>
-                <button
-                  onClick={() => {
-                    setShowLoginPrompt(false);
-                    // 跳转到登录页面
-                    window.location.href = '/auth/login';
-                  }}
-                  className="flex-1 py-3 rounded-xl font-medium transition-colors"
-                  style={{
-                    background: darkTheme.neon.purple,
-                    color: 'white'
-                  }}
-                >
-                  去登录
-                </button>
-              </div>
-              
+                Cancel
+              </button>
               <button
                 onClick={() => {
                   setShowLoginPrompt(false);
-                  // 跳转到注册页面
-                  window.location.href = '/auth/register';
+                  // Navigate to login page
+                  window.location.href = '/auth/login';
                 }}
-                className="w-full mt-3 py-2 text-sm underline transition-colors"
-                style={{ color: darkTheme.neon.purple }}
+                className="flex-1 px-4 py-2 rounded-lg"
+                style={{
+                  background: darkTheme.neon.purple,
+                  color: 'white'
+                }}
               >
-                还没有账户？立即注册
+                Login
               </button>
             </div>
           </div>
