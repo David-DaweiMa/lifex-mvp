@@ -2,7 +2,7 @@
 export const darkTheme = {
   // Background colors - Deep purple theme
   background: {
-    primary: '#0F0B1A',        // Deep dark purple
+    primary: '#0a0a0a',        // black
     secondary: '#1A1625',      // Dark purple
     card: '#1A1625',           // Card background
     glass: '#8B5CF620',        // Glass effect with purple tint
