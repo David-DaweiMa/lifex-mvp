@@ -1,3 +1,4 @@
+// src/app/api/auth/register/route.ts - Improved version
 import { NextRequest, NextResponse } from 'next/server';
 import { registerUser } from '@/lib/authService';
 import { sendEmailVerification } from '@/lib/emailService';
@@ -10,12 +11,23 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, username, full_name, user_type } = body;
+    const { 
+      email, 
+      password, 
+      username, 
+      full_name, 
+      phone,
+      business_name,
+      service_category,
+      user_type = 'free' // 保持原有的默认值
+    } = body;
 
-    // 验证输入
-    if (!email || !password) {
+    console.log('=== Registration Request ===', { email, user_type, business_name, service_category });
+
+    // Input validation
+    if (!email || !password || !full_name) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Email, password and full name are required' },
         { status: 400 }
       );
     }
@@ -27,88 +39,113 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 验证用户类型
+    // Validate user type
     const validUserTypes = ['free', 'customer', 'premium', 'free_business', 'professional_business', 'enterprise_business'];
-    const selectedUserType = user_type || 'free';
-    
-    if (!validUserTypes.includes(selectedUserType)) {
+    if (!validUserTypes.includes(user_type)) {
       return NextResponse.json(
         { error: 'Invalid user type' },
         { status: 400 }
       );
     }
 
-    // 检查邮箱状态
+    // Service provider required field validation
+    if (user_type.includes('business') && (!business_name || !service_category)) {
+      return NextResponse.json(
+        { error: 'Business name and service category are required for service providers' },
+        { status: 400 }
+      );
+    }
+
+    // Validate service category for business users
+    if (user_type.includes('business') && service_category) {
+      const validServiceCategories = ['restaurant', 'beauty', 'wellness', 'home_service', 'education', 'repair', 'other'];
+      if (!validServiceCategories.includes(service_category)) {
+        return NextResponse.json(
+          { error: 'Invalid service category' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Check email status
     const { data: existingProfile, error: existingError } = await supabase
       .from('user_profiles')
       .select('id, email_verified, created_at')
       .eq('email', email)
       .single();
 
+    if (existingProfile?.email_verified) {
+      return NextResponse.json(
+        { error: 'This email is already registered and verified, please sign in directly' },
+        { status: 400 }
+      );
+    }
+
+    // If there's an unverified account, check if it's been more than 24 hours
     if (existingProfile) {
-      if (existingProfile.email_verified) {
+      const hoursSinceCreation = (Date.now() - new Date(existingProfile.created_at).getTime()) / (1000 * 60 * 60);
+      
+      if (hoursSinceCreation < 24) {
         return NextResponse.json(
-          { error: '该邮箱已被注册并验证，请直接登录' },
+          { 
+            error: 'This email was already registered within 24 hours, please check your email for verification link',
+            canResendEmail: true,
+            email: email
+          },
           { status: 400 }
         );
       } else {
-        // 检查是否在24小时内
-        const hoursSinceCreation = (Date.now() - new Date(existingProfile.created_at).getTime()) / (1000 * 60 * 60);
-        
-        if (hoursSinceCreation < 24) {
-          return NextResponse.json(
-            { 
-              error: '该邮箱已在24小时内注册，请检查您的邮箱并点击确认链接，或等待24小时后重新注册',
-              canResendEmail: true,
-              email: email
-            },
-            { status: 400 }
-          );
-        } else {
-          // 超过24小时，删除旧记录
-          console.log('超过24小时，删除旧记录并重新注册');
-          await supabase.auth.admin.deleteUser(existingProfile.id);
-        }
+        // More than 24 hours, delete old record
+        console.log('Over 24 hours, deleting old record and re-registering');
+        await supabase.auth.admin.deleteUser(existingProfile.id);
       }
     }
 
-    // 🔄 新的逻辑：先确保用户完全创建成功
-    console.log('=== 开始用户注册流程 ===');
-    
-    // 注册用户（不自动确认邮箱）
-    const result = await registerUser(email, password, {
+    // Prepare user data
+    const userData = {
       username,
       full_name,
-      user_type: selectedUserType
-    }, false); // 不自动确认邮箱
+      phone,
+      user_type,
+      // If service provider, add additional fields
+      ...(user_type.includes('business') && {
+        business_name,
+        service_category
+      })
+    };
+
+    console.log('=== Starting User Registration ===');
+    
+    // Register user (without auto email confirmation)
+    const result = await registerUser(email, password, userData, false);
 
     if (!result.success || !result.user) {
-      console.error('用户注册失败:', result.error);
+      console.error('User registration failed:', result.error);
       return NextResponse.json(
         { error: result.error || 'User registration failed' },
         { status: 400 }
       );
     }
 
-    console.log('✅ 用户注册成功，用户ID:', result.user.id);
+    console.log('✅ User registration successful, user ID:', result.user.id);
 
-    // 🔄 验证用户创建完整性
-    console.log('=== 验证用户创建完整性 ===');
+    // Verify user creation integrity
+    console.log('=== Verifying User Creation Integrity ===');
     
-    // 1. 再次验证用户是否真的存在
+    // 1. Re-verify user actually exists
     const { data: userCheck, error: userCheckError } = await supabase.auth.admin.getUserById(result.user.id);
     
     if (userCheckError || !userCheck.user) {
-      console.error('用户验证失败:', userCheckError);
+      console.error('User verification failed:', userCheckError);
       return NextResponse.json(
-        { error: '用户创建验证失败' },
+        { error: 'User creation verification failed' },
         { status: 500 }
       );
     }
     
-    console.log('✅ 用户验证成功');
+    console.log('✅ User verification successful');
 
-    // 2. 验证用户配置文件是否存在
+    // 2. Verify user profile exists
     const { data: profileCheck, error: profileCheckError } = await supabase
       .from('user_profiles')
       .select('*')
@@ -116,59 +153,101 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (profileCheckError || !profileCheck) {
-      console.error('用户配置文件验证失败:', profileCheckError);
+      console.error('User profile verification failed:', profileCheckError);
       return NextResponse.json(
-        { error: '用户配置文件验证失败' },
+        { error: 'User profile verification failed' },
         { status: 500 }
       );
     }
     
-    console.log('✅ 用户配置文件验证成功');
+    console.log('✅ User profile verification successful');
 
-    // 3. 现在可以安全地发送邮件确认
-    console.log('=== 开始发送邮件确认 ===');
+    // If service provider, create businesses table record
+    if (user_type.includes('business') && business_name) {
+      console.log('=== Creating Service Provider Business Record ===');
+      
+      try {
+        const { data: businessData, error: businessError } = await supabase
+          .from('businesses')
+          .insert({
+            owner_id: result.user.id,
+            name: business_name,
+            category: service_category,
+            contact_info: JSON.stringify({
+              phone: phone || '',
+              email: email
+            }),
+            is_verified: false,
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (businessError) {
+          console.error('Business record creation failed:', businessError);
+          // Don't fail entire registration, but log warning
+          console.warn('User registration successful but business record creation failed');
+        } else {
+          console.log('✅ Business record created successfully:', businessData.id);
+        }
+      } catch (businessError) {
+        console.error('Business record creation exception:', businessError);
+      }
+    }
+
+    // 3. Now safely send email confirmation
+    console.log('=== Starting Email Confirmation ===');
     
     let emailSent = false;
     let emailError = null;
     
     try {
-      const emailResult = await sendEmailVerification(email, result.user.id, selectedUserType);
+      // 使用增强的邮件发送方法，传入服务类别
+      const emailResult = await sendEmailVerification(
+        email, 
+        result.user.id, 
+        user_type,
+        service_category // 传递服务类别参数
+      );
       
       if (emailResult.success) {
         emailSent = true;
-        console.log('✅ 邮件发送成功');
+        console.log('✅ Email sent successfully');
       } else {
         emailError = emailResult.error;
-        console.error('❌ 邮件发送失败:', emailResult.error);
+        console.error('❌ Email sending failed:', emailResult.error);
         
-        // 如果是频率限制错误，记录但不阻止注册
+        // If rate limited, log but don't block registration
         if (emailResult.rateLimited) {
-          console.log('⚠️ 邮件发送频率限制，用户需要稍后手动请求重新发送');
+          console.log('⚠️ Email sending rate limited, user needs to manually request resend later');
         }
       }
-    } catch (emailError) {
-      console.error('❌ 邮件发送异常:', emailError);
-      emailError = '邮件发送失败';
+    } catch (emailException) {
+      console.error('❌ Email sending exception:', emailException);
+      emailError = 'Email sending failed';
     }
 
-    // 无论邮件是否发送成功，注册都算成功
-    // 因为用户已经成功创建，邮件发送失败不影响用户注册
-    console.log('=== 注册流程完成 ===');
+    // Registration is successful regardless of email sending status
+    // Because user has been successfully created, email sending failure doesn't affect user registration
+    console.log('=== Registration Process Completed ===');
     
     return NextResponse.json({
       success: true,
       user: result.user,
       message: emailSent 
-        ? '注册成功！请检查您的邮箱并点击确认链接完成验证。'
-        : '注册成功！但邮件发送失败，请稍后手动请求重新发送确认邮件。',
+        ? 'Registration successful! Please check your email and click the confirmation link to complete verification.'
+        : 'Registration successful! But email sending failed, please manually request resend confirmation email later.',
       requiresEmailVerification: true,
       emailSent: emailSent,
       emailError: emailError,
-      expiresInHours: 24
+      expiresInHours: 24,
+      isServiceProvider: user_type.includes('business')
     });
 
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Registration API exception:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

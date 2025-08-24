@@ -1,3 +1,5 @@
+// src/lib/emailService.ts - Complete updated file with service provider support
+
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 
@@ -210,7 +212,7 @@ class EmailService {
             user_id: userId,
             email: email,
             token: token,
-            token_type: 'email_verification', // 🔧 修复：确保使用正确的token_type
+            token_type: 'email_verification',
             expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
             created_at: new Date().toISOString()
           })
@@ -340,42 +342,28 @@ class EmailService {
             </div>
             <div class="content">
               <h2>Hello ${username}!</h2>
-              <p>Thank you for registering a LifeX account. To ensure your account security, please click the button below to confirm your email address:</p>
+              <p>Thank you for registering a LifeX account. To start enjoying all our features, please confirm your email address by clicking the button below:</p>
+              
+              <div class="quota-info">
+                <h3>🎯 Your Account Features</h3>
+                <p><strong>Account Type:</strong> ${userType.charAt(0).toUpperCase() + userType.slice(1)}</p>
+                <p><strong>Features:</strong> ${quotaInfo}</p>
+              </div>
               
               <div style="text-align: center;">
                 <a href="${confirmationUrl}" class="button">Confirm Email Address</a>
               </div>
               
-              <p>If you cannot click the button, please copy the following link to your browser address bar:</p>
-              <p style="word-break: break-all; color: #667eea;">${confirmationUrl}</p>
+              <p style="font-size: 14px; color: #666;">
+                If the button doesn't work, please copy and paste the following link into your browser:<br>
+                <span style="word-break: break-all;">${confirmationUrl}</span>
+              </p>
               
-              <div class="quota-info">
-                <h3>📊 Your Account Quota</h3>
-                <p><strong>User Type:</strong> ${userType.charAt(0).toUpperCase() + userType.slice(1)}</p>
-                <p><strong>Included Features:</strong> ${quotaInfo}</p>
-              </div>
-              
-              <p><strong>Important Notes:</strong></p>
-              <ul>
-                <li>This link will expire in 24 hours</li>
-                <li>If you did not register a LifeX account, please ignore this email</li>
-                <li>After confirming your email, you can start using all features</li>
-                <li>If you have any questions, please contact our support team</li>
-              </ul>
-              
-              <p>After confirming your email, you will be able to:</p>
-              <ul>
-                <li>Use AI intelligent assistant for personalized recommendations</li>
-                <li>Discover quality local businesses in New Zealand</li>
-                <li>Post and share local life content</li>
-                <li>Enjoy exclusive offers and events</li>
-                <li>Manage your business account (business users)</li>
-              </ul>
-              
-              <p><strong>⏰ Time Limit:</strong> This confirmation link will automatically expire in 24 hours. If the link expires, please register your account again.</p>
+              <p style="font-size: 14px; color: #999;">
+                This confirmation link will expire in 24 hours. If you did not register a LifeX account, please ignore this email.
+              </p>
             </div>
             <div class="footer">
-              <p>This email is automatically sent by the LifeX system, please do not reply</p>
               <p>© 2024 LifeX. All rights reserved.</p>
             </div>
           </div>
@@ -385,18 +373,17 @@ class EmailService {
       text: `
 Welcome to LifeX!
 
-Hello ${username}!
+Hello ${username},
 
-Thank you for registering a LifeX account. To ensure your account security, please confirm your email address.
+Thank you for registering a LifeX account. Please confirm your email address by visiting the following link:
 
-Please visit the following link to confirm your email:
 ${confirmationUrl}
 
-Your Account Quota:
-User Type: ${userType.charAt(0).toUpperCase() + userType.slice(1)}
-Included Features: ${quotaInfo}
+Your Account Features:
+Account Type: ${userType.charAt(0).toUpperCase() + userType.slice(1)}
+Features: ${quotaInfo}
 
-This link will expire in 24 hours.
+This confirmation link will expire in 24 hours.
 
 If you did not register a LifeX account, please ignore this email.
 
@@ -412,6 +399,144 @@ If you have any questions, please contact our support team.
 © 2024 LifeX. All rights reserved.
       `
     };
+  }
+
+  /**
+   * 生成服务商专用的确认邮件模板
+   */
+  private generateServiceProviderEmailTemplate(
+    username: string,
+    email: string,
+    confirmationToken: string,
+    serviceCategory?: string
+  ): { subject: string; html: string; text: string } {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const confirmationUrl = `${baseUrl}/auth/confirm?token=${confirmationToken}&email=${encodeURIComponent(email)}`;
+    
+    const serviceCategories: Record<string, string> = {
+      restaurant: 'Restaurant & Dining',
+      beauty: 'Beauty & Hair',
+      wellness: 'Health & Wellness',
+      home_service: 'Home Services',
+      education: 'Education & Training',
+      repair: 'Repair Services',
+      other: 'Other Services'
+    };
+
+    const categoryName = serviceCategories[serviceCategory || 'other'] || 'Service';
+
+    const subject = `Confirm Your LifeX Service Provider Account - ${categoryName} Provider`;
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>LifeX Service Provider Account Confirmation</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%); color: white; padding: 20px; text-align: center; border-radius: 10px; margin-bottom: 20px; }
+          .content { background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+          .button { display: inline-block; background: #a855f7; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; margin: 30px 0; }
+          .legal-notice { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+          .next-steps { background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+          .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 14px; }
+          .legal-title { color: #856404; margin-top: 0; display: flex; align-items: center; }
+          .legal-text { color: #856404; }
+          .steps-title { color: #155724; margin-top: 0; }
+          .steps-text { color: #155724; }
+          .legal-list { color: #856404; padding-left: 20px; }
+          .steps-list { color: #155724; padding-left: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Welcome to LifeX Service Providers</h1>
+          </div>
+          
+          <div class="content">
+            <h2 style="color: #a855f7; margin-top: 0;">Hello, ${username}!</h2>
+            <p>Thank you for choosing to become a <strong>${categoryName}</strong> service provider on the LifeX platform.</p>
+            <p>To complete your registration, please click the link below to confirm your email address:</p>
+            
+            <div style="text-align: center;">
+              <a href="${confirmationUrl}" class="button">
+                Confirm Email Address
+              </a>
+            </div>
+            
+            <p style="font-size: 14px; color: #666;">
+              If the button doesn't work, please copy and paste the following link into your browser:<br>
+              <span style="word-break: break-all;">${confirmationUrl}</span>
+            </p>
+          </div>
+
+          <div class="legal-notice">
+            <h3 class="legal-title">
+              ⚖️ Important: Service Provider Legal Obligations
+            </h3>
+            <p class="legal-text" style="margin-bottom: 10px;">As a service provider in New Zealand, you must comply with the Consumer Guarantees Act (CGA) requirements:</p>
+            <ul class="legal-list">
+              <li>Provide services with reasonable skill and care</li>
+              <li>Ensure services are fit for their intended purpose</li>
+              <li>Complete services within a reasonable timeframe</li>
+              <li>Charge reasonable prices</li>
+            </ul>
+            <p class="legal-text" style="font-size: 14px;">
+              For detailed information, please refer to our <a href="${baseUrl}/legal/service-provider-obligations" style="color: #856404;">Service Provider Obligations Guide</a>
+            </p>
+          </div>
+
+          <div class="next-steps">
+            <h3 class="steps-title">🎯 Next Steps</h3>
+            <p class="steps-text">After confirming your email, you can:</p>
+            <ul class="steps-list">
+              <li>Complete your service provider profile</li>
+              <li>Add service items and pricing</li>
+              <li>Set business hours and contact information</li>
+              <li>Start receiving customer bookings</li>
+            </ul>
+          </div>
+
+          <div class="footer">
+            <p>This email was sent automatically, please do not reply directly.<br>
+            If you have any questions, please visit our <a href="${baseUrl}/support" style="color: #a855f7;">Help Center</a></p>
+            <p style="font-size: 12px; margin-top: 10px;">
+              © 2024 LifeX. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+      Welcome to LifeX Service Providers!
+
+      Hello ${username},
+
+      Thank you for choosing to become a ${categoryName} service provider on the LifeX platform.
+
+      Please click the following link to confirm your email address:
+      ${confirmationUrl}
+
+      Important Notice: As a service provider in New Zealand, you must comply with the Consumer Guarantees Act (CGA) requirements:
+      • Provide services with reasonable skill and care
+      • Ensure services are fit for their intended purpose  
+      • Complete services within a reasonable timeframe
+      • Charge reasonable prices
+
+      After confirming your email, you can complete your service provider profile and start receiving customer bookings.
+
+      If you have any questions, please visit our Help Center: ${baseUrl}/support
+
+      © 2024 LifeX. All rights reserved.
+    `;
+
+    return { subject, html, text };
   }
 
   /**
@@ -452,7 +577,7 @@ If you have any questions, please contact our support team.
     
     return {
       subject: '🎉 Welcome to LifeX - Your Account is Activated!',
-              html: `
+      html: `
         <!DOCTYPE html>
         <html>
         <head>
@@ -596,22 +721,34 @@ Thank you for choosing LifeX!
   }
 
   /**
-   * 发送邮件确认
+   * 增强的邮件确认发送方法
    */
   async sendEmailConfirmation(
     email: string,
     username: string,
     confirmationToken: string,
-    userType: string = 'free'
+    userType: string = 'customer',
+    serviceCategory?: string
   ): Promise<{ success: boolean; error?: string; rateLimited?: boolean }> {
     console.log('=== 发送邮件确认 ===');
     console.log('邮箱:', email);
     console.log('用户名:', username);
     console.log('确认Token:', confirmationToken);
     console.log('用户类型:', userType);
+    console.log('服务类别:', serviceCategory);
     
-    const template = this.generateEmailConfirmationTemplate(username, confirmationToken, email, userType);
+    // 判断是否为服务商类型
+    const isServiceProvider = ['free_business', 'professional_business', 'enterprise_business'].includes(userType);
     
+    let template;
+    if (isServiceProvider) {
+      // 使用服务商专用模板
+      template = this.generateServiceProviderEmailTemplate(username, email, confirmationToken, serviceCategory);
+    } else {
+      // 使用普通用户模板
+      template = this.generateEmailConfirmationTemplate(username, confirmationToken, email, userType);
+    }
+
     return await this.sendEmail({
       to: email,
       subject: template.subject,
@@ -649,12 +786,14 @@ Thank you for choosing LifeX!
   async sendEmailVerification(
     email: string,
     userId: string,
-    userType: string = 'free'
+    userType: string = 'free',
+    serviceCategory?: string
   ): Promise<{ success: boolean; error?: string; rateLimited?: boolean }> {
     console.log('=== 发送邮件验证 ===');
     console.log('邮箱:', email);
     console.log('用户ID:', userId);
     console.log('用户类型:', userType);
+    console.log('服务类别:', serviceCategory);
     
     try {
       // 验证输入参数
@@ -694,7 +833,13 @@ Thank you for choosing LifeX!
       
       // 发送邮件 - 无论Token是否保存成功都发送
       console.log('📧 开始发送邮件...');
-      const emailResult = await this.sendEmailConfirmation(email, username, confirmationToken, userType);
+      const emailResult = await this.sendEmailConfirmation(
+        email, 
+        username, 
+        confirmationToken, 
+        userType,
+        serviceCategory
+      );
       
       if (!emailResult.success) {
         console.error('📧 邮件发送失败:', emailResult.error);
@@ -717,144 +862,127 @@ Thank you for choosing LifeX!
       console.error('💥 发送邮件验证异常:', error);
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : '发送邮件失败' 
+        error: error instanceof Error ? error.message : '未知错误'
       };
     }
   }
 
   /**
-   * 🔧 修复：数据库连接诊断功能
+   * 数据库连接诊断
    */
   async diagnoseDatabaseConnection(): Promise<{
     success: boolean;
     results: Record<string, any>;
   }> {
-    const results: Record<string, any> = {};
+    console.log('=== 开始数据库连接诊断 ===');
     
+    const results: Record<string, any> = {
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      config_check: {},
+      connection_test: {},
+      table_access_test: {}
+    };
+
     try {
-      console.log('=== 数据库连接诊断 ===');
-      
+      // 1. 配置检查
+      console.log('步骤1: 配置检查');
+      results.config_check = {
+        supabase_url: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        supabase_service_key: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+        resend_api_key: !!process.env.RESEND_API_KEY,
+        resend_from_email: !!process.env.RESEND_FROM_EMAIL,
+        app_url: !!process.env.NEXT_PUBLIC_APP_URL
+      };
+
       if (!this.supabaseAdmin) {
+        results.connection_test.error = 'Supabase管理员客户端未初始化';
         return {
           success: false,
-          results: { error: 'Supabase管理员客户端未初始化' }
+          results
         };
       }
 
-      // 1. 🔧 修复：测试基本连接 - 使用正确的查询语法
+      // 2. 连接测试
+      console.log('步骤2: 连接测试');
       try {
-        const { count, error: connectionError } = await this.supabaseAdmin
+        const { data: connectionTest, error: connectionError } = await this.supabaseAdmin
           .from('user_profiles')
-          .select('*', { count: 'exact', head: true });
+          .select('count')
+          .limit(1);
 
         results.connection_test = {
           success: !connectionError,
-          error: connectionError?.message,
-          count: count
+          error: connectionError?.message
         };
-      } catch (err) {
+
+        if (connectionError) {
+          console.error('❌ 数据库连接失败:', connectionError);
+        } else {
+          console.log('✅ 数据库连接成功');
+        }
+      } catch (connErr) {
+        console.error('❌ 连接测试异常:', connErr);
         results.connection_test = {
           success: false,
-          error: err instanceof Error ? err.message : '连接测试异常'
+          error: connErr instanceof Error ? connErr.message : '连接测试异常'
         };
       }
 
-      // 2. 测试email_confirmations表
+      // 3. 表访问测试
+      console.log('步骤3: 表访问测试');
       try {
-        const { data: tableTest, error: tableError } = await this.supabaseAdmin
-          .from('email_confirmations')
-          .select('*')
-          .limit(3);
-
-        results.email_confirmations_test = {
-          success: !tableError,
-          error: tableError?.message,
-          record_count: tableTest?.length || 0,
-          sample_records: tableTest || []
-        };
-      } catch (err) {
-        results.email_confirmations_test = {
-          success: false,
-          error: err instanceof Error ? err.message : '表测试异常'
-        };
-      }
-
-      // 3. 🔧 修复：测试插入权限 - 使用真实的用户ID
-      try {
-        // 首先获取一个真实的用户ID
-        const { data: realUser, error: userError } = await this.supabaseAdmin
+        // 测试 user_profiles 表
+        const { data: profilesData, error: profilesError } = await this.supabaseAdmin
           .from('user_profiles')
-          .select('id')
-          .limit(1)
-          .single();
+          .select('count')
+          .limit(1);
 
-        if (!userError && realUser) {
-          // 使用真实用户ID进行测试
-          const testToken = 'diagnostic-test-' + Date.now();
-          
-          const { data: insertData, error: insertError } = await this.supabaseAdmin
-            .from('email_confirmations')
-            .insert({
-              user_id: realUser.id,
-              email: 'diagnostic@test.com',
-              token: testToken,
-              token_type: 'email_verification',
-              expires_at: new Date(Date.now() + 60000).toISOString()
-            })
-            .select();
+        // 测试 email_confirmations 表
+        const { data: confirmationsData, error: confirmationsError } = await this.supabaseAdmin
+          .from('email_confirmations')
+          .select('count')
+          .limit(1);
 
-          results.insert_test = {
-            success: !insertError,
-            error: insertError?.message,
-            data: insertData,
-            used_real_user: true,
-            user_id: realUser.id
-          };
-
-          // 清理测试数据
-          if (!insertError) {
-            await this.supabaseAdmin
-              .from('email_confirmations')
-              .delete()
-              .eq('token', testToken);
-            
-            results.cleanup = { success: true, message: '测试数据已清理' };
+        results.table_access_test = {
+          user_profiles: {
+            accessible: !profilesError,
+            error: profilesError?.message
+          },
+          email_confirmations: {
+            accessible: !confirmationsError,
+            error: confirmationsError?.message
           }
-        } else {
-          // 没有真实用户，跳过插入测试
-          results.insert_test = {
-            success: false,
-            error: '没有找到真实用户进行测试，请先注册一个用户',
-            skipped: true
-          };
+        };
+
+        console.log('表访问测试结果:', results.table_access_test);
+
+      } catch (tableErr) {
+        console.error('❌ 表访问测试异常:', tableErr);
+        results.table_access_test.error = tableErr instanceof Error ? tableErr.message : '表访问测试异常';
+      }
+
+      // 4. 综合评估
+      const hasConfigIssues = !Object.values(results.config_check).every(Boolean);
+      const hasConnectionIssues = !results.connection_test.success;
+      const hasTableAccessIssues = results.table_access_test.error || 
+        !results.table_access_test.user_profiles?.accessible || 
+        !results.table_access_test.email_confirmations?.accessible;
+
+      results.summary = {
+        overall_success: !hasConfigIssues && !hasConnectionIssues && !hasTableAccessIssues,
+        issues: {
+          config: hasConfigIssues,
+          connection: hasConnectionIssues,
+          table_access: hasTableAccessIssues
         }
+      };
 
-      } catch (err) {
-        results.insert_test = {
-          success: false,
-          error: err instanceof Error ? err.message : '插入测试异常'
-        };
-      }
-
-      // 4. 🔧 新增：检查token_type约束
-      try {
-        const { data: constraintInfo, error: constraintError } = await this.supabaseAdmin
-          .rpc('get_check_constraints', { table_name: 'email_confirmations' });
-
-        results.constraint_check = {
-          success: !constraintError,
-          error: constraintError?.message,
-          constraints: constraintInfo || []
-        };
-      } catch (err) {
-        results.constraint_check = {
-          success: false,
-          error: 'Cannot check constraints: ' + (err instanceof Error ? err.message : '未知错误')
-        };
-      }
+      console.log('=== 诊断完成 ===');
+      console.log('总体状态:', results.summary.overall_success ? '成功' : '失败');
 
       return {
-        success: true,
+        success: results.summary.overall_success,
         results
       };
 
@@ -913,13 +1041,14 @@ Thank you for choosing LifeX!
 // 导出单例实例
 export const emailService = new EmailService();
 
-// 导出便捷函数
+// 导出便捷函数 - 更新支持服务类别
 export const sendEmailVerification = async (
   email: string, 
   userId: string, 
-  userType: string = 'free'
+  userType: string = 'free',
+  serviceCategory?: string
 ): Promise<{ success: boolean; error?: string; rateLimited?: boolean }> => {
-  return await emailService.sendEmailVerification(email, userId, userType);
+  return await emailService.sendEmailVerification(email, userId, userType, serviceCategory);
 };
 
 // 导出诊断函数

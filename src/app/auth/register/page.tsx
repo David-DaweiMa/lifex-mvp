@@ -1,432 +1,727 @@
-
-'use client';
-
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, CheckCircle } from 'lucide-react';
-import { darkTheme } from '../../../lib/theme';
-import { useAuth } from '../../../lib/hooks/useAuth';
+import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, CheckCircle, Users, Briefcase, Star, Clock, Shield, AlertCircle } from 'lucide-react';
 
-export default function RegisterPage() {
-  const router = useRouter();
-  const { register } = useAuth();
-  
+const darkTheme = {
+  primary: '#0a0a0a',
+  secondary: '#1a1a1a',
+  card: '#1f1f1f',
+  glass: '#ffffff20',
+  text: {
+    primary: '#ffffff',
+    secondary: '#a1a1aa',
+    muted: '#71717a'
+  },
+  neon: {
+    purple: '#a855f7',
+    blue: '#3b82f6',
+    green: '#10b981'
+  }
+};
+
+interface UserType {
+  id: 'consumer' | 'service_provider';
+  title: string;
+  subtitle: string;
+  features: string[];
+  icon: React.ComponentType<any>;
+  color: string;
+  legalNotice?: string;
+}
+
+const userTypes: UserType[] = [
+  {
+    id: 'consumer',
+    title: 'Personal User',
+    subtitle: 'Discover and enjoy local life services',
+    features: [
+      'Discover quality local services',
+      'AI-powered life assistant',
+      'Book restaurants, beauty, and repair services',
+      'Share experiences and reviews',
+      'Personalized recommendations'
+    ],
+    icon: Users,
+    color: darkTheme.neon.blue
+  },
+  {
+    id: 'service_provider',
+    title: 'Service Provider',
+    subtitle: 'Showcase and manage your professional services',
+    features: [
+      'Showcase your professional services',
+      'Manage bookings and customers',
+      'Professional marketing tools',
+      'Customer review management',
+      'Business analytics and insights'
+    ],
+    icon: Briefcase,
+    color: darkTheme.neon.purple,
+    legalNotice: 'As a service provider, you must comply with the Consumer Guarantees Act (CGA), ensuring services are provided with reasonable skill and care'
+  }
+];
+
+const LifeXRegisterRedesign = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [selectedUserType, setSelectedUserType] = useState<'consumer' | 'service_provider' | null>(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     confirmPassword: '',
     username: '',
-    full_name: ''
+    full_name: '',
+    business_name: '',
+    service_category: '',
+    phone: ''
   });
-  
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedServiceTerms, setAcceptedServiceTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user types
-    if (error) {
-      setError('');
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (error) setError('');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setRegistrationSuccess(false);
+  const handleUserTypeSelect = (type: 'consumer' | 'service_provider') => {
+    setSelectedUserType(type);
+    setCurrentStep(2);
+  };
 
-    // Client-side validation
+  const validateForm = () => {
     if (!formData.email || !formData.password || !formData.full_name) {
-      setError('Please fill in all required fields');
-      setLoading(false);
-      return;
+      return 'Please fill in all required fields';
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
-      return;
+      return 'Passwords do not match';
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      setLoading(false);
+      return 'Password must be at least 6 characters long';
+    }
+
+    if (!acceptedTerms) {
+      return 'Please accept the Terms of Service';
+    }
+
+    if (selectedUserType === 'service_provider') {
+      if (!formData.business_name || !formData.service_category) {
+        return 'Business name and service category are required for service providers';
+      }
+      
+      if (!acceptedServiceTerms) {
+        return 'Please accept the service provider legal obligations';
+      }
+    }
+
+    return null;
+  };
+
+  const handleSubmit = async () => {
+    // Validate form
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
+    setLoading(true);
+    setError('');
+
     try {
-      console.log('🚀 Starting registration process...', {
+      // Correct user type mapping
+      const userTypeMapping = {
+        consumer: 'free',  // Personal user -> free
+        service_provider: 'free_business'  // Service provider -> free_business
+      };
+
+      // Prepare registration data
+      const registrationData = {
         email: formData.email,
+        password: formData.password,
         username: formData.username,
-        full_name: formData.full_name
+        full_name: formData.full_name,
+        phone: formData.phone,
+        user_type: userTypeMapping[selectedUserType!],
+        // For service providers, additional data
+        ...(selectedUserType === 'service_provider' && {
+          business_name: formData.business_name,
+          service_category: formData.service_category
+        })
+      };
+
+      console.log('Sending registration request:', registrationData);
+      
+      // Make actual API call
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(registrationData),
       });
 
-      const result = await register(formData.email, formData.password, {
-        username: formData.username,
-        full_name: formData.full_name
-      });
+      const result = await response.json();
 
-      console.log('📋 Registration result:', result);
-
-      if (result.success && result.user) {
-        // 🎉 Registration successful
-        console.log('✅ Registration successful!', result.user);
-        
-        // Clear any error messages
-        setError('');
-        setRegistrationSuccess(true);
-        
-        // Check if user needs email verification
-        if (!result.user.email_verified) {
-          console.log('📧 Email verification required, showing confirmation dialog');
-          setShowEmailConfirmation(true);
-        } else {
-          console.log('✅ Email already verified, redirecting to home');
-          router.push('/');
-        }
-      } else {
-        // ❌ Registration failed
-        console.error('❌ Registration failed:', result.error);
-        setError(result.error || 'Registration failed, please try again');
-        setRegistrationSuccess(false);
+      if (!response.ok) {
+        throw new Error(result.error || 'Registration failed');
       }
-    } catch (err) {
-      console.error('💥 Exception during registration:', err);
-      setError('An unexpected error occurred, please try again later');
-      setRegistrationSuccess(false);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleResendEmail = async () => {
-    try {
-      setLoading(true);
-      console.log('🔄 Resending confirmation email...');
+      console.log('Registration successful:', result);
+      setSuccess(true);
       
-      // Here you can call the resend email API
-      // const resendResult = await resendVerificationEmail(formData.email);
-      
-      // Temporary message display
-      alert('Confirmation email has been resent, please check your inbox');
     } catch (error) {
-      console.error('Failed to resend email:', error);
-      alert('Failed to resend email, please try again later');
+      console.error('Registration error:', error);
+      setError(error instanceof Error ? error.message : 'Registration failed, please try again');
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: darkTheme.background.primary }}>
-      <div className="w-full max-w-md px-6 py-8">
-        {/* Back Button */}
-        <Link 
-          href="/"
-          className="inline-flex items-center gap-2 mb-6 text-sm font-medium transition-colors hover:opacity-80"
-          style={{ color: darkTheme.text.muted }}
-        >
-          <ArrowLeft size={16} />
-          Back to Home
-        </Link>
+  const renderStepIndicator = () => (
+    <div className="flex items-center justify-center mb-8">
+      <div className="flex items-center space-x-4">
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+          currentStep >= 1 ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-400'
+        }`}>
+          1
+        </div>
+        <div className={`w-16 h-0.5 ${currentStep >= 2 ? 'bg-purple-600' : 'bg-gray-700'}`}></div>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+          currentStep >= 2 ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-400'
+        }`}>
+          2
+        </div>
+      </div>
+    </div>
+  );
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
-            Create Account
-          </h1>
-          <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-            Join LifeX and discover amazing local services
+  const renderUserTypeSelection = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
+          Choose Account Type
+        </h2>
+        <p style={{ color: darkTheme.text.secondary }}>
+          Select the account type that best fits your needs
+        </p>
+      </div>
+
+      <div className="grid gap-4">
+        {userTypes.map((type) => {
+          const Icon = type.icon;
+          return (
+            <div
+              key={type.id}
+              onClick={() => handleUserTypeSelect(type.id)}
+              className="p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+              style={{
+                background: `${type.color}10`,
+                borderColor: selectedUserType === type.id ? type.color : `${type.color}30`,
+                boxShadow: selectedUserType === type.id ? `0 0 20px ${type.color}40` : 'none'
+              }}
+            >
+              <div className="flex items-start space-x-4">
+                <div 
+                  className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: `${type.color}20` }}
+                >
+                  <Icon size={24} style={{ color: type.color }} />
+                </div>
+                
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold mb-1" style={{ color: darkTheme.text.primary }}>
+                    {type.title}
+                  </h3>
+                  <p className="text-sm mb-3" style={{ color: darkTheme.text.secondary }}>
+                    {type.subtitle}
+                  </p>
+                  
+                  <ul className="space-y-2">
+                    {type.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-center text-sm">
+                        <CheckCircle size={16} className="mr-2 flex-shrink-0" style={{ color: type.color }} />
+                        <span style={{ color: darkTheme.text.primary }}>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {type.legalNotice && (
+                    <div className="mt-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+                      <div className="flex items-start space-x-2">
+                        <AlertCircle size={16} className="text-yellow-500 mt-0.5 flex-shrink-0" />
+                        <p className="text-xs text-yellow-200">
+                          {type.legalNotice}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const renderRegistrationForm = () => {
+    const selectedType = userTypes.find(type => type.id === selectedUserType);
+    const isServiceProvider = selectedUserType === 'service_provider';
+
+    return (
+      <div className="space-y-6">
+        <div className="text-center mb-6">
+          <button
+            onClick={() => setCurrentStep(1)}
+            className="inline-flex items-center text-sm mb-4 transition-colors hover:text-purple-400"
+            style={{ color: darkTheme.text.muted }}
+          >
+            <ArrowLeft size={16} className="mr-2" />
+            Back to Account Type Selection
+          </button>
+          
+          <div className="inline-flex items-center space-x-2 mb-2">
+            {selectedType && (
+              <>
+                <selectedType.icon size={20} style={{ color: selectedType.color }} />
+                <h2 className="text-xl font-bold" style={{ color: darkTheme.text.primary }}>
+                  Register {selectedType.title} Account
+                </h2>
+              </>
+            )}
+          </div>
+          <p style={{ color: darkTheme.text.secondary }}>
+            Fill in the following information to complete registration
           </p>
         </div>
 
-        {/* Success Message */}
-        {registrationSuccess && !showEmailConfirmation && (
-          <div className="mb-6 p-4 rounded-lg flex items-center gap-3" style={{ 
-            background: 'rgba(34, 197, 94, 0.1)', 
-            borderLeft: `4px solid #22c55e` 
-          }}>
-            <CheckCircle size={20} style={{ color: '#22c55e' }} />
+        <div className="space-y-4">
+          {/* 基本信息 */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold" style={{ color: darkTheme.text.primary }}>
+              Basic Information
+            </h3>
+            
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.secondary }}>
+                  Full Name *
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2" 
+                        size={18} style={{ color: darkTheme.text.muted }} />
+                  <input
+                    type="text"
+                    name="full_name"
+                    value={formData.full_name}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      background: darkTheme.secondary,
+                      borderColor: `${darkTheme.neon.purple}30`,
+                      color: darkTheme.text.primary
+                    }}
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.secondary }}>
+                  Username
+                </label>
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  style={{
+                    background: darkTheme.secondary,
+                    borderColor: `${darkTheme.neon.purple}30`,
+                    color: darkTheme.text.primary
+                  }}
+                  placeholder="Enter username"
+                />
+              </div>
+            </div>
+
             <div>
-              <p className="font-medium" style={{ color: '#22c55e' }}>Registration Successful!</p>
-              <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                Your account has been created, please check your email to complete verification
-              </p>
+              <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.secondary }}>
+                Email Address *
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2" 
+                      size={18} style={{ color: darkTheme.text.muted }} />
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  style={{
+                    background: darkTheme.secondary,
+                    borderColor: `${darkTheme.neon.purple}30`,
+                    color: darkTheme.text.primary
+                  }}
+                  placeholder="Enter email address"
+                  required
+                />
+              </div>
             </div>
-          </div>
-        )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Full Name */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.primary }}>
-              Full Name <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
-              <input
-                type="text"
-                name="full_name"
-                value={formData.full_name}
-                onChange={handleInputChange}
-                required
-                disabled={loading}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border transition-all focus:outline-none focus:ring-2 disabled:opacity-50"
-                style={{
-                  background: darkTheme.background.card,
-                  borderColor: darkTheme.background.glass,
-                  color: darkTheme.text.primary,
-                  '--tw-ring-color': darkTheme.neon.purple,
-                } as React.CSSProperties}
-                placeholder="Enter your full name"
-              />
-            </div>
-          </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.secondary }}>
+                  Password *
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2" 
+                        size={18} style={{ color: darkTheme.text.muted }} />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-12 py-3 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      background: darkTheme.secondary,
+                      borderColor: `${darkTheme.neon.purple}30`,
+                      color: darkTheme.text.primary
+                    }}
+                    placeholder="Enter password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-purple-400"
+                  >
+                    {showPassword ? 
+                      <EyeOff size={18} style={{ color: darkTheme.text.muted }} /> : 
+                      <Eye size={18} style={{ color: darkTheme.text.muted }} />
+                    }
+                  </button>
+                </div>
+              </div>
 
-          {/* Username */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.primary }}>
-              Username <span className="text-xs opacity-60">(Optional)</span>
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                disabled={loading}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border transition-all focus:outline-none focus:ring-2 disabled:opacity-50"
-                style={{
-                  background: darkTheme.background.card,
-                  borderColor: darkTheme.background.glass,
-                  color: darkTheme.text.primary,
-                  '--tw-ring-color': darkTheme.neon.purple,
-                } as React.CSSProperties}
-                placeholder="Choose a username"
-              />
-            </div>
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.primary }}>
-              Email Address <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                disabled={loading}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border transition-all focus:outline-none focus:ring-2 disabled:opacity-50"
-                style={{
-                  background: darkTheme.background.card,
-                  borderColor: darkTheme.background.glass,
-                  color: darkTheme.text.primary,
-                  '--tw-ring-color': darkTheme.neon.purple,
-                } as React.CSSProperties}
-                placeholder="Enter your email address"
-              />
-            </div>
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.primary }}>
-              Password <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                disabled={loading}
-                className="w-full pl-10 pr-12 py-3 rounded-lg border transition-all focus:outline-none focus:ring-2 disabled:opacity-50"
-                style={{
-                  background: darkTheme.background.card,
-                  borderColor: darkTheme.background.glass,
-                  color: darkTheme.text.primary,
-                  '--tw-ring-color': darkTheme.neon.purple,
-                } as React.CSSProperties}
-                placeholder="Create password (at least 6 characters)"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                disabled={loading}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 disabled:opacity-50"
-                style={{ color: darkTheme.text.muted }}
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.secondary }}>
+                  Confirm Password *
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2" 
+                        size={18} style={{ color: darkTheme.text.muted }} />
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-12 py-3 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      background: darkTheme.secondary,
+                      borderColor: `${darkTheme.neon.purple}30`,
+                      color: darkTheme.text.primary
+                    }}
+                    placeholder="Confirm password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-purple-400"
+                  >
+                    {showConfirmPassword ? 
+                      <EyeOff size={18} style={{ color: darkTheme.text.muted }} /> : 
+                      <Eye size={18} style={{ color: darkTheme.text.muted }} />
+                    }
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Confirm Password */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.primary }}>
-              Confirm Password <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: darkTheme.text.muted }} />
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                required
-                disabled={loading}
-                className="w-full pl-10 pr-12 py-3 rounded-lg border transition-all focus:outline-none focus:ring-2 disabled:opacity-50"
-                style={{
-                  background: darkTheme.background.card,
-                  borderColor: darkTheme.background.glass,
-                  color: darkTheme.text.primary,
-                  '--tw-ring-color': darkTheme.neon.purple,
-                } as React.CSSProperties}
-                placeholder="Confirm your password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                disabled={loading}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 disabled:opacity-50"
-                style={{ color: darkTheme.text.muted }}
-              >
-                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
+          {/* 服务商专用信息 */}
+          {isServiceProvider && (
+            <div className="space-y-4 pt-4 border-t" style={{ borderColor: `${darkTheme.neon.purple}20` }}>
+              <h3 className="text-lg font-semibold" style={{ color: darkTheme.text.primary }}>
+                Service Provider Information
+              </h3>
+              
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.secondary }}>
+                    Business Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="business_name"
+                    value={formData.business_name}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      background: darkTheme.secondary,
+                      borderColor: `${darkTheme.neon.purple}30`,
+                      color: darkTheme.text.primary
+                    }}
+                    placeholder="Enter business name"
+                    required={isServiceProvider}
+                  />
+                </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="p-3 rounded-lg text-sm border-l-4" style={{ 
-              background: 'rgba(239, 68, 68, 0.1)', 
-              color: '#ef4444',
-              borderLeftColor: '#ef4444'
-            }}>
-              {error}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.secondary }}>
+                    Service Category *
+                  </label>
+                  <select
+                    name="service_category"
+                    value={formData.service_category}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      background: darkTheme.secondary,
+                      borderColor: `${darkTheme.neon.purple}30`,
+                      color: darkTheme.text.primary
+                    }}
+                    required={isServiceProvider}
+                  >
+                    <option value="">Select service category</option>
+                    <option value="restaurant">Restaurant & Dining</option>
+                    <option value="beauty">Beauty & Hair</option>
+                    <option value="wellness">Health & Wellness</option>
+                    <option value="home_service">Home Services</option>
+                    <option value="education">Education & Training</option>
+                    <option value="repair">Repair Services</option>
+                    <option value="other">Other Services</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: darkTheme.text.secondary }}>
+                  Contact Phone
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  style={{
+                    background: darkTheme.secondary,
+                    borderColor: `${darkTheme.neon.purple}30`,
+                    color: darkTheme.text.primary
+                  }}
+                  placeholder="Enter contact phone"
+                />
+              </div>
             </div>
           )}
 
-          {/* Submit Button */}
+          {/* Service provider legal obligations notice */}
+          {isServiceProvider && (
+            <div className="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+              <div className="flex items-start space-x-3">
+                <Shield className="text-yellow-500 mt-0.5 flex-shrink-0" size={20} />
+                <div>
+                  <h4 className="font-semibold text-yellow-200 mb-2">Service Provider Legal Obligations</h4>
+                  <p className="text-sm text-yellow-200 mb-3">
+                    Under New Zealand's Consumer Guarantees Act (CGA), as a service provider, you must ensure:
+                  </p>
+                  <ul className="text-sm text-yellow-200 space-y-1">
+                    <li>• Provide services with reasonable skill and care</li>
+                    <li>• Ensure services are fit for their intended purpose</li>
+                    <li>• Complete services within a reasonable timeframe</li>
+                    <li>• Charge reasonable prices</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Terms agreement */}
+          <div className="space-y-3">
+            <div className="flex items-start space-x-3">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-1 w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
+              />
+              <label htmlFor="terms" className="text-sm" style={{ color: darkTheme.text.secondary }}>
+                I have read and agree to the <span style={{ color: darkTheme.neon.purple }} className="hover:underline cursor-pointer">Terms of Service</span> and <span style={{ color: darkTheme.neon.purple }} className="hover:underline cursor-pointer">Privacy Policy</span>
+              </label>
+            </div>
+
+            {isServiceProvider && (
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  id="service_terms"
+                  checked={acceptedServiceTerms}
+                  onChange={(e) => setAcceptedServiceTerms(e.target.checked)}
+                  className="mt-1 w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
+                />
+                <label htmlFor="service_terms" className="text-sm" style={{ color: darkTheme.text.secondary }}>
+                  I understand and agree to comply with the legal obligations as a service provider, including the Consumer Guarantees Act requirements
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* Success message */}
+          {success && (
+            <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30">
+              <div className="flex items-center space-x-3">
+                <CheckCircle className="text-green-500 flex-shrink-0" size={20} />
+                <div>
+                  <h4 className="font-semibold text-green-200 mb-1">Registration Successful!</h4>
+                  <p className="text-sm text-green-200">
+                    Please check your email for a verification link to complete your account setup.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Error message */}
+          {error && (
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30">
+              <div className="flex items-center space-x-2">
+                <AlertCircle className="text-red-400 flex-shrink-0" size={16} />
+                <p className="text-sm text-red-300">{error}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Submit button */}
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 px-4 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            style={{ 
-              background: loading ? darkTheme.background.secondary : darkTheme.neon.purple, 
-              color: 'white' 
-            }}
+            onClick={handleSubmit}
+            disabled={loading || success}
+            className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+              loading ? 'cursor-wait' : 'hover:scale-[1.02] hover:shadow-lg'
+            }`}
+            style={{ background: selectedType?.color || darkTheme.neon.purple }}
           >
             {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Creating Account...
-              </>
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Creating Account...</span>
+              </div>
+            ) : success ? (
+              'Registration Complete'
             ) : (
-              'Create Account'
+              'Complete Registration'
             )}
           </button>
-        </form>
-
-        {/* Login Link */}
-        <div className="text-center mt-6">
-          <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-            Already have an account?{' '}
-            <Link 
-              href="/auth/login"
-              className="font-medium transition-colors hover:underline"
-              style={{ color: darkTheme.neon.purple }}
-            >
-              Sign in now
-            </Link>
-          </p>
-        </div>
-
-        {/* Terms */}
-        <div className="text-center mt-4">
-          <p className="text-xs" style={{ color: darkTheme.text.muted }}>
-            By creating an account, you agree to our{' '}
-            <Link href="/terms" className="underline hover:opacity-80">Terms of Service</Link>
-            {' '}and{' '}
-            <Link href="/privacy" className="underline hover:opacity-80">Privacy Policy</Link>
-          </p>
         </div>
       </div>
+    );
+  };
 
-      {/* Email Confirmation Modal */}
-      {showEmailConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-            <div className="text-center">
-              {/* Success Icon */}
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-                <CheckCircle className="h-6 w-6 text-green-600" />
-              </div>
-              
-              {/* Title */}
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Registration Successful!
-              </h3>
-              
-              {/* Message */}
-              <p className="text-sm text-gray-600 mb-6">
-                We have sent a confirmation email to <strong className="text-gray-900">{formData.email}</strong>.
-                <br />
-                Please click the link in the email to activate your account.
-              </p>
-              
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                <button
-                  onClick={() => setShowEmailConfirmation(false)}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Got it
-                </button>
-                
-                <button
-                  onClick={handleResendEmail}
-                  disabled={loading}
-                  className="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50"
-                >
-                  {loading ? 'Sending...' : 'Resend Email'}
-                </button>
-                
-                <button
-                  onClick={() => router.push('/auth/login')}
-                  className="w-full text-gray-500 py-2 px-4 rounded-md hover:text-gray-700 transition-colors"
-                >
-                  Back to Login
-                </button>
-              </div>
-              
-              {/* Help Text */}
-              <p className="text-xs text-gray-500 mt-4">
-                Didn't receive the email? Please check your spam folder, or click the button above to resend.
-              </p>
+  if (success) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{ background: darkTheme.primary }}
+      >
+        <div className="w-full max-w-md">
+          <div 
+            className="p-8 rounded-2xl border text-center"
+            style={{
+              background: `${darkTheme.secondary}90`,
+              borderColor: `${darkTheme.neon.green}30`,
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            <CheckCircle size={64} className="mx-auto mb-6 text-green-500" />
+            <h2 className="text-2xl font-bold mb-4" style={{ color: darkTheme.text.primary }}>
+              Registration Complete!
+            </h2>
+            <p className="text-sm mb-6" style={{ color: darkTheme.text.secondary }}>
+              We've sent a verification link to <strong>{formData.email}</strong>. 
+              Please check your email and click the link to activate your account.
+            </p>
+            <div className="space-y-3">
+              <a 
+                href="/auth/login" 
+                className="block w-full py-3 px-6 rounded-lg font-medium text-white transition-all duration-200 hover:scale-[1.02]"
+                style={{ background: darkTheme.neon.green }}
+              >
+                Go to Sign In
+              </a>
+              <button 
+                onClick={() => {
+                  setSuccess(false);
+                  setCurrentStep(1);
+                  setSelectedUserType(null);
+                  setFormData({
+                    email: '',
+                    password: '',
+                    confirmPassword: '',
+                    username: '',
+                    full_name: '',
+                    business_name: '',
+                    service_category: '',
+                    phone: ''
+                  });
+                  setAcceptedTerms(false);
+                  setAcceptedServiceTerms(false);
+                }}
+                className="block w-full py-3 px-6 rounded-lg font-medium transition-all duration-200 hover:bg-gray-700"
+                style={{ 
+                  background: darkTheme.secondary,
+                  color: darkTheme.text.secondary
+                }}
+              >
+                Register Another Account
+              </button>
             </div>
           </div>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: darkTheme.primary }}
+    >
+      <div className="w-full max-w-2xl">
+        <div 
+          className="p-8 rounded-2xl border"
+          style={{
+            background: `${darkTheme.secondary}90`,
+            borderColor: `${darkTheme.neon.purple}30`,
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          {renderStepIndicator()}
+          
+          {currentStep === 1 && renderUserTypeSelection()}
+          {currentStep === 2 && renderRegistrationForm()}
+          
+          <div className="mt-8 text-center">
+            <p className="text-sm" style={{ color: darkTheme.text.muted }}>
+              Already have an account?{' '}
+              <a href="/auth/login" style={{ color: darkTheme.neon.purple }} className="hover:underline">
+                Sign In Now
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default LifeXRegisterRedesign;
