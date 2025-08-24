@@ -54,7 +54,7 @@ const userTypes: UserType[] = [
       'Personalized recommendations'
     ],
     icon: Users,
-    color: darkTheme.neon.blue
+    color: darkTheme.neon.green  // 个人账户使用绿色
   },
   {
     id: 'service_provider',
