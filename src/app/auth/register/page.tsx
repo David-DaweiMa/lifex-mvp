@@ -33,7 +33,7 @@ interface UserType {
 const userTypes: UserType[] = [
   {
     id: 'consumer',
-    title: 'Personal User',
+    title: 'Personal Account',
     subtitle: 'Discover and enjoy local life services',
     features: [
       'Discover quality local services',
@@ -47,18 +47,18 @@ const userTypes: UserType[] = [
   },
   {
     id: 'service_provider',
-    title: 'Service Provider',
-    subtitle: 'Showcase and manage your professional services',
+    title: 'Business Account',
+    subtitle: 'Showcase and manage your local business',
     features: [
-      'Showcase your professional services',
+      'Showcase your business services',
       'Manage bookings and customers',
-      'Professional marketing tools',
+      'Marketing and promotion tools',
       'Customer review management',
-      'Business analytics and insights'
+      'Business insights and analytics'
     ],
     icon: Briefcase,
     color: darkTheme.neon.purple,
-    legalNotice: 'As a service provider, you must comply with the Consumer Guarantees Act (CGA), ensuring services are provided with reasonable skill and care'
+    legalNotice: 'As a business account holder, you must comply with the Consumer Guarantees Act (CGA), ensuring services are provided with reasonable skill and care'
   }
 ];
 
@@ -258,7 +258,7 @@ const LifeXRegisterRedesign = () => {
                       <div className="flex items-start space-x-2">
                         <AlertCircle size={12} className="text-yellow-500 mt-0.5 flex-shrink-0" />
                         <p className="text-xs text-yellow-200">
-                          Legal compliance required for NZ service providers
+                          Legal compliance required for NZ business accounts
                         </p>
                       </div>
                     </div>
@@ -293,7 +293,7 @@ const LifeXRegisterRedesign = () => {
               <>
                 <selectedType.icon size={18} style={{ color: selectedType.color }} />
                 <h2 className="text-lg font-bold" style={{ color: darkTheme.text.primary }}>
-                  Register {selectedType.title} Account
+                  Register {selectedType.title}
                 </h2>
               </>
             )}
@@ -569,7 +569,7 @@ const LifeXRegisterRedesign = () => {
                   className="mt-1 w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
                 />
                 <label htmlFor="service_terms" className="text-xs" style={{ color: darkTheme.text.secondary }}>
-                  I understand and agree to comply with the legal obligations as a service provider, including the Consumer Guarantees Act requirements
+                  I understand and agree to comply with the legal obligations as a business account holder, including the Consumer Guarantees Act requirements
                 </label>
               </div>
             )}
