@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, CheckCircle, Users, Briefcase, Star, Clock, Shield, AlertCircle } from 'lucide-react';
 
