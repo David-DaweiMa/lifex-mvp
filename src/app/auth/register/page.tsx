@@ -1,11 +1,9 @@
-'use client';
-
 import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, CheckCircle, Users, Briefcase, Shield, AlertCircle } from 'lucide-react';
+import { ArrowLeft, User, Building, Check, CheckCircle, AlertCircle, Eye, EyeOff, Mail, Lock, Users, Briefcase, Shield } from 'lucide-react';
 
 const darkTheme = {
   primary: '#0a0a0a',
-  secondary: '#1a1a1a',
+  secondary: '#1a1a1a', 
   card: '#1f1f1f',
   glass: '#ffffff20',
   text: {
@@ -28,6 +26,17 @@ interface UserType {
   icon: React.ComponentType<any>;
   color: string;
   legalNotice?: string;
+}
+
+interface FormData {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  username: string;
+  full_name: string;
+  business_name: string;
+  service_category: string;
+  phone: string;
 }
 
 const userTypes: UserType[] = [
@@ -63,9 +72,9 @@ const userTypes: UserType[] = [
 ];
 
 const LifeXRegisterRedesign = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState<number>(1);
   const [selectedUserType, setSelectedUserType] = useState<'consumer' | 'service_provider' | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
     confirmPassword: '',
@@ -75,26 +84,39 @@ const LifeXRegisterRedesign = () => {
     service_category: '',
     phone: ''
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [acceptedServiceTerms, setAcceptedServiceTerms] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (error) setError('');
-  };
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
+  const [acceptedServiceTerms, setAcceptedServiceTerms] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState<boolean>(false);
 
   const handleUserTypeSelect = (type: 'consumer' | 'service_provider') => {
     setSelectedUserType(type);
     setCurrentStep(2);
   };
 
-  const validateForm = () => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setError('');
+  };
+
+  // Navigate to Terms of Service
+  const handleTermsClick = () => {
+    window.open('/terms', '_blank');
+  };
+
+  // Navigate to Privacy Policy
+  const handlePrivacyClick = () => {
+    window.open('/privacy', '_blank');
+  };
+
+  const validateForm = (): string | null => {
     if (!formData.email || !formData.password || !formData.full_name) {
       return 'Please fill in all required fields';
     }
@@ -200,6 +222,16 @@ const LifeXRegisterRedesign = () => {
 
   const renderUserTypeSelection = () => (
     <div className="space-y-4">
+      {/* Back to Home Button */}
+      <button
+        onClick={() => window.location.href = '/'}
+        className="inline-flex items-center text-sm mb-4 transition-colors hover:text-purple-400"
+        style={{ color: darkTheme.text.muted }}
+      >
+        <ArrowLeft size={16} className="mr-2" />
+        Back to Home
+      </button>
+
       <div className="text-center mb-6">
         <h2 className="text-xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
           Choose Account Type
@@ -555,7 +587,22 @@ const LifeXRegisterRedesign = () => {
                 className="mt-1 w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
               />
               <label htmlFor="terms" className="text-xs" style={{ color: darkTheme.text.secondary }}>
-                I have read and agree to the <span style={{ color: darkTheme.neon.purple }} className="hover:underline cursor-pointer">Terms of Service</span> and <span style={{ color: darkTheme.neon.purple }} className="hover:underline cursor-pointer">Privacy Policy</span>
+                I have read and agree to the{' '}
+                <button
+                  type="button"
+                  onClick={handleTermsClick}
+                  className="text-purple-400 hover:text-purple-300 hover:underline focus:outline-none"
+                >
+                  Terms of Service
+                </button>
+                {' '}and{' '}
+                <button
+                  type="button"
+                  onClick={handlePrivacyClick}
+                  className="text-purple-400 hover:text-purple-300 hover:underline focus:outline-none"
+                >
+                  Privacy Policy
+                </button>
               </label>
             </div>
 
