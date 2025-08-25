@@ -54,7 +54,7 @@ const userTypes: UserType[] = [
       'Personalized recommendations'
     ],
     icon: Users,
-    color: darkTheme.neon.green  // 个人账户使用绿色
+    color: darkTheme.neon.green
   },
   {
     id: 'service_provider',
@@ -108,12 +108,10 @@ const LifeXRegisterRedesign = () => {
     setError('');
   };
 
-  // Navigate to Terms of Service
   const handleTermsClick = () => {
     window.open('/terms', '_blank');
   };
 
-  // Navigate to Privacy Policy
   const handlePrivacyClick = () => {
     window.open('/privacy', '_blank');
   };
@@ -224,7 +222,6 @@ const LifeXRegisterRedesign = () => {
 
   const renderUserTypeSelection = () => (
     <div className="space-y-4">
-      {/* Back to Home Button */}
       <button
         onClick={() => window.location.href = '/'}
         className="inline-flex items-center text-sm mb-4 transition-colors hover:text-purple-400"
@@ -527,13 +524,15 @@ const LifeXRegisterRedesign = () => {
                     required={isServiceProvider}
                   >
                     <option value="">Select service category</option>
-                    <option value="restaurant">Restaurant & Dining</option>
-                    <option value="beauty">Beauty & Hair</option>
-                    <option value="wellness">Health & Wellness</option>
-                    <option value="home_service">Home Services</option>
-                    <option value="education">Education & Training</option>
-                    <option value="repair">Repair Services</option>
-                    <option value="other">Other Services</option>
+                    <option value="dining">Dining - Restaurants, cafes, bakeries, and food services</option>
+                    <option value="beverage">Beverage - Bars, pubs, coffee roasters, and beverage venues</option>
+                    <option value="entertainment">Entertainment - Live music, cinemas, gaming, and entertainment venues</option>
+                    <option value="recreation">Recreation - Fitness, sports, outdoor activities, and recreation</option>
+                    <option value="shopping">Shopping - Fashion, markets, specialty stores, and retail</option>
+                    <option value="accommodation">Accommodation - Camping, B&Bs, unique stays, and special lodging</option>
+                    <option value="beauty">Beauty - Hair salons, nail studios, skincare, and beauty services</option>
+                    <option value="wellness">Wellness - Spas, massage, alternative medicine, and wellness</option>
+                    <option value="other">Other - Other lifestyle and experience businesses</option>
                   </select>
                 </div>
 

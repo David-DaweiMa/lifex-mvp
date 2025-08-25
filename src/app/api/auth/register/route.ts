@@ -1,4 +1,4 @@
-// src/app/api/auth/register/route.ts - Improved version
+// src/app/api/auth/register/route.ts - 修复现有代码
 import { NextRequest, NextResponse } from 'next/server';
 import { registerUser } from '@/lib/authService';
 import { sendEmailVerification } from '@/lib/emailService';
@@ -7,6 +7,34 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+// 添加类别映射 - 这是修复的关键
+const SERVICE_CATEGORY_MAPPING: Record<string, string> = {
+  'dining': 'fea943e5-08f2-493a-9f36-8cbf50d3024f', // "Dining"
+  'beverage': 'bd303355-2e83-4565-98e5-917e742fe10d', // "Bars & Pubs"
+  'entertainment': 'abcbe7a9-b7ec-427f-9a3a-010e922e5bd8', // "Entertainment"
+  'recreation': 'fe0194cd-5c25-470e-ace7-3d5e5a1a47a4', // "Fitness"
+  'shopping': 'bd96d407-5f7b-45ef-b8d5-637a316dbd25', // "Shopping"
+  'accommodation': 'df52a25b-e863-4455-bfd6-a746220984c9', // "Accommodation"
+  'beauty': '84102d22-f0a8-49a9-bf2b-489868529d93', // "Beauty"
+  'wellness': '929e40f3-67ce-46e0-9509-9b63d345dd7c', // "Health"
+  
+  // 保持向后兼容
+  'restaurant': 'fea943e5-08f2-493a-9f36-8cbf50d3024f', // 映射到 Dining
+  'home_service': '29aef3f0-4fd9-425e-a067-f6c7ba7f71ff', // "Home"
+  'education': 'db6140ee-dabe-4948-aafb-c5c0757f36a0', // "Education"
+  'repair': '82c30023-ecef-495b-a651-a5bd615d114b', // "Professional Services"
+  'other': 'aa411129-9c7c-431d-a66a-0e61fd79deeb' // "Other"
+};
+
+const getCategoryId = (serviceCategoryName: string): string => {
+  const categoryId = SERVICE_CATEGORY_MAPPING[serviceCategoryName];
+  if (!categoryId) {
+    console.warn(`Unknown service category: ${serviceCategoryName}, using 'other'`);
+    return SERVICE_CATEGORY_MAPPING['other'];
+  }
+  return categoryId;
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +47,7 @@ export async function POST(request: NextRequest) {
       phone,
       business_name,
       service_category,
-      user_type = 'free' // 保持原有的默认值
+      user_type = 'free'
     } = body;
 
     console.log('=== Registration Request ===', { email, user_type, business_name, service_category });
@@ -56,12 +84,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate service category for business users
+    // 更新验证逻辑 - 支持新的类别
     if (user_type.includes('business') && service_category) {
-      const validServiceCategories = ['restaurant', 'beauty', 'wellness', 'home_service', 'education', 'repair', 'other'];
+      const validServiceCategories = Object.keys(SERVICE_CATEGORY_MAPPING);
       if (!validServiceCategories.includes(service_category)) {
         return NextResponse.json(
-          { error: 'Invalid service category' },
+          { 
+            error: `Invalid service category. Allowed: ${validServiceCategories.join(', ')}`,
+            allowedCategories: validServiceCategories
+          },
           { status: 400 }
         );
       }
@@ -162,35 +193,70 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ User profile verification successful');
 
-    // If service provider, create businesses table record
+    // 修复业务记录创建 - 这是关键修改
     if (user_type.includes('business') && business_name) {
       console.log('=== Creating Service Provider Business Record ===');
       
       try {
+        // 获取正确的类别ID
+        const categoryId = getCategoryId(service_category);
+        
+        console.log(`Creating business with category mapping:`, {
+          serviceCategory: service_category,
+          categoryId: categoryId,
+          businessName: business_name
+        });
+
         const { data: businessData, error: businessError } = await supabase
           .from('businesses')
           .insert({
             owner_id: result.user.id,
             name: business_name,
-            category: service_category,
-            contact_info: JSON.stringify({
-              phone: phone || '',
-              email: email
-            }),
-            is_verified: false,
-            is_active: true,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            description: `${business_name} - Lifestyle business in New Zealand`,
+            
+            // 修复: 使用 category_id 而不是 category
+            category_id: categoryId, 
+            
+            // 修复: 使用独立字段而不是 contact_info JSONB
+            phone: phone || null,
+            email: email,
+            
+            // 基本信息
+            city: 'Auckland',
+            country: 'New Zealand',
+            
+            // 修复: 使用 is_claimed 而不是 is_verified
+            is_claimed: false,
+            is_active: true
+            
+            // 不需要手动设置 created_at 和 updated_at，数据库会自动处理
           })
           .select()
           .single();
 
         if (businessError) {
           console.error('Business record creation failed:', businessError);
+          console.error('Business error details:', {
+            message: businessError.message,
+            details: businessError.details,
+            hint: businessError.hint,
+            code: businessError.code,
+            attemptedData: {
+              owner_id: result.user.id,
+              name: business_name,
+              category_id: categoryId,
+              service_category: service_category
+            }
+          });
           // Don't fail entire registration, but log warning
           console.warn('User registration successful but business record creation failed');
         } else {
-          console.log('✅ Business record created successfully:', businessData.id);
+          console.log('✅ Business record created successfully:', {
+            businessId: businessData.id,
+            businessName: businessData.name,
+            categoryId: businessData.category_id,
+            ownerId: businessData.owner_id
+          });
         }
       } catch (businessError) {
         console.error('Business record creation exception:', businessError);
@@ -204,12 +270,11 @@ export async function POST(request: NextRequest) {
     let emailError = null;
     
     try {
-      // 使用增强的邮件发送方法，传入服务类别
       const emailResult = await sendEmailVerification(
         email, 
         result.user.id, 
         user_type,
-        service_category // 传递服务类别参数
+        service_category
       );
       
       if (emailResult.success) {
@@ -219,7 +284,6 @@ export async function POST(request: NextRequest) {
         emailError = emailResult.error;
         console.error('❌ Email sending failed:', emailResult.error);
         
-        // If rate limited, log but don't block registration
         if (emailResult.rateLimited) {
           console.log('⚠️ Email sending rate limited, user needs to manually request resend later');
         }
@@ -229,8 +293,6 @@ export async function POST(request: NextRequest) {
       emailError = 'Email sending failed';
     }
 
-    // Registration is successful regardless of email sending status
-    // Because user has been successfully created, email sending failure doesn't affect user registration
     console.log('=== Registration Process Completed ===');
     
     return NextResponse.json({
@@ -243,7 +305,8 @@ export async function POST(request: NextRequest) {
       emailSent: emailSent,
       emailError: emailError,
       expiresInHours: 24,
-      isServiceProvider: user_type.includes('business')
+      isServiceProvider: user_type.includes('business'),
+      businessCategory: user_type.includes('business') ? service_category : null
     });
 
   } catch (error) {
