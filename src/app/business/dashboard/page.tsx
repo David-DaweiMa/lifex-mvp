@@ -17,9 +17,9 @@ import BusinessDashboard from '@/components/business/BusinessDashboard';
 import BusinessAdvanced from '@/components/business/BusinessAdvanced';
 import BusinessSpecials from '@/components/business/BusinessSpecials';
 
-// Import existing theme and auth (uncomment when integrating)
+// Import existing theme and auth
 import { darkTheme } from '@/lib/theme';
-// import { useAuth } from '@/components/AuthProvider';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 // Types for the dashboard
 interface DashboardModule {
@@ -32,15 +32,8 @@ interface DashboardModule {
 }
 
 export default function BusinessDashboardPage() {
-  // Uncomment when integrating with real auth
-  // const { currentUser } = useAuth();
-  
-  // Mock user for demo - remove when integrating with real auth
-  const currentUser = {
-    user_type: 'professional_business',
-    full_name: 'Business Owner',
-    email: 'owner@business.com'
-  };
+  // Real auth integration
+  const { user: currentUser } = useAuth();
 
   const [activeModule, setActiveModule] = useState<DashboardModule['id']>('core');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -145,81 +138,117 @@ export default function BusinessDashboardPage() {
       }}>
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between py-4">
-            <div className="flex items-center">
-              <button 
+            <div className="flex items-center space-x-4">
+              <button
                 onClick={() => window.history.back()}
-                className="mr-4 p-2 rounded-lg transition-all hover:scale-105 lg:hidden"
+                className="p-2 rounded-lg transition-colors hover:scale-105"
                 style={{ color: darkTheme.text.secondary }}
               >
                 <ArrowLeft size={20} />
               </button>
-              <div className="flex items-center">
-                <Store className="mr-3" style={{ color: darkTheme.neon.purple }} size={24} />
-                <div>
-                  <h1 className="text-lg md:text-xl font-bold" style={{ color: darkTheme.text.primary }}>
-                    Business Management
-                  </h1>
-                  <p className="text-xs md:text-sm" style={{ color: darkTheme.text.muted }}>
-                    {activeModuleData?.description}
-                  </p>
-                </div>
+              <div>
+                <h1 className="text-xl font-bold" style={{ color: darkTheme.text.primary }}>
+                  Business Dashboard
+                </h1>
+                <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
+                  Welcome back, {currentUser.full_name || currentUser.username}
+                </p>
               </div>
             </div>
             
-            <div className="text-right">
-              <div className="text-sm font-medium" style={{ color: darkTheme.text.primary }}>
-                {currentUser.full_name}
-              </div>
-              <div className="text-xs" style={{ color: darkTheme.text.muted }}>
-                {currentUser.user_type.replace('_', ' ')}
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 px-3 py-1 rounded-full" style={{ 
+                background: `${darkTheme.neon.green}20`,
+                color: darkTheme.neon.green 
+              }}>
+                <Star size={14} />
+                <span className="text-sm font-medium">Active</span>
               </div>
             </div>
           </div>
-          
-          {/* Module Tabs */}
-          <div className="flex overflow-x-auto scrollbar-hide">
+        </div>
+      </div>
+
+      {/* Navigation Sidebar */}
+      <div className={`fixed inset-y-0 left-0 z-30 w-64 border-r transform ${
+        sidebarCollapsed ? '-translate-x-full' : 'translate-x-0'
+      } lg:translate-x-0 transition-transform duration-200 ease-in-out`}
+        style={{ 
+          background: darkTheme.background.secondary, 
+          borderColor: darkTheme.background.glass 
+        }}
+      >
+        <div className="p-6 border-b" style={{ borderColor: darkTheme.background.glass }}>
+          <div className="flex items-center space-x-3">
+            <div 
+              className="p-2 rounded-lg"
+              style={{ background: `${darkTheme.neon.purple}20` }}
+            >
+              <Store style={{ color: darkTheme.neon.purple }} size={20} />
+            </div>
+            <div>
+              <h2 className="font-semibold text-sm" style={{ color: darkTheme.text.primary }}>
+                Business Hub
+              </h2>
+              <p className="text-xs" style={{ color: darkTheme.text.muted }}>
+                {currentUser.user_type.replace('_', ' ')}
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <nav className="p-4">
+          <div className="space-y-2">
             {modules.map((module) => {
               const Icon = module.icon;
               return (
                 <button
                   key={module.id}
                   onClick={() => setActiveModule(module.id)}
-                  className={`flex items-center px-4 py-3 border-b-2 transition-all whitespace-nowrap ${
-                    activeModule === module.id ? 'transform scale-105' : 'hover:scale-102'
+                  className={`w-full flex items-center px-4 py-3 rounded-lg text-left transition-all duration-200 ${
+                    activeModule === module.id ? 
+                    'transform scale-105' : 'hover:scale-102'
                   }`}
                   style={{
+                    background: activeModule === module.id ? `${module.color}20` : 'transparent',
                     borderColor: activeModule === module.id ? module.color : 'transparent',
-                    color: activeModule === module.id ? module.color : darkTheme.text.secondary
+                    color: activeModule === module.id ? module.color : darkTheme.text.secondary,
+                    border: activeModule === module.id ? `1px solid ${module.color}30` : '1px solid transparent'
                   }}
                 >
-                  <Icon size={18} className="mr-2" />
-                  <span className="text-sm font-medium">{module.label}</span>
+                  <Icon size={18} className="mr-3" />
+                  <div>
+                    <div className="text-sm font-medium">{module.label}</div>
+                    <div className="text-xs opacity-75">{module.description}</div>
+                  </div>
                 </button>
               );
             })}
           </div>
+        </nav>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="lg:ml-64">
+        <div className="relative">
+          {/* Background decorations */}
+          <div 
+            className="absolute top-10 right-10 w-20 h-20 rounded-full blur-2xl pointer-events-none opacity-30"
+            style={{ background: `radial-gradient(circle, ${activeModuleData?.color || darkTheme.neon.purple}, transparent)` }}
+          />
+          <div 
+            className="absolute bottom-20 left-10 w-16 h-16 rounded-full blur-xl pointer-events-none opacity-20"
+            style={{ background: `radial-gradient(circle, ${darkTheme.neon.green}, transparent)` }}
+          />
+
+          {/* Module Content */}
+          <div className="relative z-10 p-6">
+            {ActiveComponent && <ActiveComponent />}
+          </div>
         </div>
       </div>
 
-      {/* Content Area */}
-      <div className="relative">
-        {/* Background decorations */}
-        <div 
-          className="absolute top-10 right-10 w-20 h-20 rounded-full blur-2xl pointer-events-none opacity-30"
-          style={{ background: `radial-gradient(circle, ${activeModuleData?.color || darkTheme.neon.purple}, transparent)` }}
-        />
-        <div 
-          className="absolute bottom-20 left-10 w-16 h-16 rounded-full blur-xl pointer-events-none opacity-20"
-          style={{ background: `radial-gradient(circle, ${darkTheme.neon.green}, transparent)` }}
-        />
-
-        {/* Module Content */}
-        <div className="relative z-10">
-          {ActiveComponent && <ActiveComponent />}
-        </div>
-      </div>
-
-      {/* Quick Action Floating Button (Mobile) */}
+      {/* Mobile Menu Toggle */}
       <div className="fixed bottom-6 right-6 lg:hidden">
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -243,7 +272,6 @@ export default function BusinessDashboardPage() {
           display: none;
         }
         
-        /* Ring color fix for unread notifications */
         .ring-1 {
           --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
           --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
