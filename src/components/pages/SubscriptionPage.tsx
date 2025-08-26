@@ -22,11 +22,13 @@ import { darkTheme } from '../../lib/theme';
 
 interface SubscriptionPageProps {
   onNavigateToChat: () => void;
+  onNavigateToMembership: () => void;
   userType?: 'personal' | 'business';
 }
 
 const SubscriptionPage: React.FC<SubscriptionPageProps> = ({
   onNavigateToChat,
+  onNavigateToMembership,
   userType = 'personal'
 }) => {
   const [selectedPlan, setSelectedPlan] = useState<'trial' | 'personal' | 'family'>('trial');
@@ -176,6 +178,7 @@ const SubscriptionPage: React.FC<SubscriptionPageProps> = ({
             {/* Membership System Link */}
             <div className="mb-8">
               <button 
+                onClick={onNavigateToMembership}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105"
                 style={{ 
                   background: `${darkTheme.neon.purple}20`, 
@@ -351,151 +354,7 @@ const SubscriptionPage: React.FC<SubscriptionPageProps> = ({
             </div>
           </div>
 
-          {/* Trial Process */}
-          <div className="mb-8">
-            <h3 className="text-lg font-bold text-center mb-6" style={{ color: darkTheme.text.primary }}>
-              How Your Free Trial Works
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="text-center">
-                <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
-                  style={{ 
-                    background: `linear-gradient(135deg, ${darkTheme.neon.green}, ${darkTheme.neon.cyan})`, 
-                    color: 'white',
-                    boxShadow: `0 4px 15px ${darkTheme.neon.green}30`
-                  }}
-                >
-                  1
-                </div>
-                <h4 className="font-semibold mb-2" style={{ color: darkTheme.text.primary }}>
-                  Start Free Trial
-                </h4>
-                <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                  Add payment method and enjoy full features for 14 days
-                </p>
-              </div>
-              <div className="text-center">
-                <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
-                  style={{ 
-                    background: `linear-gradient(135deg, ${darkTheme.neon.cyan}, ${darkTheme.neon.purple})`, 
-                    color: 'white',
-                    boxShadow: `0 4px 15px ${darkTheme.neon.cyan}30`
-                  }}
-                >
-                  2
-                </div>
-                <h4 className="font-semibold mb-2" style={{ color: darkTheme.text.primary }}>
-                  Experience Coly
-                </h4>
-                <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                  Feel the warmth and convenience of your AI companion
-                </p>
-              </div>
-              <div className="text-center">
-                <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
-                  style={{ 
-                    background: `linear-gradient(135deg, ${darkTheme.neon.purple}, ${darkTheme.neon.pink})`, 
-                    color: 'white',
-                    boxShadow: `0 4px 15px ${darkTheme.neon.purple}30`
-                  }}
-                >
-                  3
-                </div>
-                <h4 className="font-semibold mb-2" style={{ color: darkTheme.text.primary }}>
-                  Choose Your Path
-                </h4>
-                <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                  Continue with subscription or cancel before trial ends
-                </p>
-              </div>
-              <div className="text-center">
-                <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
-                                     style={{ 
-                     background: `linear-gradient(135deg, ${darkTheme.neon.pink}, ${darkTheme.neon.yellow})`, 
-                     color: 'white',
-                     boxShadow: `0 4px 15px ${darkTheme.neon.pink}30`
-                   }}
-                >
-                  4
-                </div>
-                <h4 className="font-semibold mb-2" style={{ color: darkTheme.text.primary }}>
-                  Stay Connected
-                </h4>
-                <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                  Keep enjoying Coly's warmth and care every day
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* FAQ */}
-          <div className="mb-8">
-            <h3 className="text-lg font-bold text-center mb-6" style={{ color: darkTheme.text.primary }}>
-              Frequently Asked Questions
-            </h3>
-            <div className="space-y-4">
-              <div 
-                className="p-4 rounded-lg border"
-                style={{
-                  background: darkTheme.background.card,
-                  borderColor: darkTheme.background.glass,
-                }}
-              >
-                <h4 className="font-semibold mb-2" style={{ color: darkTheme.text.primary }}>
-                  Do I need a payment method for the free trial?
-                </h4>
-                <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                  Yes, we require a payment method to start your free trial. You won't be charged during the 14-day trial period.
-                </p>
-              </div>
-              <div 
-                className="p-4 rounded-lg border"
-                style={{
-                  background: darkTheme.background.card,
-                  borderColor: darkTheme.background.glass,
-                }}
-              >
-                <h4 className="font-semibold mb-2" style={{ color: darkTheme.text.primary }}>
-                  What happens after the trial ends?
-                </h4>
-                <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                  If you don't cancel before the trial ends, your subscription will automatically continue and you'll be charged the monthly fee.
-                </p>
-              </div>
-              <div 
-                className="p-4 rounded-lg border"
-                style={{
-                  background: darkTheme.background.card,
-                  borderColor: darkTheme.background.glass,
-                }}
-              >
-                <h4 className="font-semibold mb-2" style={{ color: darkTheme.text.primary }}>
-                  Can I cancel anytime?
-                </h4>
-                <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                  Yes! You can cancel your subscription at any time. If you cancel during the trial, you won't be charged.
-                </p>
-              </div>
-              <div 
-                className="p-4 rounded-lg border"
-                style={{
-                  background: darkTheme.background.card,
-                  borderColor: darkTheme.background.glass,
-                }}
-              >
-                <h4 className="font-semibold mb-2" style={{ color: darkTheme.text.primary }}>
-                  Is Coly included in my LifeX premium subscription?
-                </h4>
-                <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                  Yes! If you're already a LifeX premium subscriber, Coly is included at no additional cost. Just start using it right away!
-                </p>
-              </div>
-            </div>
-          </div>
+          
 
           {/* Business User Notice */}
           {userType === 'business' && (

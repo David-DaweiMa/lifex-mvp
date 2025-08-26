@@ -353,6 +353,7 @@ const ProfilePage: React.FC = () => {
                   {/* Membership System Link */}
                   <div className="mt-4 text-center">
                     <button 
+                      onClick={() => router.push('/membership')}
                       className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105"
                       style={{ 
                         background: `${darkTheme.neon.purple}20`, 

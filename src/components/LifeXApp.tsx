@@ -15,6 +15,7 @@ import TrendingPage from './pages/TrendingPage';
 import DiscoverPage from './pages/DiscoverPage';
 import SubscriptionPage from './pages/SubscriptionPage';
 import ProfilePage from './pages/ProfilePage';
+import MembershipPlansPage from './pages/MembershipPlansPage';
 
 // 修复：定义响应式容器样式
 const getResponsiveContainer = () => ({
@@ -123,6 +124,14 @@ const LifeXApp: React.FC = () => {
     setCurrentView('chat');
   };
 
+  const handleNavigateToMembership = () => {
+    setCurrentView('membership');
+  };
+
+  const handleNavigateBack = () => {
+    setCurrentView('subscription');
+  };
+
   // 修复：使用正确的渐变背景属性
   const containerStyle = {
     ...getResponsiveContainer(),
@@ -217,7 +226,14 @@ const LifeXApp: React.FC = () => {
         {currentView === 'subscription' && (
           <SubscriptionPage
             onNavigateToChat={handleNavigateToChat}
+            onNavigateToMembership={handleNavigateToMembership}
             userType="personal"
+          />
+        )}
+
+        {currentView === 'membership' && (
+          <MembershipPlansPage
+            onNavigateBack={handleNavigateBack}
           />
         )}
 

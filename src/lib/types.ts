@@ -104,4 +104,4 @@ export interface Category {
   color: string;
 }
 
-export type ViewType = 'chat' | 'trending' | 'discover' | 'subscription' | 'profile';
+export type ViewType = 'chat' | 'trending' | 'discover' | 'subscription' | 'profile' | 'membership';
