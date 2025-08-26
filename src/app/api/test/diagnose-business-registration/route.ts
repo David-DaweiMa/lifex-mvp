@@ -137,7 +137,7 @@ export async function POST(request: Request) {
         status: 'passed',
         details: {
           policyCount: policies?.length,
-          policies: policies?.map(p => ({
+          policies: policies?.map((p: any) => ({
             name: p.policy_name,
             command: p.command,
             definition: p.definition
