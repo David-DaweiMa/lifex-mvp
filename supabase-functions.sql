@@ -28,9 +28,9 @@ RETURNS TABLE (
 BEGIN
   RETURN QUERY
   SELECT 
-    p.policy_name::text,
-    p.command::text,
-    p.definition::text
+    p.policyname::text,
+    p.cmd::text,
+    p.qual::text
   FROM pg_policies p
   WHERE p.tablename = get_table_policies.table_name
     AND p.schemaname = get_table_policies.schema_name;
