@@ -49,7 +49,7 @@ export async function POST(request: Request) {
           error: 'businesses表缺少必需的列',
           details: {
             missingColumns,
-            allColumns: columns?.map(c => c.column_name)
+            allColumns: columns?.map((c: any) => c.column_name)
           }
         };
         return NextResponse.json({ success: false, diagnostics });
