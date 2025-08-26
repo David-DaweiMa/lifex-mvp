@@ -8,6 +8,7 @@ export interface UserProfile {
   full_name?: string;
   avatar_url?: string;
   user_type: 'anonymous' | 'free' | 'customer' | 'premium' | 'free_business' | 'professional_business' | 'enterprise_business';
+  business_name?: string;
   email_verified: boolean;
   is_active?: boolean;
   created_at: string;
@@ -162,6 +163,7 @@ export async function registerUser(
           username: userData?.username,
           full_name: userData?.full_name,
           user_type: userData?.user_type || 'free',
+          business_name: userData?.business_name,
           email_verified: false,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
