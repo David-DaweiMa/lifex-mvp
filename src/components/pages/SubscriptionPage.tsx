@@ -2,17 +2,9 @@
 import React, { useState } from 'react';
 import { 
   Calendar, 
-  Clock, 
-  MessageCircle, 
-  Zap, 
-  Star, 
-  Check, 
   Crown,
-  Users,
   Building,
-  CreditCard,
   ArrowRight,
-  Sparkles,
   Heart,
   Coffee,
   Home,
@@ -31,7 +23,6 @@ const SubscriptionPage: React.FC<SubscriptionPageProps> = ({
   onNavigateToMembership,
   userType = 'personal'
 }) => {
-  const [selectedPlan, setSelectedPlan] = useState<'trial' | 'personal' | 'family'>('trial');
   const [isLoading, setIsLoading] = useState(false);
 
   const features = [
@@ -61,74 +52,9 @@ const SubscriptionPage: React.FC<SubscriptionPageProps> = ({
     }
   ];
 
-  const plans = [
-    {
-      id: 'trial',
-      name: "2-Week Free Trial",
-      price: "Free",
-      duration: "14 days",
-      description: "Experience the warmth of Coly, no commitment required",
-      features: [
-        "Full AI Life Assistant access",
-        "Smart calendar & reminders",
-        "Local recommendations",
-        "Personalized insights"
-      ],
-      popular: false,
-      color: darkTheme.neon.green
-    },
-    {
-      id: 'personal',
-      name: "Personal Plan",
-      price: "NZ$9.9",
-      duration: "month",
-      description: "Your dedicated life companion",
-      features: [
-        "Unlimited AI conversations",
-        "Advanced life planning",
-        "Priority recommendations",
-        "Spending insights",
-        "24/7 support"
-      ],
-      popular: true,
-      color: darkTheme.neon.purple
-    },
-    {
-      id: 'family',
-      name: "Family Plan",
-      price: "NZ$14.9",
-      duration: "month",
-      description: "Share the love with your family",
-      features: [
-        "All Personal features",
-        "Family calendar sharing",
-        "Kids activity planning",
-        "Family spending analysis",
-        "Up to 5 family members"
-      ],
-      popular: false,
-      color: darkTheme.neon.cyan
-    }
-  ];
 
-  const handleStartTrial = async () => {
-    setIsLoading(true);
-    // TODO: Implement free trial logic with payment method collection
-    setTimeout(() => {
-      setIsLoading(false);
-      // Navigate to chat page to start experience
-      onNavigateToChat();
-    }, 2000);
-  };
 
-  const handleSubscribe = async (planId: string) => {
-    setIsLoading(true);
-    // TODO: Implement subscription logic
-    setTimeout(() => {
-      setIsLoading(false);
-      // Handle subscription success
-    }, 2000);
-  };
+
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: darkTheme.background.primary, WebkitOverflowScrolling: 'touch' }}>
@@ -249,110 +175,7 @@ const SubscriptionPage: React.FC<SubscriptionPageProps> = ({
             </button>
           </div>
 
-          {/* Subscription Plans */}
-          <div className="mb-8 md:mb-12">
-            <h2 className="text-xl md:text-2xl font-bold text-center mb-6" style={{ color: darkTheme.text.primary }}>
-              Start Your Journey with Coly
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {plans.map((plan) => (
-                <div 
-                  key={plan.id}
-                  className={`relative p-6 rounded-xl border transition-all cursor-pointer ${
-                    selectedPlan === plan.id ? 'scale-105' : 'hover:scale-102'
-                  }`}
-                  style={{
-                    background: selectedPlan === plan.id 
-                      ? `${plan.color}10` 
-                      : darkTheme.background.card,
-                    borderColor: selectedPlan === plan.id 
-                      ? plan.color 
-                      : darkTheme.background.glass,
-                    borderWidth: selectedPlan === plan.id ? '2px' : '1px',
-                    boxShadow: selectedPlan === plan.id ? `0 8px 30px ${plan.color}20` : 'none'
-                  }}
-                  onClick={() => setSelectedPlan(plan.id as any)}
-                >
-                  {plan.popular && (
-                    <div 
-                      className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full text-xs font-medium"
-                      style={{ 
-                        background: `linear-gradient(135deg, ${plan.color}, ${darkTheme.neon.pink})`, 
-                        color: 'white',
-                        boxShadow: `0 4px 15px ${plan.color}40`
-                      }}
-                    >
-                      Most Loved
-                    </div>
-                  )}
-                  
-                  <div className="text-center mb-6">
-                    <h3 className="text-lg font-bold mb-2" style={{ color: darkTheme.text.primary }}>
-                      {plan.name}
-                    </h3>
-                    <div className="mb-2">
-                      <span className="text-2xl md:text-3xl font-bold" style={{ color: plan.color }}>
-                        {plan.price}
-                      </span>
-                      <span className="text-sm" style={{ color: darkTheme.text.muted }}>
-                        /{plan.duration}
-                      </span>
-                    </div>
-                    <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                      {plan.description}
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-3 mb-6">
-                    {plan.features.map((feature, index) => (
-                      <div key={index} className="flex items-center">
-                        <Check 
-                          className="w-4 h-4 mr-3 flex-shrink-0" 
-                          style={{ color: plan.color }} 
-                        />
-                        <span className="text-sm" style={{ color: darkTheme.text.primary }}>
-                          {feature}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <button
-                    className={`w-full py-3 rounded-lg font-medium transition-all ${
-                      selectedPlan === plan.id ? 'text-white' : 'border'
-                    }`}
-                    style={{
-                      background: selectedPlan === plan.id ? plan.color : 'transparent',
-                      borderColor: selectedPlan === plan.id ? plan.color : darkTheme.background.glass,
-                      color: selectedPlan === plan.id ? 'white' : darkTheme.text.primary
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (plan.id === 'trial') {
-                        handleStartTrial();
-                      } else {
-                        handleSubscribe(plan.id);
-                      }
-                    }}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Processing...
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center">
-                        {plan.id === 'trial' ? 'Start Free Trial' : 'Subscribe Now'}
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </div>
-                    )}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+
 
           
 
