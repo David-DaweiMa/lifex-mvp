@@ -39,3 +39,20 @@ FROM information_schema.columns
 WHERE table_name = 'user_profiles' 
 AND table_schema = 'public'
 ORDER BY ordinal_position;
+
+-- 6. 检查触发器是否正确处理business_name字段
+SELECT 
+    trigger_name,
+    event_manipulation,
+    action_statement
+FROM information_schema.triggers 
+WHERE event_object_table = 'user_profiles' 
+AND event_object_schema = 'public';
+
+-- 7. 如果需要，修复触发器以包含business_name字段
+-- 查找并修复handle_new_user触发器
+SELECT 
+    proname,
+    prosrc
+FROM pg_proc 
+WHERE proname = 'handle_new_user';

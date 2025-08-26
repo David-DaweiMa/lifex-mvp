@@ -88,7 +88,8 @@ export async function registerUser(
       user_metadata: {
         username: userData?.username,
         full_name: userData?.full_name,
-        user_type: userData?.user_type || 'free'
+        user_type: userData?.user_type || 'free',
+        business_name: userData?.business_name
       }
     });
 
