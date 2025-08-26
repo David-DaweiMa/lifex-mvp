@@ -65,10 +65,10 @@ export async function POST(request: Request) {
     console.log('步骤3: 检查用户配置文件表结构...');
     try {
       const { data: columns, error } = await supabase
-        .from('information_schema.columns')
-        .select('column_name, data_type, is_nullable')
-        .eq('table_name', 'user_profiles')
-        .eq('table_schema', 'public');
+        .rpc('get_table_columns', {
+          table_name: 'user_profiles',
+          schema_name: 'public'
+        });
 
       if (error) {
         diagnostics.step3 = {
@@ -119,10 +119,10 @@ export async function POST(request: Request) {
     console.log('步骤4: 检查RLS策略...');
     try {
       const { data: policies, error } = await supabase
-        .from('information_schema.policies')
-        .select('*')
-        .eq('table_name', 'user_profiles')
-        .eq('table_schema', 'public');
+        .rpc('get_table_policies', {
+          table_name: 'user_profiles',
+          schema_name: 'public'
+        });
 
       if (error) {
         diagnostics.step4 = {

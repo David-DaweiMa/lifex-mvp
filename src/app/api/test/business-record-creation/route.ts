@@ -24,10 +24,10 @@ export async function POST(request: Request) {
     console.log('步骤1: 检查businesses表结构...');
     try {
       const { data: columns, error } = await supabase
-        .from('information_schema.columns')
-        .select('column_name, data_type, is_nullable')
-        .eq('table_name', 'businesses')
-        .eq('table_schema', 'public');
+        .rpc('get_table_columns', {
+          table_name: 'businesses',
+          schema_name: 'public'
+        });
 
       if (error) {
         diagnostics.step1 = {
