@@ -44,25 +44,9 @@ const MembershipPlansPage: React.FC<MembershipPlansPageProps> = ({
       ]
     },
     {
-      id: 'customer',
-      name: "Customer",
-      price: "$4.99",
-      duration: "month",
-      description: "For regular users",
-      color: darkTheme.neon.blue,
-      popular: false,
-      features: [
-        "100 AI conversations per day",
-        "50 trending views per month",
-        "10 ad views per month",
-        "Enhanced recommendations",
-        "Priority support"
-      ]
-    },
-    {
       id: 'premium',
       name: "Premium",
-      price: "$9.99",
+      price: "$9.9",
       duration: "month",
       description: "Most popular choice",
       color: darkTheme.neon.purple,
@@ -75,6 +59,25 @@ const MembershipPlansPage: React.FC<MembershipPlansPageProps> = ({
         "Coly Life Assistant included",
         "Priority support",
         "Advanced analytics"
+      ]
+    },
+    {
+      id: 'pro',
+      name: "Pro",
+      price: "$19.9",
+      duration: "month",
+      description: "For power users",
+      color: darkTheme.neon.cyan,
+      popular: false,
+      features: [
+        "1000 AI conversations per day",
+        "500 trending views per month",
+        "100 ad views per month",
+        "All Premium features",
+        "Advanced Coly features",
+        "Dedicated support",
+        "Custom integrations",
+        "Team collaboration"
       ]
     }
   ];
