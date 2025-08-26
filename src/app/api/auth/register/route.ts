@@ -2,11 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { registerUser } from '@/lib/authService';
 import { sendEmailVerification } from '@/lib/emailService';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+import { typedSupabaseAdmin } from '@/lib/supabase';
 
 // 类别映射 - 从前端service_category到数据库category_id
 const SERVICE_CATEGORY_MAPPING: Record<string, string> = {
@@ -99,7 +95,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check email status
-    const { data: existingProfile, error: existingError } = await supabase
+    const { data: existingProfile, error: existingError } = await typedSupabaseAdmin
       .from('user_profiles')
       .select('id, email_verified, created_at')
       .eq('email', email)
@@ -127,7 +123,7 @@ export async function POST(request: NextRequest) {
         );
       } else {
         console.log('Over 24 hours, deleting old record and re-registering');
-        await supabase.auth.admin.deleteUser(existingProfile.id);
+        await typedSupabaseAdmin.auth.admin.deleteUser(existingProfile.id);
       }
     }
 
@@ -161,7 +157,7 @@ export async function POST(request: NextRequest) {
     // Verify user creation integrity
     console.log('=== Verifying User Creation Integrity ===');
     
-    const { data: userCheck, error: userCheckError } = await supabase.auth.admin.getUserById(result.user.id);
+    const { data: userCheck, error: userCheckError } = await typedSupabaseAdmin.auth.admin.getUserById(result.user.id);
     
     if (userCheckError || !userCheck.user) {
       console.error('User verification failed:', userCheckError);
@@ -174,7 +170,7 @@ export async function POST(request: NextRequest) {
     console.log('✅ User verification successful');
 
     // Verify user profile exists
-    const { data: profileCheck, error: profileCheckError } = await supabase
+    const { data: profileCheck, error: profileCheckError } = await typedSupabaseAdmin
       .from('user_profiles')
       .select('*')
       .eq('id', result.user.id)
@@ -203,7 +199,7 @@ export async function POST(request: NextRequest) {
           businessName: business_name
         });
 
-        const { data: businessData, error: businessError } = await supabase
+        const { data: businessData, error: businessError } = await typedSupabaseAdmin
           .from('businesses')
           .insert({
             owner_id: result.user.id,
