@@ -1,4 +1,4 @@
-// src/app/api/auth/register/route.ts - 修复现有代码
+// src/app/api/auth/register/route.ts - 修正导入路径
 import { NextRequest, NextResponse } from 'next/server';
 import { registerUser } from '@/lib/authService';
 import { sendEmailVerification } from '@/lib/emailService';
@@ -8,7 +8,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// 添加类别映射 - 这是修复的关键
+// 类别映射 - 从前端service_category到数据库category_id
 const SERVICE_CATEGORY_MAPPING: Record<string, string> = {
   'dining': 'fea943e5-08f2-493a-9f36-8cbf50d3024f', // "Dining"
   'beverage': 'bd303355-2e83-4565-98e5-917e742fe10d', // "Bars & Pubs"
@@ -19,7 +19,7 @@ const SERVICE_CATEGORY_MAPPING: Record<string, string> = {
   'beauty': '84102d22-f0a8-49a9-bf2b-489868529d93', // "Beauty"
   'wellness': '929e40f3-67ce-46e0-9509-9b63d345dd7c', // "Health"
   
-  // 保持向后兼容
+  // 向后兼容旧类别
   'restaurant': 'fea943e5-08f2-493a-9f36-8cbf50d3024f', // 映射到 Dining
   'home_service': '29aef3f0-4fd9-425e-a067-f6c7ba7f71ff', // "Home"
   'education': 'db6140ee-dabe-4948-aafb-c5c0757f36a0', // "Education"
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 更新验证逻辑 - 支持新的类别
+    // 验证服务类别
     if (user_type.includes('business') && service_category) {
       const validServiceCategories = Object.keys(SERVICE_CATEGORY_MAPPING);
       if (!validServiceCategories.includes(service_category)) {
@@ -126,7 +126,6 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       } else {
-        // More than 24 hours, delete old record
         console.log('Over 24 hours, deleting old record and re-registering');
         await supabase.auth.admin.deleteUser(existingProfile.id);
       }
@@ -138,7 +137,6 @@ export async function POST(request: NextRequest) {
       full_name,
       phone,
       user_type,
-      // If service provider, add additional fields
       ...(user_type.includes('business') && {
         business_name,
         service_category
@@ -147,7 +145,7 @@ export async function POST(request: NextRequest) {
 
     console.log('=== Starting User Registration ===');
     
-    // Register user (without auto email confirmation)
+    // Register user
     const result = await registerUser(email, password, userData, false);
 
     if (!result.success || !result.user) {
@@ -163,7 +161,6 @@ export async function POST(request: NextRequest) {
     // Verify user creation integrity
     console.log('=== Verifying User Creation Integrity ===');
     
-    // 1. Re-verify user actually exists
     const { data: userCheck, error: userCheckError } = await supabase.auth.admin.getUserById(result.user.id);
     
     if (userCheckError || !userCheck.user) {
@@ -176,7 +173,7 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ User verification successful');
 
-    // 2. Verify user profile exists
+    // Verify user profile exists
     const { data: profileCheck, error: profileCheckError } = await supabase
       .from('user_profiles')
       .select('*')
@@ -193,12 +190,11 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ User profile verification successful');
 
-    // 修复业务记录创建 - 这是关键修改
+    // 创建业务记录 - 修复后的版本
     if (user_type.includes('business') && business_name) {
       console.log('=== Creating Service Provider Business Record ===');
       
       try {
-        // 获取正确的类别ID
         const categoryId = getCategoryId(service_category);
         
         console.log(`Creating business with category mapping:`, {
@@ -213,23 +209,14 @@ export async function POST(request: NextRequest) {
             owner_id: result.user.id,
             name: business_name,
             description: `${business_name} - Lifestyle business in New Zealand`,
-            
-            // 修复: 使用 category_id 而不是 category
-            category_id: categoryId, 
-            
-            // 修复: 使用独立字段而不是 contact_info JSONB
-            phone: phone || null,
-            email: email,
-            
-            // 基本信息
-            city: 'Auckland',
-            country: 'New Zealand',
-            
-            // 修复: 使用 is_claimed 而不是 is_verified
-            is_claimed: false,
+            category_id: categoryId,    // 使用正确的字段名和UUID
+            phone: phone || null,       // 使用独立字段
+            email: email,              // 使用独立字段
+            city: 'Auckland',          // 默认城市
+            country: 'New Zealand',    // 默认国家
+            is_claimed: false,         // 使用正确的字段名
             is_active: true
-            
-            // 不需要手动设置 created_at 和 updated_at，数据库会自动处理
+            // created_at 和 updated_at 由数据库自动处理
           })
           .select()
           .single();
@@ -248,7 +235,6 @@ export async function POST(request: NextRequest) {
               service_category: service_category
             }
           });
-          // Don't fail entire registration, but log warning
           console.warn('User registration successful but business record creation failed');
         } else {
           console.log('✅ Business record created successfully:', {
@@ -263,7 +249,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 3. Now safely send email confirmation
+    // Send email confirmation
     console.log('=== Starting Email Confirmation ===');
     
     let emailSent = false;
@@ -285,7 +271,7 @@ export async function POST(request: NextRequest) {
         console.error('❌ Email sending failed:', emailResult.error);
         
         if (emailResult.rateLimited) {
-          console.log('⚠️ Email sending rate limited, user needs to manually request resend later');
+          console.log('⚠️ Email sending rate limited');
         }
       }
     } catch (emailException) {
@@ -300,7 +286,7 @@ export async function POST(request: NextRequest) {
       user: result.user,
       message: emailSent 
         ? 'Registration successful! Please check your email and click the confirmation link to complete verification.'
-        : 'Registration successful! But email sending failed, please manually request resend confirmation email later.',
+        : 'Registration successful! Email sending failed, please manually request resend confirmation email later.',
       requiresEmailVerification: true,
       emailSent: emailSent,
       emailError: emailError,
