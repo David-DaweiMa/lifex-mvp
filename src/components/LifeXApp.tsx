@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Search, Bell, MessageCircle, Zap, Camera, Calendar, User } from 'lucide-react';
+import { Search, Bell, MessageCircle, Zap, Camera, Crown, User } from 'lucide-react';
 import { darkTheme } from '../lib/theme';
 import { ViewType, Message, Booking } from '../lib/types';
 import { mockBookings } from '../lib/mockData';
@@ -13,7 +13,7 @@ import { useAuth } from '../lib/hooks/useAuth';
 import ChatPage from './pages/ChatPage';
 import TrendingPage from './pages/TrendingPage';
 import DiscoverPage from './pages/DiscoverPage';
-import BookingPage from './pages/BookingPage';
+import SubscriptionPage from './pages/SubscriptionPage';
 import ProfilePage from './pages/ProfilePage';
 
 // 修复：定义响应式容器样式
@@ -214,13 +214,10 @@ const LifeXApp: React.FC = () => {
           />
         )}
 
-        {currentView === 'booking' && (
-          <BookingPage
-            bookings={bookings}
-            setBookings={setBookings}
-            selectedFilter={selectedFilter}
-            setSelectedFilter={setSelectedFilter}
+        {currentView === 'subscription' && (
+          <SubscriptionPage
             onNavigateToChat={handleNavigateToChat}
+            userType="personal"
           />
         )}
 
@@ -240,7 +237,7 @@ const LifeXApp: React.FC = () => {
             { id: 'chat' as ViewType, icon: MessageCircle, label: 'Chat' },
             { id: 'trending' as ViewType, icon: Zap, label: 'Trending' },
             { id: 'discover' as ViewType, icon: Camera, label: 'Discover' },
-            { id: 'booking' as ViewType, icon: Calendar, label: 'Book' },
+            { id: 'subscription' as ViewType, icon: Crown, label: 'Coly' },
             { id: 'profile' as ViewType, icon: User, label: 'Profile' }
           ].map(tab => (
             <button
