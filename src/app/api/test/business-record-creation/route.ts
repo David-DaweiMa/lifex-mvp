@@ -212,7 +212,7 @@ export async function POST(request: Request) {
 
     console.log('=== Business记录创建测试完成 ===');
 
-    const allPassed = Object.values(diagnostics).every(d => d.status === 'passed');
+    const allPassed = Object.values(diagnostics).every((d: any) => d.status === 'passed');
     
     return NextResponse.json({
       success: allPassed,

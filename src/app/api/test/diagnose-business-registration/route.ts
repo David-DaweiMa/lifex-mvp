@@ -315,7 +315,7 @@ export async function POST(request: Request) {
 
     console.log('=== 诊断完成 ===');
 
-    const allPassed = Object.values(diagnostics).every(d => d.status === 'passed');
+    const allPassed = Object.values(diagnostics).every((d: any) => d.status === 'passed');
     
     return NextResponse.json({
       success: allPassed,
