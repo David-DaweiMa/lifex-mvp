@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
       const requiredColumns = ['id', 'owner_id', 'name', 'category_id', 'phone', 'email', 'city', 'country', 'is_claimed', 'is_active'];
       const missingColumns = requiredColumns.filter(col => 
-        !columns?.find(c => c.column_name === col)
+        !columns?.find((c: any) => c.column_name === col)
       );
 
       if (missingColumns.length > 0) {
@@ -61,8 +61,8 @@ export async function POST(request: Request) {
           columnCount: columns?.length,
           requiredColumns: requiredColumns.map(col => ({
             name: col,
-            present: !!columns?.find(c => c.column_name === col),
-            type: columns?.find(c => c.column_name === col)?.data_type
+            present: !!columns?.find((c: any) => c.column_name === col),
+            type: columns?.find((c: any) => c.column_name === col)?.data_type
           }))
         }
       };
