@@ -21,7 +21,8 @@ import {
   Star,
   Calendar,
   Award,
-  Camera  // Added Camera import
+  Camera,  // Added Camera import
+  Info
 } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
 import { useAuth } from '../../lib/hooks/useAuth';
@@ -346,6 +347,22 @@ const ProfilePage: React.FC = () => {
                       style={{ background: darkTheme.neon.purple, color: 'white' }}
                     >
                       Upgrade Now
+                    </button>
+                  </div>
+                  
+                  {/* Membership System Link */}
+                  <div className="mt-4 text-center">
+                    <button 
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105"
+                      style={{ 
+                        background: `${darkTheme.neon.purple}20`, 
+                        color: darkTheme.neon.purple,
+                        border: `1px solid ${darkTheme.neon.purple}40`
+                      }}
+                    >
+                      <Info className="w-3 h-3" />
+                      View All Membership Plans
+                      <ArrowRight className="w-3 h-3" />
                     </button>
                   </div>
                   

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Search, Bell, MessageCircle, Zap, Camera, Crown, User } from 'lucide-react';
+import { Search, Bell, MessageCircle, Zap, Camera, Crown, User, Heart } from 'lucide-react';
 import { darkTheme } from '../lib/theme';
 import { ViewType, Message, Booking } from '../lib/types';
 import { mockBookings } from '../lib/mockData';
@@ -237,7 +237,7 @@ const LifeXApp: React.FC = () => {
             { id: 'chat' as ViewType, icon: MessageCircle, label: 'Chat' },
             { id: 'trending' as ViewType, icon: Zap, label: 'Trending' },
             { id: 'discover' as ViewType, icon: Camera, label: 'Discover' },
-            { id: 'subscription' as ViewType, icon: Crown, label: 'Coly' },
+            { id: 'subscription' as ViewType, icon: Heart, label: 'Coly' },
             { id: 'profile' as ViewType, icon: User, label: 'Profile' }
           ].map(tab => (
             <button
