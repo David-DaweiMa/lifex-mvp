@@ -247,7 +247,7 @@ export default function EditProfilePage() {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span style={{ color: darkTheme.text.muted }}>Account Type:</span>
-              <span style={{ color: darkTheme.text.primary }}>{user.user_type}</span>
+              <span style={{ color: darkTheme.text.primary }}>{user.subscription_level}</span>
             </div>
             <div className="flex justify-between">
               <span style={{ color: darkTheme.text.muted }}>Member Since:</span>

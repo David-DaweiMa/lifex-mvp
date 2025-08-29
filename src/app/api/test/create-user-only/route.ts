@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       {
         username: userData.username,
         full_name: userData.full_name,
-        user_type: userData.user_type
+        subscription_level: userData.subscription_level
         // 故意不包含business相关信息，避免触发业务记录创建
       }, 
       false

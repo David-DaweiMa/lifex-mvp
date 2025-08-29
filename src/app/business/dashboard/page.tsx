@@ -39,8 +39,7 @@ export default function BusinessDashboardPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Check if user is business account
-  const isBusinessUser = currentUser && 
-    ['free_business', 'professional_business', 'enterprise_business'].includes(currentUser.user_type);
+  const isBusinessUser = currentUser && currentUser.has_business_features;
 
   // Dashboard modules configuration
   const modules: DashboardModule[] = [
@@ -191,7 +190,7 @@ export default function BusinessDashboardPage() {
                 Business Hub
               </h2>
               <p className="text-xs" style={{ color: darkTheme.text.muted }}>
-                {currentUser.user_type.replace('_', ' ')}
+                {currentUser.subscription_level}
               </p>
             </div>
           </div>

@@ -33,8 +33,7 @@ const ProfilePage: React.FC = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   // Check if user is business account
-  const isBusinessUser = user && 
-    ['free_business', 'professional_business', 'enterprise_business'].includes(user.user_type);
+  const isBusinessUser = user && user.has_business_features;
 
   const settingsItems = [
     { icon: Bell, label: "Notifications", desc: "Manage your alerts", color: darkTheme.neon.blue },
@@ -470,7 +469,7 @@ const ProfilePage: React.FC = () => {
                       color: darkTheme.neon.purple 
                     }}
                   >
-                    {user.user_type.replace('_', ' ').toUpperCase()}
+                    {user.subscription_level.toUpperCase()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
