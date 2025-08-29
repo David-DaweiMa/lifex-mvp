@@ -7,7 +7,8 @@ export interface UserProfile {
   username?: string;
   full_name?: string;
   avatar_url?: string;
-  user_type: 'anonymous' | 'free' | 'customer' | 'premium' | 'free_business' | 'professional_business' | 'enterprise_business';
+  subscription_level: 'free' | 'essential' | 'premium';
+  has_business_features: boolean;
   business_name?: string;
   email_verified: boolean;
   is_active?: boolean;
@@ -32,7 +33,7 @@ export async function registerUser(
 ): Promise<AuthResult> {
   try {
     console.log('=== 开始用户注册流程 ===');
-    console.log('注册参数:', { email, username: userData?.username, full_name: userData?.full_name, user_type: userData?.user_type });
+    console.log('注册参数:', { email, username: userData?.username, full_name: userData?.full_name, subscription_level: userData?.subscription_level });
 
     // 检查 Supabase 配置
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
@@ -43,7 +44,8 @@ export async function registerUser(
         email: email,
         username: userData?.username || 'demo_user',
         full_name: userData?.full_name || 'Demo User',
-        user_type: userData?.user_type || 'free',
+        subscription_level: userData?.subscription_level || 'free',
+        has_business_features: userData?.has_business_features || false,
         email_verified: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -88,7 +90,7 @@ export async function registerUser(
       user_metadata: {
         username: userData?.username,
         full_name: userData?.full_name,
-        user_type: userData?.user_type || 'free',
+        subscription_level: userData?.subscription_level || 'free',
         business_name: userData?.business_name
       }
     });
@@ -163,7 +165,8 @@ export async function registerUser(
           email: email,
           username: userData?.username,
           full_name: userData?.full_name,
-          user_type: userData?.user_type || 'free',
+          subscription_level: userData?.subscription_level || 'free',
+          has_business_features: userData?.has_business_features || false,
           business_name: userData?.business_name,
           email_verified: false,
           created_at: new Date().toISOString(),
@@ -232,7 +235,7 @@ export async function registerUser(
       id: profile.id,
       email: profile.email,
       username: profile.username,
-      user_type: profile.user_type,
+      subscription_level: profile.subscription_level,
       email_verified: profile.email_verified
     });
 
@@ -264,7 +267,8 @@ export async function loginUser(email: string, password: string): Promise<AuthRe
         email: email,
         username: 'demo_user',
         full_name: 'Demo User',
-        user_type: 'free',
+        subscription_level: 'free',
+        has_business_features: false,
         email_verified: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -446,7 +450,7 @@ export async function createTestUser(): Promise<AuthResult> {
   return await registerUser(testEmail, testPassword, {
     username: 'testuser',
     full_name: 'Test User',
-    user_type: 'free'
+    subscription_level: 'free'
   }, true); // 自动确认邮箱
 }
 
