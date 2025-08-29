@@ -148,12 +148,17 @@ const MembershipPlansPage: React.FC<MembershipPlansPageProps> = ({
     const featureQuota = quota[feature as keyof typeof quota];
     if (!featureQuota) return "N/A";
     
-    if ('daily' in featureQuota) {
-      return `${featureQuota.daily}/day`;
-    } else if ('monthly' in featureQuota) {
-      return `${featureQuota.monthly}/month`;
-    } else if ('total' in featureQuota) {
-      return `${featureQuota.total} total`;
+    // Handle different quota types
+    if (typeof featureQuota === 'object' && featureQuota !== null) {
+      if ('hourly' in featureQuota) {
+        return featureQuota.hourly === 0 ? 'Not available' : `${featureQuota.hourly}/hour`;
+      } else if ('monthly' in featureQuota) {
+        return `${featureQuota.monthly}/month`;
+      } else if ('total' in featureQuota) {
+        return `${featureQuota.total} total`;
+      }
+    } else if (typeof featureQuota === 'boolean') {
+      return featureQuota ? 'Available' : 'Not available';
     }
     
     return "Unlimited";
