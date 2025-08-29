@@ -383,3 +383,19 @@ export const getWelcomeBack = (
 ): string => {
   return getPersonalityResponse(assistant, 'back', language);
 };
+
+/**
+ * Get assistant personality object for a specific assistant and language
+ */
+export const getAssistantPersonality = (
+  assistant: AssistantType,
+  language: SupportedLanguage
+) => {
+  return {
+    tired: getPersonalityResponse(assistant, 'tired', language),
+    back: getPersonalityResponse(assistant, 'back', language),
+    welcome: getPersonalityResponse(assistant, 'welcome', language),
+    limit_warning: getPersonalityResponse(assistant, 'limit_warning', language),
+    reset_notification: getPersonalityResponse(assistant, 'reset_notification', language)
+  };
+};
