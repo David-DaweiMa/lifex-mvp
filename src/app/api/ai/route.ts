@@ -1,277 +1,377 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateConversationalResponse, getAIRecommendations } from '@/lib/ai';
-import { checkUserQuota, updateUserQuota, recordUsage } from '@/lib/quotaService';
 import { typedSupabase } from '@/lib/supabase';
 import { getAdForChat } from '@/lib/adService';
-import { ANONYMOUS_QUOTA } from '@/lib/quotaConfig';
+import { detectLanguage, SupportedLanguage } from '@/lib/languageDetection';
+import { getAssistantIntroduction, getPersonalityResponse } from '@/lib/assistantPersonality';
+import { checkAssistantLimit, recordAssistantUsage, getNextResetTime } from '@/lib/assistantUsage';
+import { AssistantType } from '@/lib/assistantUsage';
 
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
-    const { message, userId, sessionId } = data;
+    const { message, userId, sessionId, assistantType = 'coly' } = data;
 
     if (!message || !userId) {
       return NextResponse.json(
-        { error: '缺少必要参数' },
+        { error: 'Missing required parameters' },
         { status: 400 }
       );
     }
 
-    // 检查用户 Chat 配额
-    let chatQuota = { canUse: true, remaining: 999, current: 0, max: 1000, resetDate: new Date().toISOString() };
-    
-    if (userId === 'anonymous') {
-      // 匿名用户限制：每天最多10次
-      const anonymousQuota = await checkAnonymousQuota(sessionId, 'chat');
-      if (!anonymousQuota.canUse) {
-        return NextResponse.json({
-          error: '匿名用户每日使用次数已达上限，请注册以获得更多使用次数',
-          quota: {
-            remaining: anonymousQuota.remaining,
-            current: anonymousQuota.current,
-            max: anonymousQuota.max,
-            resetDate: anonymousQuota.resetDate
-          }
-        }, { status: 429 });
-      }
-      chatQuota = anonymousQuota;
-    } else if (userId !== 'demo-user' && userId !== 'admin') {
-      // 注册用户配额检查
-      chatQuota = await checkUserQuota(userId, 'chat');
-      if (!chatQuota.canUse) {
-        return NextResponse.json({
-          error: 'Chat 使用次数已达上限',
-          quota: {
-            remaining: chatQuota.remaining,
-            current: chatQuota.current,
-            max: chatQuota.max,
-            resetDate: chatQuota.resetDate
-          }
-        }, { status: 429 });
-      }
-    }
-
-    // 获取用户信息
-    let user = null;
-    if (userId === 'anonymous') {
-      // 匿名用户使用默认信息
-      user = {
-        user_type: 'visitor',
-        location: { city: 'Auckland', country: 'New Zealand' }
-      };
-    } else if (userId === 'demo-user') {
-      // 演示用户使用默认信息
-      user = {
-        user_type: 'tourist',
-        location: { city: 'Auckland', country: 'New Zealand' }
-      };
-    } else {
-      // 注册用户从数据库获取信息
-      const { data: userData, error: userError } = await typedSupabase
-        .from('user_profiles')
-        .select('user_type, location')
-        .eq('id', userId)
-        .single();
-
-      if (userError || !userData) {
-        return NextResponse.json(
-          { error: '用户信息获取失败' },
-          { status: 401 }
-        );
-      }
-      user = userData;
-    }
-
-    // 检查是否为推荐请求
-    const messageLower = message.toLowerCase();
-    const isRecommendationRequest = messageLower.includes('recommend') ||
-                                   messageLower.includes('find') ||
-                                   messageLower.includes('show') ||
-                                   messageLower.includes('where') ||
-                                   messageLower.includes('coffee') ||
-                                   messageLower.includes('food') ||
-                                   messageLower.includes('restaurant') ||
-                                   messageLower.includes('café');
-
-    let response;
-    let recommendations = null;
-    let adInfo = null;
-
-    if (isRecommendationRequest) {
-      // 处理推荐请求
-      const recommendationResult = await getAIRecommendations(
-        { query: message, userLocation: user.location },
-        null // 这里应该传入真实的商家数据
+    // Validate assistant type
+    if (!['coly', 'max'].includes(assistantType)) {
+      return NextResponse.json(
+        { error: 'Invalid assistant type' },
+        { status: 400 }
       );
-      
-      response = recommendationResult.explanation;
-      recommendations = recommendationResult.recommendations;
-
-      // 获取相关广告
-      adInfo = await getAdForChat({
-        userId,
-        userType: user.user_type,
-        context: message,
-        placementType: 'ai_response'
-      });
-
-    } else {
-      // 处理一般对话
-      const conversationResult = await generateConversationalResponse(message, {
-        userType: user.user_type,
-        userLocation: user.location
-      });
-      
-      response = conversationResult.message;
-
-      // 获取相关广告
-      adInfo = await getAdForChat({
-        userId,
-        userType: user.user_type,
-        context: message,
-        placementType: 'ai_response'
-      });
     }
 
-    // 保存聊天记录（跳过匿名用户和无限制用户）
-    if (userId !== 'anonymous' && userId !== 'demo-user' && userId !== 'admin') {
-      const { error: chatError } = await typedSupabase
-        .from('chat_messages')
-        .insert({
-          user_id: userId,
-          session_id: sessionId || 'default',
-          message_type: 'user',
-          content: message,
-          created_at: new Date().toISOString()
-        });
+    const assistant = assistantType as AssistantType;
 
-      if (chatError) {
-        console.error('保存用户消息失败:', chatError);
-      }
-
-      // 保存 AI 回复
-      const { error: aiChatError } = await typedSupabase
-        .from('chat_messages')
-        .insert({
-          user_id: userId,
-          session_id: sessionId || 'default',
-          message_type: 'ai',
-          content: response,
-          metadata: {
-            recommendations,
-            followUpQuestions: isRecommendationRequest ? null : ['推荐一些餐厅', '今天天气如何？', '有什么活动推荐？'],
-            adInfo
-          },
-          is_ad_integrated: !!adInfo,
-          ad_info: adInfo,
-          created_at: new Date().toISOString()
-        });
-
-      if (aiChatError) {
-        console.error('保存 AI 回复失败:', aiChatError);
-      }
-    }
-
-    // 更新配额使用量
+    // Handle anonymous users
     if (userId === 'anonymous') {
-      // 更新匿名用户配额
-      await updateAnonymousQuota(sessionId, 'chat');
-    } else if (userId !== 'demo-user' && userId !== 'admin') {
-      // 更新注册用户配额
-      await updateUserQuota(userId, 'chat');
-      await recordUsage(userId, 'chat');
-
-      // 如果有广告，记录广告展示
-      if (adInfo) {
-        await recordAdImpression(adInfo.adId, userId, 'ai_response', {
-          chat_context: message,
-          user_type: user.user_type
-        });
-      }
+      return handleAnonymousUser(message, sessionId, assistant);
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        message: response,
-        recommendations,
-        followUpQuestions: isRecommendationRequest ? null : ['推荐一些餐厅', '今天天气如何？', '有什么活动推荐？'],
-        adInfo,
-        quota: {
-          remaining: chatQuota.remaining - 1,
-          current: chatQuota.current + 1,
-          max: chatQuota.max
-        }
-      }
-    });
+    // Handle demo and admin users (unlimited access)
+    if (userId === 'demo-user' || userId === 'admin') {
+      return handleUnlimitedUser(message, userId, sessionId, assistant);
+    }
+
+    // Handle registered users
+    return handleRegisteredUser(message, userId, sessionId, assistant);
 
   } catch (error) {
-    console.error('Chat API error:', error);
+    console.error('AI API error:', error);
     return NextResponse.json(
-      { error: '服务暂时不可用' },
+      { error: 'Service temporarily unavailable' },
       { status: 500 }
     );
   }
 }
 
 /**
- * 检查匿名用户配额
+ * Handle anonymous users with limited access
  */
-async function checkAnonymousQuota(sessionId: string, feature: string): Promise<{
-  canUse: boolean;
-  remaining: number;
-  current: number;
-  max: number;
-  resetDate: string;
-}> {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    const key = `anonymous_${sessionId}_${feature}_${today}`;
-    
-    // 从数据库获取匿名用户使用次数
-    const { data: usageData, error: usageError } = await typedSupabase
-      .from('anonymous_usage')
-      .select('usage_count')
-      .eq('session_id', sessionId)
-      .eq('feature', feature)
-      .eq('usage_date', today)
-      .single();
+async function handleAnonymousUser(
+  message: string,
+  sessionId: string,
+  assistant: AssistantType
+) {
+  const language = detectLanguage(message);
+  
+  // Anonymous users can only use Coly with very limited access
+  if (assistant === 'max') {
+    const response = getPersonalityResponse('max', 'tired', language);
+    return NextResponse.json({
+      success: false,
+      error: response,
+      data: {
+        message: response,
+        assistant: 'max',
+        requiresUpgrade: true
+      }
+    }, { status: 403 });
+  }
 
-    let currentUsage = 0;
-    if (usageData) {
-      currentUsage = usageData.usage_count;
+  // Check anonymous usage limits (10 per day)
+  const today = new Date().toISOString().split('T')[0];
+  const { data: usageData } = await typedSupabase
+    .from('anonymous_usage')
+    .select('usage_count')
+    .eq('session_id', sessionId)
+    .eq('feature', 'coly')
+    .eq('usage_date', today)
+    .single();
+
+  const currentUsage = usageData?.usage_count || 0;
+  const maxUsage = 10;
+  
+  if (currentUsage >= maxUsage) {
+    const response = getPersonalityResponse('coly', 'tired', language);
+    return NextResponse.json({
+      success: false,
+      error: response,
+      data: {
+        message: response,
+        assistant: 'coly',
+        requiresUpgrade: true,
+        quota: {
+          current: currentUsage,
+          limit: maxUsage,
+          remaining: 0,
+          resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        }
+      }
+    }, { status: 429 });
+  }
+
+  // Generate response for anonymous user
+  const aiResponse = await generateAIResponse(message, {
+    userType: 'anonymous',
+    location: { city: 'Auckland', country: 'New Zealand' },
+    assistant,
+    language
+  });
+
+  // Record usage
+  await recordAnonymousUsage(sessionId, 'coly', today);
+
+  return NextResponse.json({
+    success: true,
+    data: {
+      ...aiResponse,
+      assistant: 'coly',
+      quota: {
+        current: currentUsage + 1,
+        limit: maxUsage,
+        remaining: maxUsage - currentUsage - 1,
+        resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+      }
     }
+  });
+}
+
+/**
+ * Handle unlimited users (demo and admin)
+ */
+async function handleUnlimitedUser(
+  message: string,
+  userId: string,
+  sessionId: string,
+  assistant: AssistantType
+) {
+  const language = detectLanguage(message);
+  
+  // Generate response
+  const aiResponse = await generateAIResponse(message, {
+    userType: userId === 'demo-user' ? 'demo' : 'admin',
+    location: { city: 'Auckland', country: 'New Zealand' },
+    assistant,
+    language
+  });
+
+  return NextResponse.json({
+    success: true,
+    data: {
+      ...aiResponse,
+      assistant,
+      unlimited: true
+    }
+  });
+}
+
+/**
+ * Handle registered users with subscription-based limits
+ */
+async function handleRegisteredUser(
+  message: string,
+  userId: string,
+  sessionId: string,
+  assistant: AssistantType
+) {
+  // Get user profile
+  const { data: userProfile, error: userError } = await typedSupabase
+    .from('user_profiles')
+    .select('subscription_level, location')
+    .eq('id', userId)
+    .single();
+
+  if (userError || !userProfile) {
+    return NextResponse.json(
+      { error: 'User profile not found' },
+      { status: 401 }
+    );
+  }
+
+  // Check assistant usage limits
+  const usageCheck = await checkAssistantLimit(
+    userId,
+    assistant,
+    userProfile.subscription_level,
+    message
+  );
+
+  if (!usageCheck.canUse) {
+    return NextResponse.json({
+      success: false,
+      error: usageCheck.message,
+      data: {
+        message: usageCheck.message,
+        assistant,
+        requiresUpgrade: true,
+        quota: {
+          current: usageCheck.currentUsage,
+          limit: usageCheck.limit,
+          remaining: usageCheck.remaining,
+          resetTime: usageCheck.resetTime
+        }
+      }
+    }, { status: 429 });
+  }
+
+  // Generate AI response
+  const aiResponse = await generateAIResponse(message, {
+    userType: userProfile.subscription_level,
+    location: userProfile.location || { city: 'Auckland', country: 'New Zealand' },
+    assistant,
+    language: detectLanguage(message)
+  });
+
+  // Record usage
+  await recordAssistantUsage(userId, assistant);
+
+  // Save conversation to database
+  await saveConversation(userId, sessionId, message, aiResponse.message, assistant);
+
+  return NextResponse.json({
+    success: true,
+    data: {
+      ...aiResponse,
+      assistant,
+      quota: {
+        current: usageCheck.currentUsage + 1,
+        limit: usageCheck.limit,
+        remaining: usageCheck.remaining - 1,
+        resetTime: usageCheck.resetTime
+      },
+      warning: usageCheck.message // Include warning if approaching limit
+    }
+  });
+}
+
+/**
+ * Generate AI response based on assistant type and context
+ */
+async function generateAIResponse(
+  message: string,
+  context: {
+    userType: string;
+    location: any;
+    assistant: AssistantType;
+    language: string;
+  }
+) {
+  const { userType, location, assistant, language } = context;
+
+  // Check if it's a recommendation request
+  const messageLower = message.toLowerCase();
+  const isRecommendationRequest = messageLower.includes('recommend') ||
+                                 messageLower.includes('find') ||
+                                 messageLower.includes('show') ||
+                                 messageLower.includes('where') ||
+                                 messageLower.includes('coffee') ||
+                                 messageLower.includes('food') ||
+                                 messageLower.includes('restaurant') ||
+                                 messageLower.includes('café');
+
+  let response: string;
+  let recommendations = null;
+  let adInfo = null;
+
+  if (isRecommendationRequest) {
+    // Handle recommendation requests
+    const recommendationResult = await getAIRecommendations(
+      { query: message, userLocation: location },
+      null
+    );
     
-    const maxUsage = 10; // 匿名用户每天最多10次
-    const canUse = currentUsage < maxUsage;
+    response = recommendationResult.explanation;
+    recommendations = recommendationResult.recommendations;
+
+    // Get relevant ads
+    adInfo = await getAdForChat({
+      userId: 'user',
+      userType,
+      context: message,
+      placementType: 'ai_response'
+    });
+
+  } else {
+    // Handle general conversation
+    const conversationResult = await generateConversationalResponse(message, {
+      userType,
+      userLocation: location
+    });
     
-    return {
-      canUse,
-      remaining: Math.max(0, maxUsage - currentUsage),
-      current: currentUsage,
-      max: maxUsage,
-      resetDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24小时后重置
-    };
+    response = conversationResult.message;
+
+    // Get relevant ads
+    adInfo = await getAdForChat({
+      userId: 'user',
+      userType,
+      context: message,
+      placementType: 'ai_response'
+    });
+  }
+
+  // Add assistant personality to response
+  const personalityIntro = getAssistantIntroduction(assistant, language as SupportedLanguage);
+  
+  // For first message in session, include introduction
+  if (message.length < 50) { // Short messages might be greetings
+    response = `${personalityIntro}\n\n${response}`;
+  }
+
+  return {
+    message: response,
+    recommendations,
+    followUpQuestions: isRecommendationRequest ? null : [
+      assistant === 'coly' ? 'What would you like to do today?' : 'How can I help grow your business?',
+      'Any other questions?',
+      'Need more assistance?'
+    ],
+    adInfo
+  };
+}
+
+/**
+ * Save conversation to database
+ */
+async function saveConversation(
+  userId: string,
+  sessionId: string,
+  userMessage: string,
+  aiMessage: string,
+  assistant: AssistantType
+) {
+  try {
+    // Save user message
+    await typedSupabase
+      .from('chat_messages')
+      .insert({
+        user_id: userId,
+        session_id: sessionId || 'default',
+        message_type: 'user',
+        content: userMessage,
+        metadata: { assistant },
+        created_at: new Date().toISOString()
+      });
+
+    // Save AI response
+    await typedSupabase
+      .from('chat_messages')
+      .insert({
+        user_id: userId,
+        session_id: sessionId || 'default',
+        message_type: 'ai',
+        content: aiMessage,
+        metadata: { assistant },
+        created_at: new Date().toISOString()
+      });
+
   } catch (error) {
-    console.error('检查匿名用户配额失败:', error);
-    return {
-      canUse: true,
-      remaining: 10,
-      current: 0,
-      max: 10,
-      resetDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-    };
+    console.error('Error saving conversation:', error);
   }
 }
 
 /**
- * 更新匿名用户配额
+ * Record anonymous usage
  */
-async function updateAnonymousQuota(sessionId: string, feature: string): Promise<void> {
+async function recordAnonymousUsage(sessionId: string, feature: string, date: string) {
   try {
-    const today = new Date().toISOString().split('T')[0];
-    
-    // 尝试更新现有记录
+    // Try to update existing record
     const { data: updateData, error: updateError } = await typedSupabase
       .from('anonymous_usage')
       .update({ 
@@ -280,62 +380,23 @@ async function updateAnonymousQuota(sessionId: string, feature: string): Promise
       })
       .eq('session_id', sessionId)
       .eq('feature', feature)
-      .eq('usage_date', today);
+      .eq('usage_date', date);
 
-    // 如果更新失败（记录不存在），则创建新记录
+    // If update fails (record doesn't exist), create new record
     if (updateError || !updateData) {
-      const { error: insertError } = await typedSupabase
+      await typedSupabase
         .from('anonymous_usage')
         .insert({
           session_id: sessionId,
           feature: feature,
-          usage_date: today,
+          usage_date: date,
           usage_count: 1,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         });
-
-      if (insertError) {
-        console.error('创建匿名用户使用记录失败:', insertError);
-      }
     }
-
-    console.log(`更新匿名用户配额: ${sessionId}_${feature}_${today}`);
   } catch (error) {
-    console.error('更新匿名用户配额失败:', error);
-  }
-}
-
-/**
- * 记录广告展示
- */
-async function recordAdImpression(
-  adId: string,
-  userId: string,
-  placementType: string,
-  context: any
-): Promise<void> {
-  try {
-    await typedSupabase
-      .from('ad_impressions')
-      .insert({
-        ad_id: adId,
-        user_id: userId,
-        placement_type: placementType,
-        context,
-        created_at: new Date().toISOString()
-      });
-
-    // 更新广告展示次数 - 暂时注释掉，因为需要数据库函数支持
-    // await typedSupabase
-    //   .from('advertisements')
-    //   .update({
-    //     impressions: typedSupabase.rpc('increment_impressions', { ad_id: adId })
-    //   })
-    //   .eq('id', adId);
-
-  } catch (error) {
-    console.error('记录广告展示失败:', error);
+    console.error('Error recording anonymous usage:', error);
   }
 }
 
