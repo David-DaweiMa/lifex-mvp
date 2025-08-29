@@ -9,13 +9,15 @@ import {
   ArrowLeft,
   Store,
   Camera,
-  Star
+  Star,
+  Briefcase
 } from 'lucide-react';
 
 // Import the business components
 import BusinessDashboard from '@/components/business/BusinessDashboard';
 import BusinessAdvanced from '@/components/business/BusinessAdvanced';
 import BusinessSpecials from '@/components/business/BusinessSpecials';
+import BusinessMax from '@/components/business/BusinessMax';
 
 // Import existing theme and auth
 import { darkTheme } from '@/lib/theme';
@@ -23,7 +25,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 
 // Types for the dashboard
 interface DashboardModule {
-  id: 'core' | 'media' | 'specials';
+  id: 'core' | 'media' | 'specials' | 'max';
   label: string;
   icon: React.ComponentType<any>;
   color: string;
@@ -66,6 +68,14 @@ export default function BusinessDashboardPage() {
       color: darkTheme.neon.pink,
       component: BusinessSpecials,
       description: 'Promotions, industry settings'
+    },
+    { 
+      id: 'max', 
+      label: 'Max Assistant', 
+      icon: Briefcase, 
+      color: darkTheme.neon.cyan,
+      component: BusinessMax,
+      description: 'Business growth expert'
     }
   ];
 

@@ -13,7 +13,7 @@ import { useAuth } from '../lib/hooks/useAuth';
 import ChatPage from './pages/ChatPage';
 import TrendingPage from './pages/TrendingPage';
 import DiscoverPage from './pages/DiscoverPage';
-import SubscriptionPage from './pages/SubscriptionPage';
+import ColyPage from './pages/ColyPage';
 import ProfilePage from './pages/ProfilePage';
 import MembershipPlansPage from './pages/MembershipPlansPage';
 
@@ -224,7 +224,7 @@ const LifeXApp: React.FC = () => {
         )}
 
         {currentView === 'subscription' && (
-          <SubscriptionPage
+          <ColyPage
             onNavigateToChat={handleNavigateToChat}
             onNavigateToMembership={handleNavigateToMembership}
             userType="personal"
