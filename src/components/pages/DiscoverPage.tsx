@@ -145,7 +145,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen" style={{ background: darkTheme.background.primary }}>
+    <div className="w-full" style={{ background: darkTheme.background.primary }}>
       {/* Header */}
       <div className="px-4 md:px-6 lg:px-8 py-4">
         <div className="max-w-6xl mx-auto">

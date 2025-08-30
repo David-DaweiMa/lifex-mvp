@@ -197,7 +197,7 @@ const LifeXApp: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden" style={{ minHeight: 0, background: darkTheme.gradients.background }}>
+      <div className="flex-1 overflow-y-auto" style={{ minHeight: 0, background: darkTheme.gradients.background }}>
         {currentView === 'chat' && (
           <ChatPage
             messages={messages}
