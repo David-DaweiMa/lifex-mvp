@@ -1,6 +1,6 @@
 // src/components/pages/DiscoverPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Heart, Camera, Star, Phone, MapPin, Sparkles, Search, Loader2, UserPlus, Store, Building2, Filter, Plus, TrendingUp } from 'lucide-react';
+import { Heart, Camera, Star, Phone, MapPin, Sparkles, Search, Loader2, UserPlus, Store, Building2, Filter, Plus, TrendingUp, Clock, DollarSign } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
 import { discoverCategories, discoverContent } from '../../lib/mockData';
 import { businessService, Business, BusinessFilters } from '../../lib/businessService';
@@ -125,9 +125,23 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
     window.location.href = '/auth/register?type=business';
   };
 
-  // 瀑布流布局 - 将数据分成两列
-  const getColumnData = (data: Business[], columnIndex: number) => {
-    return data.filter((_, index) => index % 2 === columnIndex);
+  // 生成随机价格范围
+  const getPriceRange = () => {
+    const ranges = ['$', '$$', '$$$', '$$$$'];
+    return ranges[Math.floor(Math.random() * ranges.length)];
+  };
+
+  // 生成随机营业状态
+  const getOpenStatus = () => {
+    return Math.random() > 0.3; // 70% 概率营业
+  };
+
+  // 生成随机标签
+  const getTags = () => {
+    const allTags = ['Popular', 'New', 'Trending', 'Best Rated', 'Local Favorite', 'Quick Service'];
+    const numTags = Math.floor(Math.random() * 3) + 1;
+    const shuffled = allTags.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, numTags);
   };
 
   return (
@@ -240,152 +254,126 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
             </div>
           )}
 
-          {/* 小红书风格瀑布流 - 两列布局 */}
+          {/* 大众点评风格卡片布局 */}
           {businesses.length > 0 && (
-            <div className="grid grid-cols-2 gap-3 md:gap-4 mb-8">
-              {/* Left Column */}
-              <div className="space-y-3 md:space-y-4">
-                {getColumnData(businesses, 0).map((business) => (
-                  <div 
-                    key={business.id}
-                    className="rounded-xl border overflow-hidden transition-all hover:scale-[1.02] cursor-pointer"
-                    style={{
-                      background: darkTheme.background.card,
-                      borderColor: darkTheme.background.glass,
-                    }}
-                    onClick={() => window.location.href = `/businesses/${business.id}`}
-                  >
-                    {/* Business Image - 随机高度营造瀑布流效果 */}
-                    <div 
-                      className="relative overflow-hidden"
-                      style={{ 
-                        height: `${160 + (parseInt(business.id) % 3) * 40}px`,
-                        background: business.cover_photo_url 
-                          ? `url(${business.cover_photo_url}) center/cover` 
-                          : `linear-gradient(135deg, ${darkTheme.neon.purple}, ${darkTheme.neon.blue})` 
-                      }}
-                    >
-                      {!business.cover_photo_url && (
-                        <div className="absolute inset-0 flex items-center justify-center text-white">
-                          <Store size={24} />
-                        </div>
-                      )}
+            <div className="space-y-4 mb-8">
+              {businesses.map((business) => (
+                <div 
+                  key={business.id}
+                  className="rounded-xl border overflow-hidden transition-all hover:shadow-lg cursor-pointer"
+                  style={{
+                    background: darkTheme.background.card,
+                    borderColor: darkTheme.background.glass,
+                  }}
+                  onClick={() => window.location.href = `/businesses/${business.id}`}
+                >
+                  <div className="flex">
+                    {/* Business Image */}
+                    <div className="relative w-24 h-24 md:w-32 md:h-32 flex-shrink-0">
+                      <div 
+                        className="w-full h-full"
+                        style={{ 
+                          background: business.cover_photo_url 
+                            ? `url(${business.cover_photo_url}) center/cover` 
+                            : `linear-gradient(135deg, ${darkTheme.neon.purple}, ${darkTheme.neon.blue})` 
+                        }}
+                      >
+                        {!business.cover_photo_url && (
+                          <div className="w-full h-full flex items-center justify-center text-white">
+                            <Store size={24} />
+                          </div>
+                        )}
+                      </div>
                       
                       {/* Heart Button */}
                       <button 
-                        className="absolute top-2 right-2 w-7 h-7 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/40 transition-all"
+                        className="absolute top-2 right-2 w-6 h-6 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/40 transition-all"
                         onClick={(e) => {
                           e.stopPropagation();
                         }}
                       >
-                        <Heart size={14} className="text-white" />
+                        <Heart size={12} className="text-white" />
                       </button>
                     </div>
 
                     {/* Business Info */}
-                    <div className="p-3">
-                      <h3 
-                        className="font-semibold text-sm mb-1 line-clamp-1"
-                        style={{ color: darkTheme.text.primary }}
-                      >
-                        {business.name}
-                      </h3>
+                    <div className="flex-1 p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 
+                          className="font-semibold text-base md:text-lg line-clamp-1"
+                          style={{ color: darkTheme.text.primary }}
+                        >
+                          {business.name}
+                        </h3>
+                        <div className="flex items-center gap-1">
+                          <Star size={14} className="fill-current text-yellow-400" />
+                          <span className="text-sm font-medium" style={{ color: darkTheme.text.primary }}>
+                            {business.rating?.toFixed(1) || '4.5'}
+                          </span>
+                        </div>
+                      </div>
                       
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {getTags().map((tag, index) => (
+                          <span 
+                            key={index}
+                            className="px-2 py-1 rounded-full text-xs font-medium"
+                            style={{
+                              background: `${darkTheme.neon.purple}20`,
+                              color: darkTheme.neon.purple,
+                            }}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Description */}
                       <p 
-                        className="text-xs mb-2 line-clamp-2"
+                        className="text-sm mb-3 line-clamp-2"
                         style={{ color: darkTheme.text.secondary }}
                       >
                         {business.descriptions?.[0]?.description || business.type}
                       </p>
 
-                      {/* Rating */}
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-1">
-                          <Star size={12} className="fill-current text-yellow-400" />
-                          <span style={{ color: darkTheme.text.primary }}>
-                            {business.rating?.toFixed(1) || '4.5'}
-                          </span>
+                      {/* Bottom Info */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-xs">
+                          {/* Price Range */}
+                          <div className="flex items-center gap-1">
+                            <DollarSign size={12} style={{ color: darkTheme.text.muted }} />
+                            <span style={{ color: darkTheme.text.muted }}>
+                              {getPriceRange()}
+                            </span>
+                          </div>
+                          
+                          {/* Distance */}
+                          <div className="flex items-center gap-1">
+                            <MapPin size={12} style={{ color: darkTheme.text.muted }} />
+                            <span style={{ color: darkTheme.text.muted }}>
+                              {business.distance || '1.2km'}
+                            </span>
+                          </div>
+                          
+                          {/* Open Status */}
+                          <div className="flex items-center gap-1">
+                            <Clock size={12} style={{ color: getOpenStatus() ? '#10B981' : '#EF4444' }} />
+                            <span style={{ color: getOpenStatus() ? '#10B981' : '#EF4444' }}>
+                              {getOpenStatus() ? 'Open' : 'Closed'}
+                            </span>
+                          </div>
                         </div>
-                        <span style={{ color: darkTheme.text.muted }}>
-                          {business.distance || '1.2km'}
+
+                        {/* Review Count */}
+                        <span className="text-xs" style={{ color: darkTheme.text.muted }}>
+                          {Math.floor(Math.random() * 500) + 50} reviews
                         </span>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-3 md:space-y-4">
-                {getColumnData(businesses, 1).map((business) => (
-                  <div 
-                    key={business.id}
-                    className="rounded-xl border overflow-hidden transition-all hover:scale-[1.02] cursor-pointer"
-                    style={{
-                      background: darkTheme.background.card,
-                      borderColor: darkTheme.background.glass,
-                    }}
-                    onClick={() => window.location.href = `/businesses/${business.id}`}
-                  >
-                    {/* Business Image - 随机高度营造瀑布流效果 */}
-                    <div 
-                      className="relative overflow-hidden"
-                      style={{ 
-                        height: `${160 + ((parseInt(business.id) + 1) % 3) * 40}px`,
-                        background: business.cover_photo_url 
-                          ? `url(${business.cover_photo_url}) center/cover` 
-                          : `linear-gradient(135deg, ${darkTheme.neon.purple}, ${darkTheme.neon.blue})` 
-                      }}
-                    >
-                      {!business.cover_photo_url && (
-                        <div className="absolute inset-0 flex items-center justify-center text-white">
-                          <Store size={24} />
-                        </div>
-                      )}
-                      
-                      {/* Heart Button */}
-                      <button 
-                        className="absolute top-2 right-2 w-7 h-7 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/40 transition-all"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                      >
-                        <Heart size={14} className="text-white" />
-                      </button>
-                    </div>
-
-                    {/* Business Info */}
-                    <div className="p-3">
-                      <h3 
-                        className="font-semibold text-sm mb-1 line-clamp-1"
-                        style={{ color: darkTheme.text.primary }}
-                      >
-                        {business.name}
-                      </h3>
-                      
-                      <p 
-                        className="text-xs mb-2 line-clamp-2"
-                        style={{ color: darkTheme.text.secondary }}
-                      >
-                        {business.descriptions?.[0]?.description || business.type}
-                      </p>
-
-                      {/* Rating */}
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-1">
-                          <Star size={12} className="fill-current text-yellow-400" />
-                          <span style={{ color: darkTheme.text.primary }}>
-                            {business.rating?.toFixed(1) || '4.5'}
-                          </span>
-                        </div>
-                        <span style={{ color: darkTheme.text.muted }}>
-                          {business.distance || '1.2km'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           )}
 
@@ -558,18 +546,6 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
-        }
-
-        /* 瀑布流布局优化 */
-        .grid-cols-2 {
-          grid-template-columns: repeat(2, 1fr);
-          gap: 0.75rem;
-        }
-
-        @media (min-width: 768px) {
-          .grid-cols-2 {
-            gap: 1rem;
-          }
         }
 
         /* 悬浮按钮动画 */
