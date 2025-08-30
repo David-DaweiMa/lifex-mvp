@@ -227,28 +227,38 @@ const ChatPage: React.FC<ChatPageProps> = ({
     <div className="h-full overflow-y-auto bg-gradient-background pb-20">
       <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
         <div className="relative z-10 max-w-4xl mx-auto">
-                     {/* Chat Input with Welcome Message Inside */}
+                     {/* Large Chat Dialog with Welcome Message */}
            <div className="mb-6 md:mb-8 mt-16 md:mt-24">
-             <div className="flex items-center gap-3">
-               <button className="p-2 rounded-lg hover:bg-white/5 transition-colors">
-                 <Plus size={20} className="text-lifex-purple" />
-               </button>
-               <div className="flex-1 relative">
-                 <input
-                   type="text"
-                   value={chatInput}
-                   onChange={(e) => setChatInput(e.target.value)}
-                   onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
-                   placeholder="G'day! What can I help you find today?"
-                   className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors text-base"
-                 />
+             <div className="bg-dark-card border border-dark-glass rounded-2xl p-6 md:p-8">
+               {/* Welcome Message in Top Left */}
+               <div className="mb-6">
+                 <h1 className="text-lg md:text-xl font-semibold text-text-primary">
+                   G'day! What can I help you find today?
+                 </h1>
                </div>
-               <button 
-                 onClick={onSendMessage}
-                 className="p-3 rounded-xl bg-lifex-purple text-white hover:bg-lifex-purple/90 transition-colors"
-               >
-                 <Send size={18} />
-               </button>
+               
+               {/* Chat Input Inside Dialog */}
+               <div className="flex items-center gap-3">
+                 <button className="p-2 rounded-lg hover:bg-white/5 transition-colors">
+                   <Plus size={20} className="text-lifex-purple" />
+                 </button>
+                 <div className="flex-1 relative">
+                   <input
+                     type="text"
+                     value={chatInput}
+                     onChange={(e) => setChatInput(e.target.value)}
+                     onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
+                     placeholder="Ask me anything about New Zealand..."
+                     className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors text-base"
+                   />
+                 </div>
+                 <button 
+                   onClick={onSendMessage}
+                   className="p-3 rounded-xl bg-lifex-purple text-white hover:bg-lifex-purple/90 transition-colors"
+                 >
+                   <Send size={18} />
+                 </button>
+               </div>
              </div>
            </div>
 
