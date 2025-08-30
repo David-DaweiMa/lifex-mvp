@@ -121,8 +121,9 @@ export const SelectContent: React.FC<SelectContentProps> = ({
     <div className={`absolute top-full left-0 right-0 z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md ${className}`}>
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child) && child.type === SelectItem) {
-          return React.cloneElement(child as React.ReactElement<SelectItemProps>, {
-            onClick: () => onSelect?.(child.props.value, child.props.children as string)
+          const childElement = child as React.ReactElement<SelectItemProps>;
+          return React.cloneElement(childElement, {
+            onClick: () => onSelect?.(childElement.props.value, childElement.props.children as string)
           });
         }
         return child;
