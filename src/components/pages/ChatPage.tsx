@@ -2,7 +2,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Send, Plus, Mic, ArrowLeft, Star, Phone, MapPin, Sparkles } from 'lucide-react';
 import { Message, Business } from '../../lib/types';
-import { quickPrompts } from '../../lib/mockData';
+import { quickPrompts, recentDiscoveries } from '../../lib/mockData';
 
 interface ChatPageProps {
   messages: Message[];
@@ -269,28 +269,56 @@ const ChatPage: React.FC<ChatPageProps> = ({
             </div>
           </div>
 
-          {/* Quick Prompts - Reduced spacing */}
-          <div className="mb-16 md:mb-20">
-            <h2 className="font-semibold mb-2 text-base md:text-lg text-text-primary">Quick Questions</h2>
-            <div className="space-y-1">
-              {quickPrompts.map((row, rowIdx) => (
-                <div key={rowIdx} className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                  {row.map((prompt, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => onQuickPrompt(prompt)}
-                      className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 whitespace-nowrap flex-shrink-0 bg-dark-card border border-dark-glass text-text-primary hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
-                      style={{ minWidth: 'fit-content' }}
-                    >
-                      {prompt}
-                    </button>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
+                     {/* Quick Prompts - Reduced spacing */}
+           <div className="mb-16 md:mb-20">
+             <h2 className="font-semibold mb-2 text-base md:text-lg text-text-primary">Quick Questions</h2>
+             <div className="space-y-1">
+               {quickPrompts.map((row, rowIdx) => (
+                 <div key={rowIdx} className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                   {row.map((prompt, idx) => (
+                     <button
+                       key={idx}
+                       onClick={() => onQuickPrompt(prompt)}
+                       className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 whitespace-nowrap flex-shrink-0 bg-dark-card border border-dark-glass text-text-primary hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
+                       style={{ minWidth: 'fit-content' }}
+                     >
+                       {prompt}
+                     </button>
+                   ))}
+                 </div>
+               ))}
+             </div>
+           </div>
 
-          
+           {/* Recent Discoveries - Content only */}
+           <div className="mb-8">
+             <div className="flex items-center justify-between mb-4">
+               <h2 className="font-semibold text-base md:text-lg text-text-primary">Recent Discoveries</h2>
+               <button className="text-sm text-lifex-purple hover:text-lifex-purple/80 transition-colors">
+                 See all
+               </button>
+             </div>
+             
+             {/* Discovery content cards */}
+             <div className="space-y-3">
+               {recentDiscoveries.map((discovery, idx) => (
+                 <div 
+                   key={idx}
+                   className="flex items-center gap-3 p-3 rounded-xl bg-dark-card border border-dark-glass cursor-pointer hover:bg-dark-secondary transition-colors"
+                 >
+                   <div className="text-2xl">{discovery.icon}</div>
+                   <div className="flex-1">
+                     <p className="text-sm text-text-primary">{discovery.text}</p>
+                   </div>
+                   <button className="text-lifex-purple hover:text-lifex-purple/80 transition-colors">
+                     <Sparkles size={16} />
+                   </button>
+                 </div>
+               ))}
+             </div>
+           </div>
+
+                     
         </div>
       </div>
     </div>
