@@ -2,7 +2,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Send, Plus, Mic, ArrowLeft, Star, Phone, MapPin, Sparkles } from 'lucide-react';
 import { Message, Business } from '../../lib/types';
-import { quickPrompts, recentDiscoveries } from '../../lib/mockData';
+import { quickPrompts } from '../../lib/mockData';
 
 interface ChatPageProps {
   messages: Message[];
@@ -290,49 +290,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
             </div>
           </div>
 
-          {/* Recent Discoveries - Added content */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-base md:text-lg text-text-primary">Recent Discoveries</h2>
-              <button className="text-sm text-lifex-purple hover:text-lifex-purple/80 transition-colors">
-                See all
-              </button>
-            </div>
-            <div className="flex gap-4 md:gap-6 overflow-x-auto pb-2 mb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              {['All', 'Food', 'Services', 'Activities'].map((category, idx) => (
-                <button
-                  key={idx}
-                  className="px-4 py-2 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 w-20 md:w-24"
-                  style={{
-                    background: idx === 0 ? '#a855f7' : 'rgba(26, 26, 26, 0.8)',
-                    borderColor: idx === 0 ? '#a855f7' : 'rgba(255, 255, 255, 0.05)',
-                    color: idx === 0 ? 'white' : '#ffffff',
-                    border: '1px solid',
-                  }}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-            
-            {/* Added discovery content */}
-            <div className="space-y-3">
-              {recentDiscoveries.map((discovery, idx) => (
-                <div 
-                  key={idx}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-dark-card border border-dark-glass cursor-pointer hover:bg-dark-secondary transition-colors"
-                >
-                  <div className="text-2xl">{discovery.icon}</div>
-                  <div className="flex-1">
-                    <p className="text-sm text-text-primary">{discovery.text}</p>
-                  </div>
-                  <button className="text-lifex-purple hover:text-lifex-purple/80 transition-colors">
-                    <Sparkles size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+          
         </div>
       </div>
     </div>
