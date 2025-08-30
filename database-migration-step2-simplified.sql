@@ -15,7 +15,7 @@ ADD COLUMN IF NOT EXISTS tax_id TEXT;
 -- 3. Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_user_profiles_verification_status ON user_profiles(verification_status);
 CREATE INDEX IF NOT EXISTS idx_businesses_verification_status ON businesses(verification_status);
-CREATE INDEX IF NOT EXISTS idx_businesses_user_id_created_at ON businesses(user_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_businesses_owner_id_created_at ON businesses(owner_id, created_at);
 
 -- 4. Create simplified product_quota_tracking table
 CREATE TABLE IF NOT EXISTS product_quota_tracking (
@@ -146,10 +146,10 @@ SELECT
     END
 FROM user_profiles up
 LEFT JOIN (
-    SELECT user_id, COUNT(*) as count 
+    SELECT owner_id, COUNT(*) as count 
     FROM businesses 
-    GROUP BY user_id
-) business_count ON business_count.user_id = up.id
+    GROUP BY owner_id
+) business_count ON business_count.owner_id = up.id
 WHERE NOT EXISTS (
     SELECT 1 FROM product_quota_tracking pqt 
     WHERE pqt.user_id = up.id AND pqt.quota_type = 'total'
