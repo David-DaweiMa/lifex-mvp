@@ -227,47 +227,30 @@ const ChatPage: React.FC<ChatPageProps> = ({
     <div className="h-full overflow-y-auto bg-gradient-background pb-20">
       <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
         <div className="relative z-10 max-w-4xl mx-auto">
-          {/* Welcome Message */}
-          <div className="mb-8 md:mb-12">
-            <div className="flex items-start gap-3 mb-6">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-lifex-purple">
-                <Sparkles size={20} className="text-white" />
-              </div>
-              <div className="flex-1">
-                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-3 text-text-primary">
-                  G'day! I'm LifeX
-                </h1>
-                <p className="text-base md:text-lg text-text-secondary leading-relaxed">
-                  Your AI companion for discovering amazing local services in New Zealand. What can I help you find today?
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Chat Input - Moved above Quick Questions */}
-          <div className="mb-6 md:mb-8">
-            <div className="flex items-center gap-3">
-              <button className="p-2 rounded-lg hover:bg-white/5 transition-colors">
-                <Plus size={20} className="text-lifex-purple" />
-              </button>
-              <div className="flex-1 relative">
-                <input
-                  type="text"
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
-                  placeholder="Ask me anything about New Zealand..."
-                  className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors"
-                />
-              </div>
-              <button 
-                onClick={onSendMessage}
-                className="p-3 rounded-xl bg-lifex-purple text-white hover:bg-lifex-purple/90 transition-colors"
-              >
-                <Send size={18} />
-              </button>
-            </div>
-          </div>
+                     {/* Chat Input with Welcome Message Inside */}
+           <div className="mb-6 md:mb-8 mt-16 md:mt-24">
+             <div className="flex items-center gap-3">
+               <button className="p-2 rounded-lg hover:bg-white/5 transition-colors">
+                 <Plus size={20} className="text-lifex-purple" />
+               </button>
+               <div className="flex-1 relative">
+                 <input
+                   type="text"
+                   value={chatInput}
+                   onChange={(e) => setChatInput(e.target.value)}
+                   onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
+                   placeholder="G'day! What can I help you find today?"
+                   className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors text-base"
+                 />
+               </div>
+               <button 
+                 onClick={onSendMessage}
+                 className="p-3 rounded-xl bg-lifex-purple text-white hover:bg-lifex-purple/90 transition-colors"
+               >
+                 <Send size={18} />
+               </button>
+             </div>
+           </div>
 
                      {/* Quick Prompts - Reduced spacing */}
            <div className="mb-16 md:mb-20">
