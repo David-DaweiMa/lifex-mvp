@@ -40,7 +40,6 @@ export const Select: React.FC<SelectProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(value || '');
   const [selectedLabel, setSelectedLabel] = useState('');
-  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setSelectedValue(value || '');
@@ -55,7 +54,8 @@ export const Select: React.FC<SelectProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (triggerRef.current && !triggerRef.current.contains(event.target as Node)) {
+      const target = event.target as Element;
+      if (!target.closest('.select-container')) {
         setIsOpen(false);
       }
     };
@@ -65,12 +65,11 @@ export const Select: React.FC<SelectProps> = ({
   }, []);
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative select-container ${className}`}>
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           if (child.type === SelectTrigger) {
             return React.cloneElement(child, {
-              ref: triggerRef,
               onClick: () => setIsOpen(!isOpen),
               isOpen,
               selectedValue: selectedLabel || placeholder
@@ -89,14 +88,12 @@ export const Select: React.FC<SelectProps> = ({
 };
 
 export const SelectTrigger: React.FC<SelectTriggerProps & {
-  ref?: React.Ref<HTMLButtonElement>;
   onClick?: () => void;
   isOpen?: boolean;
   selectedValue?: string;
-}> = React.forwardRef(({ children, className = '', onClick, isOpen, selectedValue }, ref) => {
+}> = ({ children, className = '', onClick, isOpen, selectedValue }) => {
   return (
     <button
-      ref={ref}
       onClick={onClick}
       className={`flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
     >
@@ -106,7 +103,7 @@ export const SelectTrigger: React.FC<SelectTriggerProps & {
       <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
     </button>
   );
-});
+};
 
 export const SelectContent: React.FC<SelectContentProps & {
   onSelect?: (value: string, label: string) => void;
