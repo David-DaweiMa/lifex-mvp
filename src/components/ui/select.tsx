@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 interface SelectProps {
@@ -12,17 +12,22 @@ interface SelectProps {
 interface SelectTriggerProps {
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
+  isOpen?: boolean;
+  selectedValue?: string;
 }
 
 interface SelectContentProps {
   children: React.ReactNode;
   className?: string;
+  onSelect?: (value: string, label: string) => void;
 }
 
 interface SelectItemProps {
   value: string;
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
 interface SelectValueProps {
@@ -34,7 +39,7 @@ export const Select: React.FC<SelectProps> = ({
   value, 
   onValueChange, 
   children, 
-  placeholder,
+  placeholder = 'Select an option',
   className = '' 
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -69,29 +74,31 @@ export const Select: React.FC<SelectProps> = ({
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           if (child.type === SelectTrigger) {
-            return React.cloneElement(child, {
+            return React.cloneElement(child as React.ReactElement<SelectTriggerProps>, {
               onClick: () => setIsOpen(!isOpen),
               isOpen,
               selectedValue: selectedLabel || placeholder
             });
           }
           if (child.type === SelectContent && isOpen) {
-            return React.cloneElement(child, {
+            return React.cloneElement(child as React.ReactElement<SelectContentProps>, {
               onSelect: handleSelect
             });
           }
         }
-        return null;
+        return child;
       })}
     </div>
   );
 };
 
-export const SelectTrigger: React.FC<SelectTriggerProps & {
-  onClick?: () => void;
-  isOpen?: boolean;
-  selectedValue?: string;
-}> = ({ children, className = '', onClick, isOpen, selectedValue }) => {
+export const SelectTrigger: React.FC<SelectTriggerProps> = ({ 
+  children, 
+  className = '', 
+  onClick, 
+  isOpen, 
+  selectedValue 
+}) => {
   return (
     <button
       onClick={onClick}
@@ -105,14 +112,16 @@ export const SelectTrigger: React.FC<SelectTriggerProps & {
   );
 };
 
-export const SelectContent: React.FC<SelectContentProps & {
-  onSelect?: (value: string, label: string) => void;
-}> = ({ children, className = '', onSelect }) => {
+export const SelectContent: React.FC<SelectContentProps> = ({ 
+  children, 
+  className = '', 
+  onSelect 
+}) => {
   return (
     <div className={`absolute top-full left-0 right-0 z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md ${className}`}>
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child) && child.type === SelectItem) {
-          return React.cloneElement(child, {
+          return React.cloneElement(child as React.ReactElement<SelectItemProps>, {
             onClick: () => onSelect?.(child.props.value, child.props.children as string)
           });
         }
@@ -122,9 +131,12 @@ export const SelectContent: React.FC<SelectContentProps & {
   );
 };
 
-export const SelectItem: React.FC<SelectItemProps & {
-  onClick?: () => void;
-}> = ({ value, children, className = '', onClick }) => {
+export const SelectItem: React.FC<SelectItemProps> = ({ 
+  value, 
+  children, 
+  className = '', 
+  onClick 
+}) => {
   return (
     <div
       onClick={onClick}
@@ -135,6 +147,9 @@ export const SelectItem: React.FC<SelectItemProps & {
   );
 };
 
-export const SelectValue: React.FC<SelectValueProps> = ({ placeholder, className = '' }) => {
+export const SelectValue: React.FC<SelectValueProps> = ({ 
+  placeholder, 
+  className = '' 
+}) => {
   return <span className={className}>{placeholder}</span>;
 };
