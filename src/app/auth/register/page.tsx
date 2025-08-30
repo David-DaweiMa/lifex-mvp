@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, User, Building, Check, CheckCircle, AlertCircle, Eye, EyeOff, Mail, Lock, Users, Briefcase, Shield } from 'lucide-react';
+import { ArrowLeft, User, Mail, Lock, Eye, EyeOff, CheckCircle, AlertCircle, Zap, Crown, Star } from 'lucide-react';
 
 const darkTheme = {
   primary: '#0a0a0a',
@@ -16,18 +16,20 @@ const darkTheme = {
   neon: {
     purple: '#a855f7',
     blue: '#3b82f6',
-    green: '#10b981'
+    green: '#10b981',
+    yellow: '#f59e0b',
+    orange: '#f97316'
   }
 };
 
-interface UserType {
-  id: 'consumer' | 'service_provider';
+interface SubscriptionTier {
+  id: 'free' | 'essential' | 'premium';
   title: string;
   subtitle: string;
+  price: string;
   features: string[];
-  icon: React.ComponentType<any>;
   color: string;
-  legalNotice?: string;
+  popular?: boolean;
 }
 
 interface FormData {
@@ -36,70 +38,83 @@ interface FormData {
   confirmPassword: string;
   username: string;
   full_name: string;
-  business_name: string;
-  service_category: string;
-  phone: string;
+  subscription_level: 'free' | 'essential' | 'premium';
 }
 
-const userTypes: UserType[] = [
+const subscriptionTiers: SubscriptionTier[] = [
   {
-    id: 'consumer',
-    title: 'Personal Account',
-    subtitle: 'Discover and enjoy local life services',
+    id: 'free',
+    title: 'Free',
+    subtitle: 'Perfect for getting started',
+    price: 'Free',
     features: [
-      'Discover quality local services',
-      'AI-powered life assistant',
-      'Book restaurants, beauty, and repair services',
-      'Share experiences and reviews',
-      'Personalized recommendations'
+      'Access to local services',
+      'Basic product publishing (100 items)',
+      'Community features',
+      'Email support'
     ],
-    icon: Users,
     color: darkTheme.neon.green
   },
   {
-    id: 'service_provider',
-    title: 'Business Account',
-    subtitle: 'Showcase and manage your local business',
+    id: 'essential',
+    title: 'Essential',
+    subtitle: 'Enhanced personal experience',
+    price: '$9.99/month',
     features: [
-      'Showcase your business services',
-      'Manage bookings and customers',
-      'Marketing and promotion tools',
-      'Customer review management',
-      'Business insights and analytics'
+      'Everything in Free',
+      'Coly AI personal assistant (50 calls/hour)',
+      'Enhanced product publishing (100 items)',
+      'Trending features (50/month)',
+      'Business features enabled',
+      'Priority support'
     ],
-    icon: Briefcase,
-    color: darkTheme.neon.purple,
-    legalNotice: 'As a business account holder, you must comply with the Consumer Guarantees Act (CGA), ensuring services are provided with reasonable skill and care'
+    color: darkTheme.neon.blue,
+    popular: true
+  },
+  {
+    id: 'premium',
+    title: 'Premium',
+    subtitle: 'Complete business solution',
+    price: '$29.99/month',
+    features: [
+      'Everything in Essential',
+      'Max AI business assistant (50 calls/hour)',
+      'Unlimited product publishing (1000 items)',
+      'Advanced trending features (200/month)',
+      'Advanced business analytics',
+      'Marketing tools',
+      'CRM features',
+      '24/7 priority support'
+    ],
+    color: darkTheme.neon.purple
   }
 ];
 
 const LifeXRegisterRedesign = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [selectedUserType, setSelectedUserType] = useState<'consumer' | 'service_provider' | null>(null);
+  const [selectedTier, setSelectedTier] = useState<'free' | 'essential' | 'premium'>('free');
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
     confirmPassword: '',
     username: '',
     full_name: '',
-    business_name: '',
-    service_category: '',
-    phone: ''
+    subscription_level: 'free'
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
-  const [acceptedServiceTerms, setAcceptedServiceTerms] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<boolean>(false);
 
-  const handleUserTypeSelect = (type: 'consumer' | 'service_provider') => {
-    setSelectedUserType(type);
+  const handleTierSelect = (tier: 'free' | 'essential' | 'premium') => {
+    setSelectedTier(tier);
+    setFormData(prev => ({ ...prev, subscription_level: tier }));
     setCurrentStep(2);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -133,16 +148,6 @@ const LifeXRegisterRedesign = () => {
       return 'Please accept the Terms of Service';
     }
 
-    if (selectedUserType === 'service_provider') {
-      if (!formData.business_name || !formData.service_category) {
-        return 'Business name and service category are required for service providers';
-      }
-      
-      if (!acceptedServiceTerms) {
-        return 'Please accept the service provider legal obligations';
-      }
-    }
-
     return null;
   };
 
@@ -157,22 +162,12 @@ const LifeXRegisterRedesign = () => {
     setError('');
 
     try {
-      const userTypeMapping = {
-        consumer: 'free',
-        service_provider: 'free_business'
-      };
-
       const registrationData = {
         email: formData.email,
         password: formData.password,
         username: formData.username,
         full_name: formData.full_name,
-        phone: formData.phone,
-        user_type: userTypeMapping[selectedUserType!],
-        ...(selectedUserType === 'service_provider' && {
-          business_name: formData.business_name,
-          service_category: formData.service_category
-        })
+        subscription_level: formData.subscription_level
       };
 
       console.log('Sending registration request:', registrationData);
@@ -220,7 +215,7 @@ const LifeXRegisterRedesign = () => {
     </div>
   );
 
-  const renderUserTypeSelection = () => (
+  const renderSubscriptionSelection = () => (
     <div className="space-y-4">
       <button
         onClick={() => window.location.href = '/'}
@@ -233,79 +228,86 @@ const LifeXRegisterRedesign = () => {
 
       <div className="text-center mb-6">
         <h2 className="text-xl font-bold mb-2" style={{ color: darkTheme.text.primary }}>
-          Choose Account Type
+          Choose Your Plan
         </h2>
         <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-          Select the account type that best fits your needs
+          Start with Free and upgrade anytime. All plans include both personal and business features.
         </p>
       </div>
 
       <div className="space-y-3">
-        {userTypes.map((type) => {
-          const Icon = type.icon;
-          return (
-            <div
-              key={type.id}
-              onClick={() => handleUserTypeSelect(type.id)}
-              className="p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]"
-              style={{
-                background: `${type.color}10`,
-                borderColor: selectedUserType === type.id ? type.color : `${type.color}30`,
-                boxShadow: selectedUserType === type.id ? `0 0 20px ${type.color}40` : 'none'
-              }}
-            >
-              <div className="flex items-start space-x-3">
-                <div 
-                  className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: `${type.color}20` }}
-                >
-                  <Icon size={20} style={{ color: type.color }} />
-                </div>
-                
-                <div className="flex-1">
-                  <h3 className="text-base font-semibold mb-1" style={{ color: darkTheme.text.primary }}>
-                    {type.title}
+        {subscriptionTiers.map((tier) => (
+          <div
+            key={tier.id}
+            onClick={() => handleTierSelect(tier.id)}
+            className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] relative ${
+              selectedTier === tier.id ? 'ring-2 ring-purple-500' : ''
+            }`}
+            style={{
+              background: `${tier.color}10`,
+              borderColor: selectedTier === tier.id ? tier.color : `${tier.color}30`,
+              boxShadow: selectedTier === tier.id ? `0 0 20px ${tier.color}40` : 'none'
+            }}
+          >
+            {tier.popular && (
+              <div className="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs px-2 py-1 rounded-full font-medium">
+                Most Popular
+              </div>
+            )}
+            
+            <div className="flex items-start space-x-3">
+              <div 
+                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: `${tier.color}20` }}
+              >
+                {tier.id === 'free' && <Star size={20} style={{ color: tier.color }} />}
+                {tier.id === 'essential' && <Zap size={20} style={{ color: tier.color }} />}
+                {tier.id === 'premium' && <Crown size={20} style={{ color: tier.color }} />}
+              </div>
+              
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-base font-semibold" style={{ color: darkTheme.text.primary }}>
+                    {tier.title}
                   </h3>
-                  <p className="text-xs mb-2" style={{ color: darkTheme.text.secondary }}>
-                    {type.subtitle}
-                  </p>
-                  
-                  <ul className="space-y-1">
-                    {type.features.slice(0, 3).map((feature, idx) => (
-                      <li key={idx} className="flex items-center text-xs">
-                        <CheckCircle size={12} className="mr-2 flex-shrink-0" style={{ color: type.color }} />
-                        <span style={{ color: darkTheme.text.primary }}>{feature}</span>
-                      </li>
-                    ))}
-                    {type.features.length > 3 && (
-                      <li className="text-xs" style={{ color: darkTheme.text.muted }}>
-                        +{type.features.length - 3} more features...
-                      </li>
-                    )}
-                  </ul>
-
-                  {type.legalNotice && (
-                    <div className="mt-3 p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
-                      <div className="flex items-start space-x-2">
-                        <AlertCircle size={12} className="text-yellow-500 mt-0.5 flex-shrink-0" />
-                        <p className="text-xs text-yellow-200">
-                          Legal compliance required for NZ business accounts
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                  <span className="text-sm font-medium" style={{ color: tier.color }}>
+                    {tier.price}
+                  </span>
                 </div>
+                <p className="text-xs mb-3" style={{ color: darkTheme.text.secondary }}>
+                  {tier.subtitle}
+                </p>
+                
+                <ul className="space-y-1">
+                  {tier.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-center text-xs">
+                      <CheckCircle size={12} className="mr-2 flex-shrink-0" style={{ color: tier.color }} />
+                      <span style={{ color: darkTheme.text.primary }}>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
+      </div>
+
+      <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
+        <div className="flex items-start space-x-2">
+          <AlertCircle size={16} className="text-blue-400 mt-0.5 flex-shrink-0" />
+          <div>
+            <h4 className="font-semibold text-blue-200 mb-1 text-sm">Unified Account System</h4>
+            <p className="text-xs text-blue-200">
+              All users can access both personal and business features. Start with Free and upgrade when you need more capabilities.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
 
   const renderRegistrationForm = () => {
-    const selectedType = userTypes.find(type => type.id === selectedUserType);
-    const isServiceProvider = selectedUserType === 'service_provider';
+    const selectedTierData = subscriptionTiers.find(tier => tier.id === selectedTier);
 
     return (
       <div className="space-y-4">
@@ -316,311 +318,202 @@ const LifeXRegisterRedesign = () => {
             style={{ color: darkTheme.text.muted }}
           >
             <ArrowLeft size={16} className="mr-2" />
-            Back to Account Type Selection
+            Back to Plan Selection
           </button>
           
           <div className="inline-flex items-center space-x-2 mb-2">
-            {selectedType && (
+            {selectedTierData && (
               <>
-                <selectedType.icon size={18} style={{ color: selectedType.color }} />
+                {selectedTier === 'free' && <Star size={18} style={{ color: selectedTierData.color }} />}
+                {selectedTier === 'essential' && <Zap size={18} style={{ color: selectedTierData.color }} />}
+                {selectedTier === 'premium' && <Crown size={18} style={{ color: selectedTierData.color }} />}
                 <h2 className="text-lg font-bold" style={{ color: darkTheme.text.primary }}>
-                  Register {selectedType.title}
+                  {selectedTierData.title} Plan Registration
                 </h2>
               </>
             )}
           </div>
           <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-            Fill in the following information to complete registration
+            Create your unified LifeX account with {selectedTierData?.title.toLowerCase()} features
           </p>
         </div>
 
         <div className="space-y-4">
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold" style={{ color: darkTheme.text.primary }}>
-              Basic Information
-            </h3>
-            
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
-                  Full Name *
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2" 
-                        size={16} style={{ color: darkTheme.text.muted }} />
-                  <input
-                    type="text"
-                    name="full_name"
-                    value={formData.full_name}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    style={{
-                      background: darkTheme.secondary,
-                      borderColor: `${darkTheme.neon.purple}30`,
-                      color: darkTheme.text.primary
-                    }}
-                    placeholder="Enter your full name"
-                    required
-                  />
-                </div>
-              </div>
+          <div>
+            <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
+              Full Name *
+            </label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2" 
+                    size={16} style={{ color: darkTheme.text.muted }} />
+              <input
+                type="text"
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleInputChange}
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                style={{
+                  background: darkTheme.secondary,
+                  borderColor: `${darkTheme.neon.purple}30`,
+                  color: darkTheme.text.primary
+                }}
+                placeholder="Enter your full name"
+                required
+              />
+            </div>
+          </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
-                  Username
-                </label>
+          <div>
+            <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
+              Username
+            </label>
+            <input
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              style={{
+                background: darkTheme.secondary,
+                borderColor: `${darkTheme.neon.purple}30`,
+                color: darkTheme.text.primary
+              }}
+              placeholder="Enter username (optional)"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
+              Email Address *
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2" 
+                    size={16} style={{ color: darkTheme.text.muted }} />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                style={{
+                  background: darkTheme.secondary,
+                  borderColor: `${darkTheme.neon.purple}30`,
+                  color: darkTheme.text.primary
+                }}
+                placeholder="Enter email address"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-3 grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
+                Password *
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2" 
+                      size={16} style={{ color: darkTheme.text.muted }} />
                 <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                   style={{
                     background: darkTheme.secondary,
                     borderColor: `${darkTheme.neon.purple}30`,
                     color: darkTheme.text.primary
                   }}
-                  placeholder="Enter username"
+                  placeholder="Password"
+                  required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-purple-400"
+                >
+                  {showPassword ? 
+                    <EyeOff size={16} style={{ color: darkTheme.text.muted }} /> : 
+                    <Eye size={16} style={{ color: darkTheme.text.muted }} />
+                  }
+                </button>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
-                  Email Address *
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2" 
-                        size={16} style={{ color: darkTheme.text.muted }} />
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    style={{
-                      background: darkTheme.secondary,
-                      borderColor: `${darkTheme.neon.purple}30`,
-                      color: darkTheme.text.primary
-                    }}
-                    placeholder="Enter email address"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-3 grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
-                    Password *
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2" 
-                          size={16} style={{ color: darkTheme.text.muted }} />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      className="w-full pl-10 pr-10 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      style={{
-                        background: darkTheme.secondary,
-                        borderColor: `${darkTheme.neon.purple}30`,
-                        color: darkTheme.text.primary
-                      }}
-                      placeholder="Password"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-purple-400"
-                    >
-                      {showPassword ? 
-                        <EyeOff size={16} style={{ color: darkTheme.text.muted }} /> : 
-                        <Eye size={16} style={{ color: darkTheme.text.muted }} />
-                      }
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
-                    Confirm *
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2" 
-                          size={16} style={{ color: darkTheme.text.muted }} />
-                    <input
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
-                      className="w-full pl-10 pr-10 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      style={{
-                        background: darkTheme.secondary,
-                        borderColor: `${darkTheme.neon.purple}30`,
-                        color: darkTheme.text.primary
-                      }}
-                      placeholder="Confirm"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-purple-400"
-                    >
-                      {showConfirmPassword ? 
-                        <EyeOff size={16} style={{ color: darkTheme.text.muted }} /> : 
-                        <Eye size={16} style={{ color: darkTheme.text.muted }} />
-                      }
-                    </button>
-                  </div>
-                </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
+                Confirm *
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2" 
+                      size={16} style={{ color: darkTheme.text.muted }} />
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  style={{
+                    background: darkTheme.secondary,
+                    borderColor: `${darkTheme.neon.purple}30`,
+                    color: darkTheme.text.primary
+                  }}
+                  placeholder="Confirm"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-purple-400"
+                >
+                  {showConfirmPassword ? 
+                    <EyeOff size={16} style={{ color: darkTheme.text.muted }} /> : 
+                    <Eye size={16} style={{ color: darkTheme.text.muted }} />
+                  }
+                </button>
               </div>
             </div>
           </div>
 
-          {isServiceProvider && (
-            <div className="space-y-3 pt-3 border-t" style={{ borderColor: `${darkTheme.neon.purple}20` }}>
-              <h3 className="text-base font-semibold" style={{ color: darkTheme.text.primary }}>
-                Service Provider Information
-              </h3>
-              
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
-                    Business Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="business_name"
-                    value={formData.business_name}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    style={{
-                      background: darkTheme.secondary,
-                      borderColor: `${darkTheme.neon.purple}30`,
-                      color: darkTheme.text.primary
-                    }}
-                    placeholder="Enter business name"
-                    required={isServiceProvider}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
-                    Service Category *
-                  </label>
-                  <select
-                    name="service_category"
-                    value={formData.service_category}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    style={{
-                      background: darkTheme.secondary,
-                      borderColor: `${darkTheme.neon.purple}30`,
-                      color: darkTheme.text.primary
-                    }}
-                    required={isServiceProvider}
-                  >
-                    <option value="">Select service category</option>
-                    <option value="dining">Dining - Restaurants, cafes, bakeries, and food services</option>
-                    <option value="beverage">Beverage - Bars, pubs, coffee roasters, and beverage venues</option>
-                    <option value="entertainment">Entertainment - Live music, cinemas, gaming, and entertainment venues</option>
-                    <option value="recreation">Recreation - Fitness, sports, outdoor activities, and recreation</option>
-                    <option value="shopping">Shopping - Fashion, markets, specialty stores, and retail</option>
-                    <option value="accommodation">Accommodation - Camping, B&Bs, unique stays, and special lodging</option>
-                    <option value="beauty">Beauty - Hair salons, nail studios, skincare, and beauty services</option>
-                    <option value="wellness">Wellness - Spas, massage, alternative medicine, and wellness</option>
-                    <option value="other">Other - Other lifestyle and experience businesses</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: darkTheme.text.secondary }}>
-                    Contact Phone
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    style={{
-                      background: darkTheme.secondary,
-                      borderColor: `${darkTheme.neon.purple}30`,
-                      color: darkTheme.text.primary
-                    }}
-                    placeholder="Enter contact phone"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {isServiceProvider && (
-            <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
-              <div className="flex items-start space-x-2">
-                <Shield className="text-yellow-500 mt-0.5 flex-shrink-0" size={16} />
-                <div>
-                  <h4 className="font-semibold text-yellow-200 mb-1 text-sm">Service Provider Legal Obligations</h4>
-                  <p className="text-xs text-yellow-200 mb-2">
-                    Under New Zealand's Consumer Guarantees Act (CGA), you must ensure:
-                  </p>
-                  <ul className="text-xs text-yellow-200 space-y-0.5">
-                    <li>• Provide services with reasonable skill and care</li>
-                    <li>• Ensure services are fit for their intended purpose</li>
-                    <li>• Complete services within a reasonable timeframe</li>
-                    <li>• Charge reasonable prices</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-2">
+          <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
             <div className="flex items-start space-x-2">
-              <input
-                type="checkbox"
-                id="terms"
-                checked={acceptedTerms}
-                onChange={(e) => setAcceptedTerms(e.target.checked)}
-                className="mt-1 w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
-              />
-              <label htmlFor="terms" className="text-xs" style={{ color: darkTheme.text.secondary }}>
-                I have read and agree to the{' '}
-                <button
-                  type="button"
-                  onClick={handleTermsClick}
-                  className="text-purple-400 hover:text-purple-300 hover:underline focus:outline-none"
-                >
-                  Terms of Service
-                </button>
-                {' '}and{' '}
-                <button
-                  type="button"
-                  onClick={handlePrivacyClick}
-                  className="text-purple-400 hover:text-purple-300 hover:underline focus:outline-none"
-                >
-                  Privacy Policy
-                </button>
-              </label>
-            </div>
-
-            {isServiceProvider && (
-              <div className="flex items-start space-x-2">
-                <input
-                  type="checkbox"
-                  id="service_terms"
-                  checked={acceptedServiceTerms}
-                  onChange={(e) => setAcceptedServiceTerms(e.target.checked)}
-                  className="mt-1 w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
-                />
-                <label htmlFor="service_terms" className="text-xs" style={{ color: darkTheme.text.secondary }}>
-                  I understand and agree to comply with the legal obligations as a business account holder, including the Consumer Guarantees Act requirements
-                </label>
+              <CheckCircle size={16} className="text-green-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-semibold text-green-200 mb-1 text-sm">Selected Plan: {selectedTierData?.title}</h4>
+                <p className="text-xs text-green-200">
+                  You'll start with {selectedTierData?.title.toLowerCase()} features. You can upgrade or downgrade anytime from your account settings.
+                </p>
               </div>
-            )}
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-2">
+            <input
+              type="checkbox"
+              id="terms"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              className="mt-1 w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
+            />
+            <label htmlFor="terms" className="text-xs" style={{ color: darkTheme.text.secondary }}>
+              I have read and agree to the{' '}
+              <button
+                type="button"
+                onClick={handleTermsClick}
+                className="text-purple-400 hover:text-purple-300 hover:underline focus:outline-none"
+              >
+                Terms of Service
+              </button>
+              {' '}and{' '}
+              <button
+                type="button"
+                onClick={handlePrivacyClick}
+                className="text-purple-400 hover:text-purple-300 hover:underline focus:outline-none"
+              >
+                Privacy Policy
+              </button>
+            </label>
           </div>
 
           {success && (
@@ -652,7 +545,7 @@ const LifeXRegisterRedesign = () => {
             className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
               loading ? 'cursor-wait' : 'hover:scale-[1.02] hover:shadow-lg'
             }`}
-            style={{ background: selectedType?.color || darkTheme.neon.purple }}
+            style={{ background: selectedTierData?.color || darkTheme.neon.purple }}
           >
             {loading ? (
               <div className="flex items-center justify-center space-x-2">
@@ -662,7 +555,7 @@ const LifeXRegisterRedesign = () => {
             ) : success ? (
               'Registration Complete'
             ) : (
-              'Complete Registration'
+              `Create ${selectedTierData?.title} Account`
             )}
           </button>
         </div>
@@ -705,19 +598,16 @@ const LifeXRegisterRedesign = () => {
                 onClick={() => {
                   setSuccess(false);
                   setCurrentStep(1);
-                  setSelectedUserType(null);
+                  setSelectedTier('free');
                   setFormData({
                     email: '',
                     password: '',
                     confirmPassword: '',
                     username: '',
                     full_name: '',
-                    business_name: '',
-                    service_category: '',
-                    phone: ''
+                    subscription_level: 'free'
                   });
                   setAcceptedTerms(false);
-                  setAcceptedServiceTerms(false);
                 }}
                 className="block w-full py-3 px-6 rounded-lg font-medium transition-all duration-200 hover:bg-gray-700"
                 style={{ 
@@ -750,7 +640,7 @@ const LifeXRegisterRedesign = () => {
         >
           {renderStepIndicator()}
           
-          {currentStep === 1 && renderUserTypeSelection()}
+          {currentStep === 1 && renderSubscriptionSelection()}
           {currentStep === 2 && renderRegistrationForm()}
           
           <div className="mt-6 text-center">

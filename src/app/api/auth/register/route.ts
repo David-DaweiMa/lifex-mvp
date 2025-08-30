@@ -43,10 +43,10 @@ export async function POST(request: NextRequest) {
       phone,
       business_name,
       service_category,
-      user_type = 'free'
+      subscription_level = 'free'
     } = body;
 
-    console.log('=== Registration Request ===', { email, user_type, business_name, service_category });
+    console.log('=== Registration Request ===', { email, subscription_level, business_name, service_category });
 
     // Input validation
     if (!email || !password || !full_name) {
@@ -63,35 +63,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate user type
-    const validUserTypes = ['free', 'customer', 'premium', 'free_business', 'professional_business', 'enterprise_business'];
-    if (!validUserTypes.includes(user_type)) {
+    // Validate subscription level
+    const validSubscriptionLevels = ['free', 'essential', 'premium'];
+    if (!validSubscriptionLevels.includes(subscription_level)) {
       return NextResponse.json(
-        { error: 'Invalid user type' },
+        { error: 'Invalid subscription level' },
         { status: 400 }
       );
-    }
-
-    // Service provider required field validation
-    if (user_type.includes('business') && (!business_name || !service_category)) {
-      return NextResponse.json(
-        { error: 'Business name and service category are required for service providers' },
-        { status: 400 }
-      );
-    }
-
-    // 验证服务类别
-    if (user_type.includes('business') && service_category) {
-      const validServiceCategories = Object.keys(SERVICE_CATEGORY_MAPPING);
-      if (!validServiceCategories.includes(service_category)) {
-        return NextResponse.json(
-          { 
-            error: `Invalid service category. Allowed: ${validServiceCategories.join(', ')}`,
-            allowedCategories: validServiceCategories
-          },
-          { status: 400 }
-        );
-      }
     }
 
     // Check email status
@@ -132,11 +110,7 @@ export async function POST(request: NextRequest) {
       username,
       full_name,
       phone,
-      user_type,
-      ...(user_type.includes('business') && {
-        business_name,
-        service_category
-      })
+      subscription_level
     };
 
     console.log('=== Starting User Registration ===');
@@ -187,7 +161,7 @@ export async function POST(request: NextRequest) {
     console.log('✅ User profile verification successful');
 
     // 创建业务记录 - 修复后的版本
-    if (user_type.includes('business') && business_name) {
+    if (business_name) {
       console.log('=== Creating Service Provider Business Record ===');
       
       try {
@@ -255,7 +229,7 @@ export async function POST(request: NextRequest) {
       const emailResult = await sendEmailVerification(
         email, 
         result.user.id, 
-        user_type,
+        subscription_level,
         service_category
       );
       
@@ -287,8 +261,8 @@ export async function POST(request: NextRequest) {
       emailSent: emailSent,
       emailError: emailError,
       expiresInHours: 24,
-      isServiceProvider: user_type.includes('business'),
-      businessCategory: user_type.includes('business') ? service_category : null
+      isServiceProvider: !!business_name,
+      businessCategory: business_name ? service_category : null
     });
 
   } catch (error) {
