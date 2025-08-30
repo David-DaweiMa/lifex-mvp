@@ -5,12 +5,13 @@ import { getCurrentUser } from '@/lib/authService';
 export async function GET(request: NextRequest) {
   try {
     const supabase = createClient();
-    const currentUser = await getCurrentUser();
+    const currentUserResult = await getCurrentUser();
 
-    if (!currentUser) {
+    if (!currentUserResult.success || !currentUserResult.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const currentUser = currentUserResult.user;
     const userId = currentUser.id;
 
     // Get product quota data

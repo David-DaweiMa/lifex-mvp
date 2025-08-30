@@ -15,7 +15,7 @@ import {
   RefreshCw,
   Zap
 } from 'lucide-react';
-import { useAuth } from '@/lib/authService';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { QUOTA_CONFIG } from '@/lib/quotaConfig';
 
 interface QuotaData {

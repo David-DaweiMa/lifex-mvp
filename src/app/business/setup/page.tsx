@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
-import { useAuth } from '@/lib/authService';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 interface BusinessSetupData {
   business_name: string;
