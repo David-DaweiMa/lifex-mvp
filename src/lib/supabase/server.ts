@@ -8,7 +8,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
 }
 
 export function createServerClient() {
-  return supabaseCreateClient(supabaseUrl, supabaseServiceKey, {
+  return supabaseCreateClient(supabaseUrl!, supabaseServiceKey!, {
     auth: {
       autoRefreshToken: false,
       persistSession: false

@@ -27,7 +27,7 @@ class EmailService {
     // 初始化 Resend
     if (process.env.RESEND_API_KEY) {
       try {
-        this.resend = new Resend(process.env.RESEND_API_KEY);
+        this.resend = new Resend(process.env.RESEND_API_KEY!);
         console.log('✅ Resend 客户端初始化成功');
         console.log('发件人邮箱:', this.fromEmail);
       } catch (error) {
@@ -47,8 +47,8 @@ class EmailService {
    */
   private initializeSupabaseAdmin() {
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
       if (!supabaseUrl || !supabaseServiceKey) {
         console.error('❌ Supabase配置缺失');
@@ -57,7 +57,7 @@ class EmailService {
         return;
       }
 
-      this.supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      this.supabaseAdmin = createClient(supabaseUrl!, supabaseServiceKey!, {
         auth: {
           autoRefreshToken: false,
           persistSession: false
