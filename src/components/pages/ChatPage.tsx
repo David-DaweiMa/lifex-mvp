@@ -266,9 +266,6 @@ const ChatPage: React.FC<ChatPageProps> = ({
               >
                 <Send size={18} />
               </button>
-              <button className="p-3 rounded-xl border border-dark-glass hover:bg-white/5 transition-colors">
-                <Mic size={18} className="text-lifex-purple" />
-              </button>
             </div>
           </div>
 
