@@ -12,6 +12,7 @@ export interface UserProfile {
   business_name?: string;
   email_verified: boolean;
   is_active?: boolean;
+  verification_status?: 'none' | 'pending' | 'approved' | 'rejected';
   created_at: string;
   updated_at: string;
 }
