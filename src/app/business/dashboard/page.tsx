@@ -10,7 +10,8 @@ import {
   Store,
   Camera,
   Star,
-  Briefcase
+  Briefcase,
+  BarChart3
 } from 'lucide-react';
 
 // Import the business components
@@ -18,6 +19,7 @@ import BusinessDashboard from '@/components/business/BusinessDashboard';
 import BusinessAdvanced from '@/components/business/BusinessAdvanced';
 import BusinessSpecials from '@/components/business/BusinessSpecials';
 import BusinessMax from '@/components/business/BusinessMax';
+import QuotaDisplay from '@/components/business/QuotaDisplay';
 
 // Import existing theme and auth
 import { darkTheme } from '@/lib/theme';
@@ -25,7 +27,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 
 // Types for the dashboard
 interface DashboardModule {
-  id: 'core' | 'media' | 'specials' | 'max';
+  id: 'core' | 'media' | 'specials' | 'max' | 'quota';
   label: string;
   icon: React.ComponentType<any>;
   color: string;
@@ -76,6 +78,14 @@ export default function BusinessDashboardPage() {
       color: darkTheme.neon.cyan,
       component: BusinessMax,
       description: 'Business growth expert'
+    },
+    { 
+      id: 'quota', 
+      label: 'Quota & Usage', 
+      icon: BarChart3, 
+      color: darkTheme.neon.yellow,
+      component: QuotaDisplay,
+      description: 'Usage limits and quotas'
     }
   ];
 
