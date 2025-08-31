@@ -302,34 +302,34 @@ const ChatPage: React.FC<ChatPageProps> = ({
                       <Plus size={18} />
                     </button>
                     
-                    {/* Attachment Menu */}
-                    {showAttachmentMenu && (
-                      <div className="absolute bottom-full left-0 mb-2 bg-dark-card border border-dark-glass rounded-xl shadow-lg overflow-hidden z-50">
-                        <div className="p-2 space-y-1">
-                          <button
-                            onClick={handleTakePhoto}
-                            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
-                          >
-                            <Camera size={16} className="text-lifex-purple" />
-                            <span className="text-sm text-text-primary">Take a photo</span>
-                          </button>
-                          <button
-                            onClick={handleUploadImage}
-                            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
-                          >
-                            <Image size={16} className="text-lifex-purple" />
-                            <span className="text-sm text-text-primary">Upload image</span>
-                          </button>
-                          <button
-                            onClick={handleUploadFile}
-                            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
-                          >
-                            <FileText size={16} className="text-lifex-purple" />
-                            <span className="text-sm text-text-primary">Upload file</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
+                                         {/* Attachment Menu */}
+                     {showAttachmentMenu && (
+                       <div className="absolute top-full left-0 mt-2 bg-dark-card border border-dark-glass rounded-xl shadow-lg overflow-hidden z-50">
+                         <div className="p-2 space-y-1">
+                           <button
+                             onClick={handleTakePhoto}
+                             className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
+                           >
+                             <Camera size={16} className="text-lifex-purple" />
+                             <span className="text-sm text-text-primary">Take a photo</span>
+                           </button>
+                           <button
+                             onClick={handleUploadImage}
+                             className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
+                           >
+                             <Image size={16} className="text-lifex-purple" />
+                             <span className="text-sm text-text-primary">Upload image</span>
+                           </button>
+                           <button
+                             onClick={handleUploadFile}
+                             className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
+                           >
+                             <FileText size={16} className="text-lifex-purple" />
+                             <span className="text-sm text-text-primary">Upload file</span>
+                           </button>
+                         </div>
+                       </div>
+                     )}
                   </div>
                   
                   <div className="flex-1 relative">
