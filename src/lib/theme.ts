@@ -14,7 +14,7 @@ export const darkTheme = {
   // Text colors
   text: {
     primary: '#FFFFFF',        // Primary white text
-    secondary: '#B794F6',      // Light purple for secondary text
+    secondary: '#22C55E',      // Bright green for secondary text (Kiwi theme)
     muted: '#805AD5',          // Medium purple for muted text
     dark: '#1A1625',           // Dark text for light backgrounds
     inverse: '#0F0B1A'         // Inverse text color
