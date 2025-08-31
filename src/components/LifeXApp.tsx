@@ -261,16 +261,16 @@ const LifeXApp: React.FC = () => {
               onClick={() => setCurrentView(tab.id)}
               className="flex flex-col items-center py-2 md:py-3 px-3 md:px-4 transition-all"
               style={{
-                color: currentView === tab.id ? '#FFFFFF' : darkTheme.text.muted,
+                color: currentView === tab.id ? darkTheme.neon.purple : '#9CA3AF',
               }}
               onMouseEnter={(e) => {
                 if (currentView !== tab.id) {
-                  e.currentTarget.style.color = '#FFFFFF';
+                  e.currentTarget.style.color = darkTheme.neon.purple;
                 }
               }}
               onMouseLeave={(e) => {
                 if (currentView !== tab.id) {
-                  e.currentTarget.style.color = darkTheme.text.muted;
+                  e.currentTarget.style.color = '#9CA3AF';
                 }
               }}
             >
