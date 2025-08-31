@@ -14,6 +14,7 @@ interface DiscoverPageProps {
 
 // Discovery tabs like in the second image
 const discoveryTabs = [
+  { id: 'following', label: 'Following', icon: Star },
   { id: 'hot', label: 'Hot', icon: TrendingUp },
   { id: 'recommended', label: 'Recommended', icon: Star },
   { id: 'nearby', label: 'Nearby', icon: MapPin }
@@ -23,7 +24,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
   selectedServiceCategory,
   setSelectedServiceCategory
 }) => {
-  const [selectedTab, setSelectedTab] = useState('hot');
+  const [selectedTab, setSelectedTab] = useState('following');
   
   // Business data state
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -70,6 +71,9 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
 
       // Apply tab filters
       switch (selectedTab) {
+        case 'following':
+          filters.sortBy = 'rating';
+          break;
         case 'hot':
           filters.sortBy = 'review_count';
           break;
@@ -157,24 +161,30 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
             </p>
           </div>
 
-          {/* Discovery Tabs - 像第二个图片那样 */}
-          <div className="flex gap-2 mb-6">
-            {discoveryTabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedTab(tab.id)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all min-w-[120px] justify-center"
-                                 style={{
-                   background: selectedTab === tab.id ? '#A855F7' : 'transparent',
-                   color: selectedTab === tab.id ? 'white' : '#A855F7',
-                   border: selectedTab === tab.id ? 'none' : `1px solid ${darkTheme.background.glass}`,
-                 }}
-              >
-                <tab.icon size={16} />
-                {tab.label}
-              </button>
-            ))}
-          </div>
+                     {/* Discovery Tabs - 统一样式 */}
+           <div className="flex items-center justify-center mb-6">
+             <div 
+               className="flex rounded-2xl p-1"
+               style={{ background: darkTheme.background.glass }}
+             >
+               {discoveryTabs.map((tab) => (
+                 <button
+                   key={tab.id}
+                   onClick={() => setSelectedTab(tab.id)}
+                   className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all min-w-[120px] justify-center ${
+                     selectedTab === tab.id ? 'shadow-lg' : ''
+                   }`}
+                   style={{
+                     background: selectedTab === tab.id ? '#A855F7' : 'transparent',
+                     color: selectedTab === tab.id ? 'white' : '#A855F7',
+                   }}
+                 >
+                   <tab.icon size={16} />
+                   {tab.label}
+                 </button>
+               ))}
+             </div>
+           </div>
 
           {/* Search Bar */}
           <div className="mb-6">
@@ -204,21 +214,31 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                   key={category.id}
                   onClick={() => setSelectedServiceCategory(category.id)}
                   className="p-3 md:p-4 rounded-xl border transition-all hover:scale-105 h-20 md:h-24 min-w-[80px]"
-                  style={{
-                    background: selectedServiceCategory === category.id ? `${category.color}20` : darkTheme.background.card,
-                    borderColor: selectedServiceCategory === category.id ? `${category.color}40` : darkTheme.background.glass,
-                  }}
+                                     style={{
+                     background: selectedServiceCategory === category.id 
+                       ? (category.id === 'all' ? '#A855F720' : `${category.color}20`) 
+                       : darkTheme.background.card,
+                     borderColor: selectedServiceCategory === category.id 
+                       ? (category.id === 'all' ? '#A855F740' : `${category.color}40`) 
+                       : darkTheme.background.glass,
+                   }}
                 >
                   <div className="flex flex-col items-center justify-center gap-2 h-full">
                                          <category.icon 
                        size={18} 
                        className="md:w-5 md:h-5"
-                       style={{ color: selectedServiceCategory === category.id ? category.color : '#A855F7' }} 
+                       style={{ 
+                         color: selectedServiceCategory === category.id 
+                           ? (category.id === 'all' ? '#A855F7' : category.color) 
+                           : '#A855F7' 
+                       }} 
                      />
                      <span 
                        className="text-xs md:text-sm font-medium text-center leading-tight px-1"
                        style={{ 
-                         color: selectedServiceCategory === category.id ? category.color : '#A855F7' 
+                         color: selectedServiceCategory === category.id 
+                           ? (category.id === 'all' ? '#A855F7' : category.color) 
+                           : '#A855F7' 
                        }}
                      >
                       {category.name}
