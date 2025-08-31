@@ -307,13 +307,6 @@ const ChatPage: React.FC<ChatPageProps> = ({
                        <div className="absolute top-full left-0 mt-2 bg-dark-card border border-dark-glass rounded-xl shadow-lg overflow-hidden z-50">
                          <div className="p-2 space-y-1">
                            <button
-                             onClick={handleTakePhoto}
-                             className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
-                           >
-                             <Camera size={16} className="text-lifex-purple" />
-                             <span className="text-sm text-text-primary">Take a photo</span>
-                           </button>
-                           <button
                              onClick={() => {
                                imageInputRef.current?.click();
                                setShowAttachmentMenu(false);
@@ -342,13 +335,6 @@ const ChatPage: React.FC<ChatPageProps> = ({
                            >
                              <Image size={16} className="text-lifex-purple" />
                              <span className="text-sm text-text-primary">Upload from files</span>
-                           </button>
-                           <button
-                             onClick={handleUploadFile}
-                             className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
-                           >
-                             <FileText size={16} className="text-lifex-purple" />
-                             <span className="text-sm text-text-primary">Upload file</span>
                            </button>
                          </div>
                        </div>
