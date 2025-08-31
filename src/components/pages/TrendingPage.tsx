@@ -365,7 +365,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
 
 const TrendingPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [selectedMainCategory, setSelectedMainCategory] = useState('Hot');
+  const [selectedMainCategory, setSelectedMainCategory] = useState('Recommended');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);

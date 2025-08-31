@@ -15,7 +15,6 @@ interface DiscoverPageProps {
 // Discovery tabs like in the second image
 const discoveryTabs = [
   { id: 'following', label: 'Following', icon: Star },
-  { id: 'hot', label: 'Hot', icon: TrendingUp },
   { id: 'recommended', label: 'Recommended', icon: Star },
   { id: 'nearby', label: 'Nearby', icon: MapPin }
 ];
@@ -24,7 +23,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
   selectedServiceCategory,
   setSelectedServiceCategory
 }) => {
-  const [selectedTab, setSelectedTab] = useState('following');
+  const [selectedTab, setSelectedTab] = useState('recommended');
   
   // Business data state
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -73,9 +72,6 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
       switch (selectedTab) {
         case 'following':
           filters.sortBy = 'rating';
-          break;
-        case 'hot':
-          filters.sortBy = 'review_count';
           break;
         case 'nearby':
           filters.sortBy = 'name';
