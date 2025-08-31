@@ -2,7 +2,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Send, Plus, Mic, ArrowLeft, Star, Phone, MapPin, Sparkles } from 'lucide-react';
 import { Message, Business } from '../../lib/types';
-import { quickPrompts } from '../../lib/mockData';
+import { quickPrompts, recentDiscoveries } from '../../lib/mockData';
 
 interface ChatPageProps {
   messages: Message[];
@@ -262,10 +262,9 @@ const ChatPage: React.FC<ChatPageProps> = ({
              </div>
            </div>
 
-                     {/* Quick Prompts - Auto-scrolling */}
-           <div className="mb-16 md:mb-20">
-             <h2 className="font-semibold mb-2 text-base md:text-lg text-text-primary">Quick Questions</h2>
-             <div className="space-y-1">
+                                 {/* Quick Prompts - Auto-scrolling */}
+            <div className="mb-16 md:mb-20">
+              <div className="space-y-1">
                {quickPrompts.map((row, rowIdx) => (
                  <div 
                    key={rowIdx} 
@@ -314,6 +313,30 @@ const ChatPage: React.FC<ChatPageProps> = ({
                  animation-play-state: paused;
                }
              `}</style>
+           </div>
+
+           {/* Recent Discoveries - Content only */}
+           <div className="mb-8 mt-24 md:mt-32">
+             <div className="flex items-center justify-between mb-4">
+               <h2 className="font-semibold text-base md:text-lg text-text-primary">Recent Discoveries</h2>
+               <button className="text-sm text-lifex-purple hover:text-lifex-purple/80 transition-colors">
+                 See all
+               </button>
+             </div>
+             
+             {/* Discovery content cards */}
+             <div className="space-y-3">
+               {recentDiscoveries.map((discovery, idx) => (
+                 <div 
+                   key={idx}
+                   className="flex items-center p-3 rounded-xl bg-dark-card border border-dark-glass cursor-pointer hover:bg-dark-secondary transition-colors"
+                 >
+                   <div className="flex-1">
+                     <p className="text-sm text-text-primary">{discovery.text}</p>
+                   </div>
+                 </div>
+               ))}
+             </div>
            </div>
 
            
