@@ -308,6 +308,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                          <div className="p-2 space-y-1">
                                                        <button
                               onClick={() => {
+                                console.log('Upload from gallery clicked');
                                 imageInputRef.current?.click();
                                 setShowAttachmentMenu(false);
                               }}
