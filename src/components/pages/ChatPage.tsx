@@ -316,16 +316,16 @@ const ChatPage: React.FC<ChatPageProps> = ({
                              <Image size={16} className="text-lifex-purple" />
                              <span className="text-sm text-text-primary">Upload from gallery</span>
                            </button>
-                           <button
-                             onClick={() => {
-                               imageInputRef.current?.click();
-                               setShowAttachmentMenu(false);
-                             }}
-                             className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
-                           >
-                             <Image size={16} className="text-lifex-purple" />
-                             <span className="text-sm text-text-primary">Upload from camera roll</span>
-                           </button>
+                                                       <button
+                              onClick={() => {
+                                handleTakePhoto();
+                                setShowAttachmentMenu(false);
+                              }}
+                              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
+                            >
+                              <Camera size={16} className="text-lifex-purple" />
+                              <span className="text-sm text-text-primary">Take a photo</span>
+                            </button>
                            <button
                              onClick={() => {
                                imageInputRef.current?.click();
