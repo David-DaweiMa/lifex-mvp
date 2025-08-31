@@ -1,6 +1,6 @@
 // src/components/pages/ChatPage.tsx
-import React, { useRef, useEffect } from 'react';
-import { Send, Plus, Mic, ArrowLeft, Star, Phone, MapPin, Sparkles } from 'lucide-react';
+import React, { useRef, useEffect, useState } from 'react';
+import { Send, Plus, Mic, ArrowLeft, Star, Phone, MapPin, Sparkles, Camera, Image, FileText } from 'lucide-react';
 import { Message, Business } from '../../lib/types';
 import { quickPrompts, recentDiscoveries } from '../../lib/mockData';
 
@@ -28,6 +28,9 @@ const ChatPage: React.FC<ChatPageProps> = ({
   followUpQuestions = []
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -36,6 +39,58 @@ const ChatPage: React.FC<ChatPageProps> = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Close attachment menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showAttachmentMenu) {
+        setShowAttachmentMenu(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showAttachmentMenu]);
+
+  // Handle file uploads
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      console.log('File uploaded:', file.name);
+      // TODO: Implement file upload logic
+      // For now, just add a message about the file
+      setChatInput(`Uploaded file: ${file.name}`);
+    }
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      console.log('Image uploaded:', file.name);
+      // TODO: Implement image upload logic
+      // For now, just add a message about the image
+      setChatInput(`Uploaded image: ${file.name}`);
+    }
+  };
+
+  const handleTakePhoto = () => {
+    // TODO: Implement camera functionality
+    console.log('Take photo clicked');
+    setChatInput('Camera functionality coming soon...');
+    setShowAttachmentMenu(false);
+  };
+
+  const handleUploadImage = () => {
+    imageInputRef.current?.click();
+    setShowAttachmentMenu(false);
+  };
+
+  const handleUploadFile = () => {
+    fileInputRef.current?.click();
+    setShowAttachmentMenu(false);
+  };
 
   const renderMessage = (message: Message, index: number) => (
     <div key={index} className="mb-6">
@@ -237,28 +292,63 @@ const ChatPage: React.FC<ChatPageProps> = ({
                   </h1>
                 </div>
                
-               {/* Bottom Row - Input and Buttons */}
-               <div className="flex items-center gap-3">
-                 <button className="p-2 rounded-lg hover:bg-white/5 transition-colors flex-shrink-0">
-                   <Plus size={20} className="text-lifex-purple" />
-                 </button>
-                 <div className="flex-1 relative">
-                   <input
-                     type="text"
-                     value={chatInput}
-                     onChange={(e) => setChatInput(e.target.value)}
-                     onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
-                     placeholder="Type your message..."
-                     className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors text-base"
-                   />
-                 </div>
-                 <button 
-                   onClick={onSendMessage}
-                   className="p-3 rounded-xl bg-lifex-purple text-white hover:bg-lifex-purple/90 transition-colors flex-shrink-0"
-                 >
-                   <Send size={18} />
-                 </button>
-               </div>
+                               {/* Bottom Row - Input and Buttons */}
+                <div className="flex items-center gap-3">
+                  <div className="relative flex-shrink-0">
+                    <button 
+                      onClick={() => setShowAttachmentMenu(!showAttachmentMenu)}
+                      className="p-3 rounded-xl border border-lifex-purple text-lifex-purple hover:bg-lifex-purple/10 transition-colors"
+                    >
+                      <Plus size={18} />
+                    </button>
+                    
+                    {/* Attachment Menu */}
+                    {showAttachmentMenu && (
+                      <div className="absolute bottom-full left-0 mb-2 bg-dark-card border border-dark-glass rounded-xl shadow-lg overflow-hidden z-50">
+                        <div className="p-2 space-y-1">
+                          <button
+                            onClick={handleTakePhoto}
+                            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
+                          >
+                            <Camera size={16} className="text-lifex-purple" />
+                            <span className="text-sm text-text-primary">Take a photo</span>
+                          </button>
+                          <button
+                            onClick={handleUploadImage}
+                            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
+                          >
+                            <Image size={16} className="text-lifex-purple" />
+                            <span className="text-sm text-text-primary">Upload image</span>
+                          </button>
+                          <button
+                            onClick={handleUploadFile}
+                            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
+                          >
+                            <FileText size={16} className="text-lifex-purple" />
+                            <span className="text-sm text-text-primary">Upload file</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 relative">
+                    <input
+                      type="text"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
+                      placeholder="Type your message..."
+                      className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors text-base"
+                    />
+                  </div>
+                  <button 
+                    onClick={onSendMessage}
+                    className="p-3 rounded-xl bg-lifex-purple text-white hover:bg-lifex-purple/90 transition-colors flex-shrink-0"
+                  >
+                    <Send size={18} />
+                  </button>
+                </div>
              </div>
            </div>
 
@@ -344,6 +434,22 @@ const ChatPage: React.FC<ChatPageProps> = ({
                      
         </div>
       </div>
+
+      {/* Hidden file inputs */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,.doc,.docx,.txt,.zip,.rar"
+        onChange={handleFileUpload}
+        className="hidden"
+      />
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        className="hidden"
+      />
     </div>
   );
 };
