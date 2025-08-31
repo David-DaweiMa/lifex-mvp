@@ -228,8 +228,8 @@ const ChatPage: React.FC<ChatPageProps> = ({
       <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
         <div className="relative z-10 max-w-4xl mx-auto">
                      {/* Large Chat Dialog with Two-Row Layout */}
-           <div className="mb-6 md:mb-8">
-             <div className="bg-dark-card border border-dark-glass rounded-2xl p-6 md:p-8">
+                       <div className="mb-6 md:mb-8">
+              <div className="bg-dark-card border border-dark-glass rounded-2xl p-6 md:p-8 min-h-[300px] md:min-h-[400px]">
                                {/* Top Row - Welcome Message */}
                 <div className="mb-4">
                   <h1 className="text-sm md:text-base font-semibold text-text-primary">
