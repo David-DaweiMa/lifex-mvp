@@ -230,26 +230,32 @@ const MembershipPlansPage: React.FC<MembershipPlansPageProps> = ({
                     <h4 className="font-semibold mb-3 text-sm" style={{ color: plan.color }}>
                       Key Limits
                     </h4>
-                    <div className="space-y-2 text-xs">
-                      <div className="flex justify-between">
-                        <span style={{ color: darkTheme.text.secondary }}>AI Chat:</span>
-                        <span style={{ color: darkTheme.text.primary }}>
-                          {getQuotaDisplay(plan.id, 'chat')}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: darkTheme.text.secondary }}>Products:</span>
-                        <span style={{ color: darkTheme.text.primary }}>
-                          {getQuotaDisplay(plan.id, 'products')}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: darkTheme.text.secondary }}>Coly Assistant:</span>
-                        <span style={{ color: darkTheme.text.primary }}>
-                          {plan.id === 'free' ? 'Not available' : 'Available'}
-                        </span>
-                      </div>
-                    </div>
+                                         <div className="space-y-2 text-xs">
+                       <div className="flex justify-between">
+                         <span style={{ color: darkTheme.text.secondary }}>AI Chat:</span>
+                         <span style={{ color: darkTheme.text.primary }}>
+                           {getQuotaDisplay(plan.id, 'chat')}
+                         </span>
+                       </div>
+                       <div className="flex justify-between">
+                         <span style={{ color: darkTheme.text.secondary }}>Products:</span>
+                         <span style={{ color: darkTheme.text.primary }}>
+                           {getQuotaDisplay(plan.id, 'products')}
+                         </span>
+                       </div>
+                       <div className="flex justify-between">
+                         <span style={{ color: darkTheme.text.secondary }}>Coly Assistant:</span>
+                         <span style={{ color: darkTheme.text.primary }}>
+                           {plan.id === 'free' ? 'Not available' : 'Available'}
+                         </span>
+                       </div>
+                       <div className="flex justify-between">
+                         <span style={{ color: darkTheme.text.secondary }}>Max Assistant:</span>
+                         <span style={{ color: darkTheme.text.primary }}>
+                           {plan.id === 'premium' ? 'Available' : 'Not available'}
+                         </span>
+                       </div>
+                     </div>
                   </div>
                   
                   <button
