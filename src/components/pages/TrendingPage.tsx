@@ -23,6 +23,7 @@ import {
 import { darkTheme } from '../../lib/theme';
 import { trendingData } from '../../lib/mockData';
 import { typedSupabase } from '../../lib/supabase';
+import FloatingButton from '../ui/FloatingButton';
 
 // Real database interface
 interface TrendingPost {
@@ -1201,16 +1202,14 @@ const TrendingPage: React.FC = () => {
       </div>
 
       {/* Floating Create Button */}
-      <button
-        onClick={handleCreatePostClick}
-        className="fixed bottom-20 right-4 md:right-6 w-14 h-14 rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 z-40"
-        style={{
-          background: `linear-gradient(135deg, ${darkTheme.neon.purple} 0%, ${darkTheme.neon.pink} 100%)`,
-          boxShadow: `0 8px 32px ${darkTheme.neon.purple}40`
-        }}
-      >
-        <Plus size={24} className="text-white" />
-      </button>
+      <div className="fixed bottom-20 right-4 md:right-6 z-40">
+        <FloatingButton
+          icon={Plus}
+          onClick={handleCreatePostClick}
+          variant="primary"
+          size="md"
+        />
+      </div>
 
       {/* Create Post Modal */}
       <CreatePostModal

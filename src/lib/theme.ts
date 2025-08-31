@@ -58,9 +58,9 @@ export const darkTheme = {
 
   // Gradients
   gradients: {
-    primary: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
-    secondary: 'linear-gradient(135deg, #B794F6 0%, #9F7AEA 100%)',
-    accent: 'linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%)',
+    primary: 'linear-gradient(135deg, #22C55E 0%, #EC4899 100%)',
+    secondary: 'linear-gradient(135deg, #22C55E 0%, #10B981 100%)',
+    accent: 'linear-gradient(135deg, #EC4899 0%, #22C55E 100%)',
     dark: 'linear-gradient(135deg, #1A1625 0%, #0F0B1A 100%)',
     background: 'linear-gradient(135deg, #0a0a0a, #1a1a1a, #111)'  // 使用之前的背景渐变
   },

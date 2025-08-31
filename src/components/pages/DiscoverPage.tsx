@@ -5,6 +5,7 @@ import { darkTheme } from '../../lib/theme';
 import { discoverCategories, discoverContent } from '../../lib/mockData';
 import { businessService, Business, BusinessFilters } from '../../lib/businessService';
 import { getCurrentUser } from '../../lib/authService';
+import FloatingButton from '../ui/FloatingButton';
 
 interface DiscoverPageProps {
   selectedServiceCategory: string;
@@ -405,16 +406,14 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
       </div>
 
       {/* Floating Business Action Button */}
-      <button
-        onClick={handleBusinessAction}
-        className="fixed bottom-20 right-4 md:right-6 w-14 h-14 rounded-full shadow-lg transition-all hover:scale-110 z-50 floating-button"
-        style={{
-          background: `linear-gradient(135deg, ${darkTheme.neon.purple}, ${darkTheme.neon.pink})`,
-          boxShadow: `0 8px 32px ${darkTheme.neon.purple}40`,
-        }}
-      >
-        <Building2 className="w-6 h-6 text-white" />
-      </button>
+      <div className="fixed bottom-20 right-4 md:right-6 z-50">
+        <FloatingButton
+          icon={Building2}
+          onClick={handleBusinessAction}
+          variant="primary"
+          size="md"
+        />
+      </div>
 
       {/* Business Modal */}
       {showBusinessModal && (
