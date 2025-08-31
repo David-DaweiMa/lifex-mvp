@@ -105,17 +105,8 @@ const ColyPage: React.FC<ColyPageProps> = ({
           
           {/* Hero Section - Simplified */}
           <div className="text-center mb-12 md:mb-16">
-            <div className="flex items-center justify-center mb-8">
-              <div 
-                className="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center mr-6"
-                style={{ 
-                  background: `linear-gradient(135deg, ${darkTheme.neon.pink}, ${darkTheme.neon.purple})`,
-                  boxShadow: `0 0 40px ${darkTheme.neon.pink}40`
-                }}
-              >
-                <Heart className="w-10 h-10 md:w-12 md:h-12 text-white" />
-              </div>
-              <div>
+            <div className="mb-8">
+              <div className="text-left max-w-2xl mx-auto">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-3" style={{ color: darkTheme.text.primary }}>
                   Meet Coly
                 </h1>
@@ -125,14 +116,6 @@ const ColyPage: React.FC<ColyPageProps> = ({
                 <p className="text-lg md:text-xl mb-8" style={{ color: darkTheme.text.secondary }}>
                   "Stop managing life. Start living it."
                 </p>
-                <button 
-                  onClick={onNavigateToChat}
-                  className="px-8 py-3 rounded-xl font-medium transition-all hover:scale-105 flex items-center gap-2 mx-auto"
-                  style={{ background: darkTheme.neon.purple, color: 'white' }}
-                >
-                  Try Coly Free
-                  <ArrowRight className="w-4 h-4" />
-                </button>
               </div>
             </div>
           </div>
@@ -384,11 +367,14 @@ const ColyPage: React.FC<ColyPageProps> = ({
               <h2 className="text-3xl font-bold mb-4" style={{ color: darkTheme.text.primary }}>
                 Ready to Transform Your Life?
               </h2>
-              <p className="text-lg mb-6" style={{ color: darkTheme.text.secondary }}>
-                Start your free trial today and experience the difference Coly can make in your daily life.
+              <p className="text-lg mb-4" style={{ color: darkTheme.text.secondary }}>
+                Start your 2-week free trial today and experience the difference Coly can make in your daily life.
+              </p>
+              <p className="text-sm mb-6" style={{ color: darkTheme.text.muted }}>
+                Cancel anytime after your free trial ends. No commitment required.
               </p>
               <button 
-                onClick={onNavigateToChat}
+                onClick={onNavigateToMembership}
                 className="px-8 py-3 rounded-xl font-medium transition-all hover:scale-105 flex items-center gap-2 mx-auto"
                 style={{ background: darkTheme.neon.purple, color: 'white' }}
               >
