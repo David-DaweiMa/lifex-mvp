@@ -316,33 +316,26 @@ const ChatPage: React.FC<ChatPageProps> = ({
              `}</style>
            </div>
 
-           {/* Recent Discoveries - Content only */}
-           <div className="mb-8">
-             <div className="flex items-center justify-between mb-4">
-               <h2 className="font-semibold text-base md:text-lg text-text-primary">Recent Discoveries</h2>
-               <button className="text-sm text-lifex-purple hover:text-lifex-purple/80 transition-colors">
-                 See all
-               </button>
-             </div>
-             
-             {/* Discovery content cards */}
-             <div className="space-y-3">
-               {recentDiscoveries.map((discovery, idx) => (
-                 <div 
-                   key={idx}
-                   className="flex items-center gap-3 p-3 rounded-xl bg-dark-card border border-dark-glass cursor-pointer hover:bg-dark-secondary transition-colors"
-                 >
-                   <div className="text-2xl">{discovery.icon}</div>
-                   <div className="flex-1">
-                     <p className="text-sm text-text-primary">{discovery.text}</p>
-                   </div>
-                   <button className="text-lifex-purple hover:text-lifex-purple/80 transition-colors">
-                     <Sparkles size={16} />
-                   </button>
-                 </div>
-               ))}
-             </div>
-           </div>
+                       {/* Recent Discoveries - Content only */}
+            <div className="mb-8 mt-16 md:mt-24">
+              {/* Discovery content cards */}
+              <div className="space-y-3">
+                {recentDiscoveries.map((discovery, idx) => (
+                  <div 
+                    key={idx}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-dark-card border border-dark-glass cursor-pointer hover:bg-dark-secondary transition-colors"
+                  >
+                    <div className="text-2xl">{discovery.icon}</div>
+                    <div className="flex-1">
+                      <p className="text-sm text-text-primary">{discovery.text}</p>
+                    </div>
+                    <button className="text-lifex-purple hover:text-lifex-purple/80 transition-colors">
+                      <Sparkles size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
 
                      
         </div>
