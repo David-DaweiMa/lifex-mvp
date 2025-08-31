@@ -227,17 +227,10 @@ const ChatPage: React.FC<ChatPageProps> = ({
     <div className="h-full overflow-y-auto bg-gradient-background pb-20">
       <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
         <div className="relative z-10 max-w-4xl mx-auto">
-                     {/* Large Chat Dialog with Welcome Message */}
-           <div className="mb-6 md:mb-8 mt-16 md:mt-24">
+                     {/* Large Chat Dialog with Integrated Welcome Message */}
+           <div className="mb-6 md:mb-8">
              <div className="bg-dark-card border border-dark-glass rounded-2xl p-6 md:p-8">
-               {/* Welcome Message in Top Left */}
-               <div className="mb-6">
-                 <h1 className="text-lg md:text-xl font-semibold text-text-primary">
-                   G'day! What can I help you find today?
-                 </h1>
-               </div>
-               
-               {/* Chat Input Inside Dialog */}
+               {/* Chat Input with Welcome Message as Placeholder */}
                <div className="flex items-center gap-3">
                  <button className="p-2 rounded-lg hover:bg-white/5 transition-colors">
                    <Plus size={20} className="text-lifex-purple" />
@@ -248,7 +241,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                      value={chatInput}
                      onChange={(e) => setChatInput(e.target.value)}
                      onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
-                     placeholder="Ask me anything about New Zealand..."
+                     placeholder="G'day! What can I help you find today?"
                      className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors text-base"
                    />
                  </div>
