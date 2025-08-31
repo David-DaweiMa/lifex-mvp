@@ -690,7 +690,7 @@ const TrendingPage: React.FC = () => {
                     <button
                       key={category.key}
                       onClick={() => setSelectedMainCategory(category.key)}
-                      className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-sm transition-all ${
+                      className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all min-w-[120px] justify-center ${
                         selectedMainCategory === category.key ? 'shadow-lg' : ''
                       }`}
                       style={{
@@ -716,7 +716,7 @@ const TrendingPage: React.FC = () => {
                     <button
                       key={tag.key}
                       onClick={() => handleTagClick(tag.key)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium border transition-all whitespace-nowrap`}
+                      className={`px-4 py-2 rounded-full text-sm font-medium border transition-all whitespace-nowrap min-w-[80px] text-center`}
                       style={{
                         background: tag.active 
                           ? `${darkTheme.neon.purple}20` 

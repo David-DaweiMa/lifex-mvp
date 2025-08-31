@@ -162,7 +162,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setSelectedTab(tab.id)}
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all min-w-[120px] justify-center"
                 style={{
                   background: selectedTab === tab.id ? darkTheme.neon.purple : 'transparent',
                   color: selectedTab === tab.id ? 'white' : darkTheme.text.secondary,
@@ -202,20 +202,20 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                 <button
                   key={category.id}
                   onClick={() => setSelectedServiceCategory(category.id)}
-                  className="p-2 md:p-3 rounded-xl border transition-all hover:scale-105 h-16 md:h-20"
+                  className="p-3 md:p-4 rounded-xl border transition-all hover:scale-105 h-20 md:h-24 min-w-[80px]"
                   style={{
                     background: selectedServiceCategory === category.id ? `${category.color}20` : darkTheme.background.card,
                     borderColor: selectedServiceCategory === category.id ? `${category.color}40` : darkTheme.background.glass,
                   }}
                 >
-                  <div className="flex flex-col items-center justify-center gap-1 md:gap-2 h-full">
+                  <div className="flex flex-col items-center justify-center gap-2 h-full">
                     <category.icon 
-                      size={16} 
-                      className="md:w-4 md:h-4"
+                      size={18} 
+                      className="md:w-5 md:h-5"
                       style={{ color: selectedServiceCategory === category.id ? category.color : darkTheme.text.muted }} 
                     />
                     <span 
-                      className="text-xs font-medium text-center leading-tight"
+                      className="text-xs md:text-sm font-medium text-center leading-tight px-1"
                       style={{ 
                         color: selectedServiceCategory === category.id ? category.color : darkTheme.text.secondary 
                       }}
