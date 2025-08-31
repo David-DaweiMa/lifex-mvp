@@ -192,7 +192,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
             background: darkTheme.background.primary,
             borderColor: darkTheme.background.glass,
             color: darkTheme.text.primary,
-            '--tw-ring-color': darkTheme.neon.purple,
+            '--tw-ring-color': '#A855F7',
           } as React.CSSProperties}
           rows={4}
         />
@@ -276,7 +276,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
                   background: darkTheme.background.primary,
                   borderColor: darkTheme.background.glass,
                   color: darkTheme.text.primary,
-                  '--tw-ring-color': darkTheme.neon.purple,
+                  '--tw-ring-color': '#A855F7',
                 } as React.CSSProperties}
               />
             </div>
@@ -696,7 +696,7 @@ const TrendingPage: React.FC = () => {
                       }`}
                       style={{
                         background: selectedMainCategory === category.key 
-                          ? darkTheme.neon.purple 
+                          ? '#A855F7' 
                           : 'transparent',
                         color: selectedMainCategory === category.key 
                           ? 'white' 
@@ -720,13 +720,13 @@ const TrendingPage: React.FC = () => {
                       className={`px-4 py-2 rounded-full text-sm font-medium border transition-all whitespace-nowrap min-w-[80px] text-center`}
                       style={{
                         background: tag.active 
-                          ? `${darkTheme.neon.purple}20` 
+                          ? `#A855F720` 
                           : darkTheme.background.card,
                         borderColor: tag.active 
-                          ? darkTheme.neon.purple 
+                          ? '#A855F7' 
                           : darkTheme.background.glass,
                         color: tag.active 
-                          ? darkTheme.neon.purple 
+                          ? '#A855F7' 
                           : darkTheme.text.primary,
                       }}
                     >

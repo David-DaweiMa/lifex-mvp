@@ -35,8 +35,8 @@ const FloatingButton: React.FC<FloatingButtonProps> = ({
     switch (variant) {
       case 'primary':
         return {
-          background: `linear-gradient(135deg, ${darkTheme.neon.purple} 0%, ${darkTheme.neon.pink} 100%)`,
-          boxShadow: `0 8px 32px ${darkTheme.neon.purple}40, 0 4px 16px rgba(0,0,0,0.3)`
+          background: `linear-gradient(135deg, #A855F7 0%, #EC4899 100%)`,
+          boxShadow: `0 8px 32px #A855F740, 0 4px 16px rgba(0,0,0,0.3)`
         };
       case 'secondary':
         return {
@@ -47,11 +47,11 @@ const FloatingButton: React.FC<FloatingButtonProps> = ({
       case 'notification':
         return {
           background: hasNotification 
-            ? `linear-gradient(135deg, ${darkTheme.neon.purple} 0%, ${darkTheme.neon.pink} 100%)`
+            ? `linear-gradient(135deg, #A855F7 0%, #EC4899 100%)`
             : darkTheme.background.card,
           border: hasNotification ? 'none' : `1px solid ${darkTheme.background.glass}`,
           boxShadow: hasNotification 
-            ? `0 8px 32px ${darkTheme.neon.purple}40, 0 4px 16px rgba(0,0,0,0.3)`
+            ? `0 8px 32px #A855F740, 0 4px 16px rgba(0,0,0,0.3)`
             : '0 8px 32px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2)'
         };
       default:

@@ -164,11 +164,11 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                 key={tab.id}
                 onClick={() => setSelectedTab(tab.id)}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all min-w-[120px] justify-center"
-                style={{
-                  background: selectedTab === tab.id ? darkTheme.neon.purple : 'transparent',
-                  color: selectedTab === tab.id ? 'white' : darkTheme.text.secondary,
-                  border: selectedTab === tab.id ? 'none' : `1px solid ${darkTheme.background.glass}`,
-                }}
+                                 style={{
+                   background: selectedTab === tab.id ? '#A855F7' : 'transparent',
+                   color: selectedTab === tab.id ? 'white' : darkTheme.text.secondary,
+                   border: selectedTab === tab.id ? 'none' : `1px solid ${darkTheme.background.glass}`,
+                 }}
               >
                 <tab.icon size={16} />
                 {tab.label}
@@ -190,7 +190,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                   background: darkTheme.background.card,
                   borderColor: darkTheme.background.glass,
                   color: darkTheme.text.primary,
-                  '--tw-ring-color': darkTheme.neon.purple,
+                                     '--tw-ring-color': '#A855F7',
                 } as React.CSSProperties}
               />
             </div>
@@ -251,7 +251,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
           {/* Loading State */}
           {loading && businesses.length === 0 && (
             <div className="flex justify-center items-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: darkTheme.neon.purple }} />
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#A855F7' }} />
             </div>
           )}
 
@@ -276,7 +276,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                         style={{ 
                           background: business.cover_photo_url 
                             ? `url(${business.cover_photo_url}) center/cover` 
-                            : `linear-gradient(135deg, ${darkTheme.neon.purple}, ${darkTheme.neon.blue})` 
+                            : `linear-gradient(135deg, #A855F7, ${darkTheme.neon.blue})` 
                         }}
                       >
                         {!business.cover_photo_url && (
@@ -320,10 +320,10 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                           <span 
                             key={index}
                             className="px-2 py-1 rounded-full text-xs font-medium"
-                            style={{
-                              background: `${darkTheme.neon.purple}20`,
-                              color: darkTheme.neon.purple,
-                            }}
+                                                       style={{
+                             background: `#A855F720`,
+                             color: '#A855F7',
+                           }}
                           >
                             {tag}
                           </span>
@@ -385,11 +385,11 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                 onClick={handleLoadMore}
                 disabled={loading}
                 className="px-6 py-3 rounded-xl font-medium transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  background: loading ? darkTheme.background.secondary : darkTheme.neon.purple, 
-                  color: 'white',
-                  opacity: loading ? 0.6 : 1
-                }}
+                                 style={{
+                   background: loading ? darkTheme.background.secondary : '#A855F7', 
+                   color: 'white',
+                   opacity: loading ? 0.6 : 1
+                 }}
               >
                 {loading ? (
                   <>

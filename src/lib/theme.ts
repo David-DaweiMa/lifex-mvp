@@ -47,7 +47,7 @@ export const darkTheme = {
 
   // Neon colors (for backward compatibility)
   neon: {
-    purple: '#22C55E',         // 亮绿色替代紫色
+    purple: '#A855F7',         // 亮紫色主题
     green: '#10B981',
     blue: '#3B82F6',
     pink: '#EC4899',
@@ -58,9 +58,9 @@ export const darkTheme = {
 
   // Gradients
   gradients: {
-    primary: 'linear-gradient(135deg, #22C55E 0%, #EC4899 100%)',
-    secondary: 'linear-gradient(135deg, #22C55E 0%, #10B981 100%)',
-    accent: 'linear-gradient(135deg, #EC4899 0%, #22C55E 100%)',
+    primary: 'linear-gradient(135deg, #A855F7 0%, #EC4899 100%)',
+    secondary: 'linear-gradient(135deg, #A855F7 0%, #8B5CF6 100%)',
+    accent: 'linear-gradient(135deg, #EC4899 0%, #A855F7 100%)',
     dark: 'linear-gradient(135deg, #1A1625 0%, #0F0B1A 100%)',
     background: 'linear-gradient(135deg, #0a0a0a, #1a1a1a, #111)'  // 使用之前的背景渐变
   },
