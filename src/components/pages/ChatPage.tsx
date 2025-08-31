@@ -228,10 +228,10 @@ const ChatPage: React.FC<ChatPageProps> = ({
       <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
         <div className="relative z-10 max-w-4xl mx-auto">
                      {/* Large Chat Dialog with Two-Row Layout */}
-                       <div className="mb-6 md:mb-8">
-              <div className="bg-dark-card border border-dark-glass rounded-2xl p-6 md:p-8 min-h-[300px] md:min-h-[400px]">
-                               {/* Top Row - Welcome Message */}
-                <div className="mb-4">
+                                   <div className="mb-6 md:mb-8">
+              <div className="bg-dark-card border border-dark-glass rounded-2xl p-6 md:p-8 min-h-[180px] md:min-h-[240px] flex flex-col justify-between">
+                {/* Top Row - Welcome Message */}
+                <div>
                   <h1 className="text-sm md:text-base font-semibold text-text-primary">
                     G'day! What can I help you find today?
                   </h1>
@@ -239,7 +239,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                
                {/* Bottom Row - Input and Buttons */}
                <div className="flex items-center gap-3">
-                 <button className="p-2 rounded-lg hover:bg-white/5 transition-colors">
+                 <button className="p-2 rounded-lg hover:bg-white/5 transition-colors flex-shrink-0">
                    <Plus size={20} className="text-lifex-purple" />
                  </button>
                  <div className="flex-1 relative">
@@ -254,7 +254,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                  </div>
                  <button 
                    onClick={onSendMessage}
-                   className="p-3 rounded-xl bg-lifex-purple text-white hover:bg-lifex-purple/90 transition-colors"
+                   className="p-3 rounded-xl bg-lifex-purple text-white hover:bg-lifex-purple/90 transition-colors flex-shrink-0"
                  >
                    <Send size={18} />
                  </button>
