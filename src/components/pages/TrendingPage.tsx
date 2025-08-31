@@ -694,14 +694,14 @@ const TrendingPage: React.FC = () => {
                       className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all min-w-[120px] justify-center ${
                         selectedMainCategory === category.key ? 'shadow-lg' : ''
                       }`}
-                      style={{
-                        background: selectedMainCategory === category.key 
-                          ? '#A855F7' 
-                          : 'transparent',
-                        color: selectedMainCategory === category.key 
-                          ? 'white' 
-                          : darkTheme.text.primary,
-                      }}
+                                             style={{
+                         background: selectedMainCategory === category.key 
+                           ? '#A855F7' 
+                           : 'transparent',
+                         color: selectedMainCategory === category.key 
+                           ? 'white' 
+                           : '#A855F7',
+                       }}
                     >
                       <category.icon size={16} />
                       {category.label}
@@ -718,17 +718,17 @@ const TrendingPage: React.FC = () => {
                       key={tag.key}
                       onClick={() => handleTagClick(tag.key)}
                       className={`px-4 py-2 rounded-full text-sm font-medium border transition-all whitespace-nowrap min-w-[80px] text-center`}
-                      style={{
-                        background: tag.active 
-                          ? `#A855F720` 
-                          : darkTheme.background.card,
-                        borderColor: tag.active 
-                          ? '#A855F7' 
-                          : darkTheme.background.glass,
-                        color: tag.active 
-                          ? '#A855F7' 
-                          : darkTheme.text.primary,
-                      }}
+                                             style={{
+                         background: tag.active 
+                           ? `#A855F720` 
+                           : darkTheme.background.card,
+                         borderColor: tag.active 
+                           ? '#A855F7' 
+                           : darkTheme.background.glass,
+                         color: tag.active 
+                           ? '#A855F7' 
+                           : '#A855F7',
+                       }}
                     >
                       {tag.label}
                       {tag.active && selectedTags.length > 0 && (

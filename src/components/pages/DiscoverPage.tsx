@@ -166,7 +166,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                 className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all min-w-[120px] justify-center"
                                  style={{
                    background: selectedTab === tab.id ? '#A855F7' : 'transparent',
-                   color: selectedTab === tab.id ? 'white' : darkTheme.text.secondary,
+                   color: selectedTab === tab.id ? 'white' : '#A855F7',
                    border: selectedTab === tab.id ? 'none' : `1px solid ${darkTheme.background.glass}`,
                  }}
               >
@@ -210,17 +210,17 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                   }}
                 >
                   <div className="flex flex-col items-center justify-center gap-2 h-full">
-                    <category.icon 
-                      size={18} 
-                      className="md:w-5 md:h-5"
-                      style={{ color: selectedServiceCategory === category.id ? category.color : darkTheme.text.muted }} 
-                    />
-                    <span 
-                      className="text-xs md:text-sm font-medium text-center leading-tight px-1"
-                      style={{ 
-                        color: selectedServiceCategory === category.id ? category.color : darkTheme.text.secondary 
-                      }}
-                    >
+                                         <category.icon 
+                       size={18} 
+                       className="md:w-5 md:h-5"
+                       style={{ color: selectedServiceCategory === category.id ? category.color : '#A855F7' }} 
+                     />
+                     <span 
+                       className="text-xs md:text-sm font-medium text-center leading-tight px-1"
+                       style={{ 
+                         color: selectedServiceCategory === category.id ? category.color : '#A855F7' 
+                       }}
+                     >
                       {category.name}
                     </span>
                   </div>
