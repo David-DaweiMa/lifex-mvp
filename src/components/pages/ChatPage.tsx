@@ -230,12 +230,12 @@ const ChatPage: React.FC<ChatPageProps> = ({
                      {/* Large Chat Dialog with Two-Row Layout */}
            <div className="mb-6 md:mb-8">
              <div className="bg-dark-card border border-dark-glass rounded-2xl p-6 md:p-8">
-               {/* Top Row - Welcome Message */}
-               <div className="mb-4">
-                 <h1 className="text-lg md:text-xl font-semibold text-text-primary">
-                   G'day! What can I help you find today?
-                 </h1>
-               </div>
+                               {/* Top Row - Welcome Message */}
+                <div className="mb-4">
+                  <h1 className="text-sm md:text-base font-semibold text-text-primary">
+                    G'day! What can I help you find today?
+                  </h1>
+                </div>
                
                {/* Bottom Row - Input and Buttons */}
                <div className="flex items-center gap-3">
