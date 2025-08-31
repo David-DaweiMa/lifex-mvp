@@ -46,7 +46,7 @@ export const darkTheme = {
 
   // Neon colors (for backward compatibility)
   neon: {
-    purple: '#8B5CF6',
+    purple: '#A855F7',         // 更亮更鲜艳的紫色
     green: '#10B981',
     blue: '#3B82F6',
     pink: '#EC4899',
