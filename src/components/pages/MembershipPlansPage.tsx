@@ -40,7 +40,9 @@ const MembershipPlansPage: React.FC<MembershipPlansPageProps> = ({
         "Basic AI conversations (10/day)",
         "Limited trending views",
         "Basic recommendations",
-        "Community access"
+        "Community access",
+        "Business features enabled",
+        "20 product listings"
       ]
     },
     {
@@ -271,79 +273,7 @@ const MembershipPlansPage: React.FC<MembershipPlansPageProps> = ({
             </div>
           </div>
 
-          {/* Features Comparison */}
-          <div className="mb-12">
-            <h3 className="text-xl font-bold text-center mb-8" style={{ color: darkTheme.text.primary }}>
-              What's Included
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div 
-                className="p-6 rounded-xl border"
-                style={{
-                  background: `${darkTheme.neon.pink}10`,
-                  borderColor: `${darkTheme.neon.pink}30`,
-                }}
-              >
-                <div className="flex items-center mb-4">
-                  <Heart className="w-6 h-6 mr-3" style={{ color: darkTheme.neon.pink }} />
-                  <h4 className="font-semibold" style={{ color: darkTheme.text.primary }}>
-                    Personal Features
-                  </h4>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center">
-                    <Check className="w-4 h-4 mr-2" style={{ color: darkTheme.neon.pink }} />
-                    <span style={{ color: darkTheme.text.primary }}>Coly Life Assistant</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-4 h-4 mr-2" style={{ color: darkTheme.neon.pink }} />
-                    <span style={{ color: darkTheme.text.primary }}>Smart scheduling</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-4 h-4 mr-2" style={{ color: darkTheme.neon.pink }} />
-                    <span style={{ color: darkTheme.text.primary }}>Local recommendations</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-4 h-4 mr-2" style={{ color: darkTheme.neon.pink }} />
-                    <span style={{ color: darkTheme.text.primary }}>Family management</span>
-                  </div>
-                </div>
-              </div>
 
-              <div 
-                className="p-6 rounded-xl border"
-                style={{
-                  background: `${darkTheme.neon.green}10`,
-                  borderColor: `${darkTheme.neon.green}30`,
-                }}
-              >
-                <div className="flex items-center mb-4">
-                  <Building className="w-6 h-6 mr-3" style={{ color: darkTheme.neon.green }} />
-                  <h4 className="font-semibold" style={{ color: darkTheme.text.primary }}>
-                    Business Features
-                  </h4>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center">
-                    <Check className="w-4 h-4 mr-2" style={{ color: darkTheme.neon.green }} />
-                    <span style={{ color: darkTheme.text.primary }}>Max Business Assistant</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-4 h-4 mr-2" style={{ color: darkTheme.neon.green }} />
-                    <span style={{ color: darkTheme.text.primary }}>Product listings</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-4 h-4 mr-2" style={{ color: darkTheme.neon.green }} />
-                    <span style={{ color: darkTheme.text.primary }}>Business analytics</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-4 h-4 mr-2" style={{ color: darkTheme.neon.green }} />
-                    <span style={{ color: darkTheme.text.primary }}>Customer insights</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* FAQ Section */}
           <div className="mb-8">
