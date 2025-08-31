@@ -1,39 +1,21 @@
 // src/components/pages/ColyPage.tsx
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  Send, 
-  Plus, 
-  Mic, 
-  ArrowLeft, 
-  Star, 
-  Phone, 
-  MapPin, 
-  Sparkles,
   Heart,
   Calendar,
-  Coffee,
-  Home,
-  Info,
-  Crown,
-  AlertCircle,
-  Clock,
   DollarSign,
   Users,
   CheckCircle,
-  Zap,
-  Shield,
-  TrendingUp,
-  MessageCircle,
-  Smartphone,
-  Car,
   Utensils,
-  ShoppingBag
+  TrendingUp,
+  Star,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
 import { Message } from '../../lib/types';
 import { useAuth } from '../../lib/hooks/useAuth';
-import { checkAssistantPermission, getAssistantIcon, getAssistantColor, getAssistantDescription } from '../../lib/assistantPermissions';
-import { AssistantType } from '../../lib/assistantPermissions';
+import { getAssistantIcon, getAssistantColor } from '../../lib/assistantPermissions';
 
 interface ColyPageProps {
   onNavigateToChat: () => void;
@@ -47,10 +29,6 @@ const ColyPage: React.FC<ColyPageProps> = ({
   userType = 'personal'
 }) => {
   const { user } = useAuth();
-  
-  // Check user permissions
-  const subscriptionLevel = user?.subscription_level || 'free';
-  const colyPermission = checkAssistantPermission('coly', subscriptionLevel as any);
 
   // Demo conversation messages
   const [demoMessages] = useState<Message[]>([
@@ -78,7 +56,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
     familyCoordination: 'Perfect'
   });
 
-  // Feature cards data
+  // Core features - simplified to 4 key features
   const features = [
     {
       icon: Calendar,
@@ -103,22 +81,10 @@ const ColyPage: React.FC<ColyPageProps> = ({
       title: "代办提醒",
       description: "WOF/保险，自动预约",
       color: "purple"
-    },
-    {
-      icon: Utensils,
-      title: "餐饮管家",
-      description: "推荐+预订，会员优惠",
-      color: "orange"
-    },
-    {
-      icon: TrendingUp,
-      title: "消费分析",
-      description: "省钱建议，消费习惯",
-      color: "yellow"
     }
   ];
 
-  // Usage scenarios
+  // Usage scenarios - simplified to 2 key moments
   const scenarios = [
     {
       time: "7:30 AM",
@@ -129,26 +95,17 @@ const ColyPage: React.FC<ColyPageProps> = ({
       time: "12:00 PM",
       content: "你常去的咖啡店今天有午餐特价，$15牛油果鸡肉沙拉+咖啡，离你办公室5分钟路程。",
       icon: "🍽️"
-    },
-    {
-      time: "5:00 PM",
-      content: "孩子足球训练5:30开始，附近停车场已满，我帮你找到了2个空位，距离球场3分钟步行。",
-      icon: "⚽"
     }
   ];
 
-  // Show upgrade prompt if user can't use Coly - REMOVED
-  // All users will now see the value showcase page
-
-  // Main Coly showcase page
   return (
     <div className="h-full overflow-y-auto bg-gradient-background pb-20">
-      <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
-        <div className="relative z-10 max-w-6xl mx-auto">
+      <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8">
+        <div className="relative z-10 max-w-5xl mx-auto">
           
-          {/* Hero Section */}
+          {/* Hero Section - Simplified */}
           <div className="text-center mb-12 md:mb-16">
-            <div className="flex items-center justify-center mb-6">
+            <div className="flex items-center justify-center mb-8">
               <div 
                 className="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center mr-6"
                 style={{ 
@@ -168,30 +125,19 @@ const ColyPage: React.FC<ColyPageProps> = ({
                 <p className="text-lg md:text-xl mb-8" style={{ color: darkTheme.text.secondary }}>
                   "Stop managing life. Start living it."
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button 
-                    onClick={onNavigateToChat}
-                    className="px-8 py-3 rounded-xl font-medium transition-all hover:scale-105"
-                    style={{ background: darkTheme.neon.purple, color: 'white' }}
-                  >
-                    Try Coly Free
-                  </button>
-                  <button 
-                    className="px-8 py-3 rounded-xl font-medium border transition-all hover:scale-105"
-                    style={{ 
-                      borderColor: darkTheme.neon.purple, 
-                      color: darkTheme.neon.purple,
-                      background: `${darkTheme.neon.purple}10`
-                    }}
-                  >
-                    See How It Works
-                  </button>
-                </div>
+                <button 
+                  onClick={onNavigateToChat}
+                  className="px-8 py-3 rounded-xl font-medium transition-all hover:scale-105 flex items-center gap-2 mx-auto"
+                  style={{ background: darkTheme.neon.purple, color: 'white' }}
+                >
+                  Try Coly Free
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Value Demonstration Section */}
+          {/* Value Demonstration Section - Simplified */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
             {/* Left: Demo Conversation */}
             <div className="space-y-4">
@@ -203,7 +149,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
                 style={{
                   background: darkTheme.background.card,
                   borderColor: darkTheme.background.glass,
-                  minHeight: '400px'
+                  minHeight: '350px'
                 }}
               >
                 {demoMessages.map((message, index) => (
@@ -248,13 +194,13 @@ const ColyPage: React.FC<ColyPageProps> = ({
               </div>
             </div>
 
-            {/* Right: Value Statistics */}
+            {/* Right: Value Statistics - Simplified */}
             <div className="space-y-6">
               <h2 className="text-2xl font-bold mb-6" style={{ color: darkTheme.text.primary }}>
                 What Coly Saves You
               </h2>
               
-              {/* Stats Grid */}
+              {/* Stats Grid - Simplified to 2x2 */}
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div 
                   className="p-6 rounded-xl border text-center"
@@ -321,7 +267,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
                 </div>
               </div>
 
-              {/* User Feedback */}
+              {/* User Feedback - Simplified */}
               <div 
                 className="p-6 rounded-xl border"
                 style={{
@@ -332,7 +278,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0">
                     <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center">
-                      <span className="text-white font-bold">U</span>
+                      <span className="text-white font-bold">S</span>
                     </div>
                   </div>
                   <div>
@@ -353,12 +299,12 @@ const ColyPage: React.FC<ColyPageProps> = ({
             </div>
           </div>
 
-          {/* Feature Showcase */}
+          {/* Feature Showcase - Simplified to 2x2 grid */}
           <div className="mb-16">
             <h2 className="text-3xl font-bold text-center mb-12" style={{ color: darkTheme.text.primary }}>
               How Coly Works
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 gap-6">
               {features.map((feature, index) => (
                 <div 
                   key={index}
@@ -388,7 +334,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
             </div>
           </div>
 
-          {/* Usage Scenarios */}
+          {/* Usage Scenarios - Simplified to 2 scenarios */}
           <div className="mb-16">
             <h2 className="text-3xl font-bold text-center mb-12" style={{ color: darkTheme.text.primary }}>
               A Day with Coly
@@ -426,10 +372,10 @@ const ColyPage: React.FC<ColyPageProps> = ({
             </div>
           </div>
 
-          {/* Call to Action */}
+          {/* Call to Action - Simplified */}
           <div className="text-center">
             <div 
-              className="p-8 rounded-2xl border mb-8"
+              className="p-8 rounded-2xl border"
               style={{
                 background: `${darkTheme.neon.purple}10`,
                 borderColor: `${darkTheme.neon.purple}30`,
@@ -441,25 +387,14 @@ const ColyPage: React.FC<ColyPageProps> = ({
               <p className="text-lg mb-6" style={{ color: darkTheme.text.secondary }}>
                 Start your free trial today and experience the difference Coly can make in your daily life.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button 
-                  onClick={onNavigateToChat}
-                  className="px-8 py-3 rounded-xl font-medium transition-all hover:scale-105"
-                  style={{ background: darkTheme.neon.purple, color: 'white' }}
-                >
-                  Start Free Trial
-                </button>
-                <button 
-                  className="px-8 py-3 rounded-xl font-medium border transition-all hover:scale-105"
-                  style={{ 
-                    borderColor: darkTheme.neon.purple, 
-                    color: darkTheme.neon.purple,
-                    background: `${darkTheme.neon.purple}10`
-                  }}
-                >
-                  Learn More
-                </button>
-              </div>
+              <button 
+                onClick={onNavigateToChat}
+                className="px-8 py-3 rounded-xl font-medium transition-all hover:scale-105 flex items-center gap-2 mx-auto"
+                style={{ background: darkTheme.neon.purple, color: 'white' }}
+              >
+                Start Free Trial
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
