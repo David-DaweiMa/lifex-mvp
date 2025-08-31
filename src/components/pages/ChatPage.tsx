@@ -262,25 +262,58 @@ const ChatPage: React.FC<ChatPageProps> = ({
              </div>
            </div>
 
-                     {/* Quick Prompts - Reduced spacing */}
+                     {/* Quick Prompts - Auto-scrolling */}
            <div className="mb-16 md:mb-20">
              <h2 className="font-semibold mb-2 text-base md:text-lg text-text-primary">Quick Questions</h2>
              <div className="space-y-1">
                {quickPrompts.map((row, rowIdx) => (
-                 <div key={rowIdx} className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                   {row.map((prompt, idx) => (
-                     <button
-                       key={idx}
-                       onClick={() => onQuickPrompt(prompt)}
-                       className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 whitespace-nowrap flex-shrink-0 bg-dark-card border border-dark-glass text-text-primary hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
-                       style={{ minWidth: 'fit-content' }}
-                     >
-                       {prompt}
-                     </button>
-                   ))}
+                 <div 
+                   key={rowIdx} 
+                   className="flex gap-2 overflow-hidden pb-2"
+                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                 >
+                   <div 
+                     className="flex gap-2 animate-scroll"
+                     style={{
+                       animation: 'scroll 20s linear infinite',
+                       animationDelay: `${rowIdx * 2}s`
+                     }}
+                   >
+                     {/* Duplicate items for seamless scrolling */}
+                     {[...row, ...row].map((prompt, idx) => (
+                       <button
+                         key={idx}
+                         onClick={() => onQuickPrompt(prompt)}
+                         className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 whitespace-nowrap flex-shrink-0 bg-dark-card border border-dark-glass text-text-primary hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
+                         style={{ minWidth: 'fit-content' }}
+                       >
+                         {prompt}
+                       </button>
+                     ))}
+                   </div>
                  </div>
                ))}
              </div>
+             
+             {/* CSS for auto-scrolling animation */}
+             <style jsx>{`
+               @keyframes scroll {
+                 0% {
+                   transform: translateX(0);
+                 }
+                 100% {
+                   transform: translateX(-50%);
+                 }
+               }
+               
+               .animate-scroll {
+                 animation: scroll 20s linear infinite;
+               }
+               
+               .animate-scroll:hover {
+                 animation-play-state: paused;
+               }
+             `}</style>
            </div>
 
            {/* Recent Discoveries - Content only */}
