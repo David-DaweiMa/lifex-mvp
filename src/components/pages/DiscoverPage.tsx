@@ -14,7 +14,7 @@ interface DiscoverPageProps {
 
 // Discovery tabs like in the second image
 const discoveryTabs = [
-  { id: 'following', label: 'Following', icon: Star },
+  { id: 'following', label: 'Following', icon: Heart },
   { id: 'recommended', label: 'Recommended', icon: Star },
   { id: 'nearby', label: 'Nearby', icon: MapPin }
 ];
