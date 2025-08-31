@@ -60,26 +60,26 @@ const ColyPage: React.FC<ColyPageProps> = ({
   const features = [
     {
       icon: Calendar,
-      title: "智能日程",
-      description: "自动整合安排，智能提醒",
+      title: "Smart Schedule",
+      description: "Auto-organize plans, intelligent reminders",
       color: "pink"
     },
     {
       icon: DollarSign,
-      title: "省钱推荐",
-      description: "个性化优惠，消费分析",
+      title: "Savings Recommendations",
+      description: "Personalized deals, spending analysis",
       color: "green"
     },
     {
       icon: Users,
-      title: "家庭管理",
-      description: "全家共享助手，多人日程",
+      title: "Family Management",
+      description: "Shared assistant, multi-person schedules",
       color: "blue"
     },
     {
       icon: CheckCircle,
-      title: "代办提醒",
-      description: "WOF/保险，自动预约",
+      title: "Task Reminders",
+      description: "WOF/Insurance, auto-booking",
       color: "purple"
     }
   ];
@@ -88,12 +88,12 @@ const ColyPage: React.FC<ColyPageProps> = ({
   const scenarios = [
     {
       time: "7:30 AM",
-      content: "早安！今天有小雨，记得带伞。你的车WOF下周到期，我帮你预约了周六上午9点的检查。",
+      content: "Good morning! It's raining today, remember to bring an umbrella. Your car WOF expires next week, I've booked you an inspection for Saturday at 9 AM.",
       icon: "🌅"
     },
     {
       time: "12:00 PM",
-      content: "你常去的咖啡店今天有午餐特价，$15牛油果鸡肉沙拉+咖啡，离你办公室5分钟路程。",
+      content: "Your favorite café has a lunch special today - $15 avocado chicken salad + coffee, just 5 minutes walk from your office.",
       icon: "🍽️"
     }
   ];
@@ -197,7 +197,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
                     ${valueStats.monthlySavings}+
                   </div>
                   <div className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                    平均每月节省
+                    Average monthly savings
                   </div>
                 </div>
                 
@@ -213,7 +213,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
                     {valueStats.timeSaved}+
                   </div>
                   <div className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                    时间节省(小时)
+                    Time saved (hours)
                   </div>
                 </div>
                 
@@ -229,7 +229,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
                     {valueStats.tasksCompleted}
                   </div>
                   <div className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                    代办事项遗漏
+                    Task reminders missed
                   </div>
                 </div>
                 
@@ -245,7 +245,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
                     {valueStats.familyCoordination}
                   </div>
                   <div className="text-sm" style={{ color: darkTheme.text.secondary }}>
-                    家庭协调
+                    Family coordination
                   </div>
                 </div>
               </div>
@@ -266,7 +266,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
                   </div>
                   <div>
                     <p className="text-sm mb-2" style={{ color: darkTheme.text.primary }}>
-                      "Coly帮我每月省了$200，还帮我记住了所有重要事项"
+                      "Coly helped me save $200 per month and helped me remember all important tasks"
                     </p>
                     <div className="flex items-center gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
