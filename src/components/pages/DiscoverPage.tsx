@@ -106,7 +106,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
   };
 
   // Check if user is a business member
-  const isBusinessMember = currentUser && ['free_business', 'professional_business', 'enterprise_business'].includes(currentUser.user_type);
+  const isBusinessMember = currentUser && currentUser.subscription_level !== 'free';
 
   const handleBusinessAction = () => {
     if (!currentUser) {

@@ -32,7 +32,7 @@ export interface Database {
           bio: string | null;
           website: string | null;
           social_links: any | null;
-          user_type: 'guest' | 'customer' | 'premium' | 'free_business' | 'professional_business' | 'enterprise_business';
+          subscription_level: 'free' | 'essential' | 'premium';
           email_verified: boolean;
           is_active: boolean;
           created_at: string;

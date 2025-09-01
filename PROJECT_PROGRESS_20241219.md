@@ -96,7 +96,7 @@ premium: { daily: 50, monthly: 500, total: 1000 }
 
 ### **优先级1：数据库迁移**
 - [ ] 执行 `database-migration-step1.sql`
-- [ ] 执行 `database-migration-step2.sql`（简化版本）
+- [ ] 执行 `database-migration-step2-simplified.sql`
 - [ ] 验证数据库结构更新
 
 ### **优先级2：前端商业功能**

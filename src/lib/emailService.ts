@@ -293,23 +293,17 @@ class EmailService {
     console.log('Confirmation URL:', confirmationUrl);
     console.log('User type:', userType);
     
-    // Generate different quota information based on user type
+    // Generate different quota information based on subscription level
     const getQuotaInfo = (type: string) => {
       switch (type) {
         case 'free':
-          return '20 AI chats/day, 10 trend analysis/month, 2 ads/month';
-        case 'customer':
-          return '100 AI chats/day, 50 trend analysis/month, 10 ads/month';
+          return '20 AI chats/day, 10 trend analysis/month, 2 ads/month, 100 products';
+        case 'essential':
+          return '100 AI chats/day, 50 trend analysis/month, 10 ads/month, 100 products, Coly AI assistant';
         case 'premium':
-          return '500 AI chats/day, 200 trend analysis/month, 50 ads/month';
-        case 'free_business':
-          return '20 AI chats/day, 10 trend analysis/month, 2 ads/month, 20 products, 2 stores';
-        case 'professional_business':
-          return '100 AI chats/day, 50 trend analysis/month, 10 ads/month, 50 products, 3 stores';
-        case 'enterprise_business':
-          return '500 AI chats/day, 200 trend analysis/month, 50 ads/month, 200 products, 10 stores';
+          return '500 AI chats/day, 200 trend analysis/month, 50 ads/month, 1000 products, Coly + Max AI assistants';
         default:
-          return '20 AI chats/day, 10 trend analysis/month, 2 ads/month';
+          return '20 AI chats/day, 10 trend analysis/month, 2 ads/month, 100 products';
       }
     };
     
@@ -558,16 +552,10 @@ If you have any questions, please contact our support team.
       switch (type) {
         case 'free':
           return 'Free user features';
-        case 'customer':
-          return 'Paid user features - Enjoy more AI chats and advanced features';
+        case 'essential':
+          return 'Essential features - Enjoy more AI chats and Coly AI assistant';
         case 'premium':
-          return 'Premium user features - Unlimited access to all features';
-        case 'free_business':
-          return 'Free business features - Manage your business information';
-        case 'professional_business':
-          return 'Professional business features - Advanced business management tools';
-        case 'enterprise_business':
-          return 'Enterprise business features - Complete enterprise-level solutions';
+          return 'Premium features - Unlimited access to all features with both Coly and Max AI assistants';
         default:
           return 'Free user features';
       }
@@ -738,7 +726,7 @@ Thank you for choosing LifeX!
     console.log('服务类别:', serviceCategory);
     
     // 判断是否为服务商类型
-    const isServiceProvider = ['free_business', 'professional_business', 'enterprise_business'].includes(userType);
+    const isServiceProvider = userType !== 'free';
     
     let template;
     if (isServiceProvider) {

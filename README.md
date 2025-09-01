@@ -14,25 +14,18 @@ LifeX is an AI-based New Zealand local life recommendation platform that integra
 - **Content Publishing**: Trending content and product showcase
 
 ### 👥 User Types
-- **Guest**: Guest users (limited features)
-- **Customer**: Regular users
-- **Premium**: Premium users
-- **Free Business**: Free business users
-- **Professional Business**: Professional business users
-- **Enterprise Business**: Enterprise business users
+- **Free**: Basic platform access with limited features
+- **Essential**: Enhanced features with Coly AI assistant
+- **Premium**: Full access with both Coly and Max AI assistants
 
 ### 📊 Quota System
-Each user type has different feature usage limits:
+Each subscription level has different feature usage limits:
 
-| User Type | Chat (Daily) | Trending (Monthly) | Ads (Monthly) | Products | Stores |
-|-----------|--------------|-------------------|---------------|----------|---------|
-| Anonymous | 5 | 0 | 0 | 0 | 0 |
-| Free | 20 | 10 | 2 | 0 | 0 |
-| Customer | 100 | 50 | 10 | 0 | 0 |
-| Premium | 500 | 200 | 50 | 0 | 0 |
-| Free Business | 20 | 10 | 2 | 20 | 2 |
-| Professional Business | 100 | 50 | 10 | 50 | 3 |
-| Enterprise Business | 500 | 200 | 50 | 200 | 10 |
+| Plan | AI Chat (Hourly) | Products | Trending (Monthly) | Business Features |
+|------|------------------|----------|-------------------|-------------------|
+| Free | ❌ No AI access | 100 | 10 | ✅ Available |
+| Essential | Coly: 50/hour | 100 | 50 | ✅ Available |
+| Premium | Coly: 50/hour + Max: 50/hour | 1000 | 200 | ✅ Available |
 
 ## Tech Stack
 

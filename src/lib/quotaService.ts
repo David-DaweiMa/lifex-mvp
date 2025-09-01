@@ -1,50 +1,29 @@
 import { typedSupabase } from './supabase';
 
 export type QuotaType = 'chat' | 'trending' | 'products' | 'ads' | 'stores';
-export type UserType = 'guest' | 'customer' | 'premium' | 'free_business' | 'professional_business' | 'enterprise_business';
+export type SubscriptionLevel = 'free' | 'essential' | 'premium';
 
-// 用户类型配额配置
-const USER_QUOTA_CONFIG = {
-  guest: {
-    chat: { daily: 3 },
-    trending: { monthly: 0 },
-    ads: { monthly: 0 },
-    products: { total: 0 },
-    stores: { total: 0 }
+// 订阅级别配额配置
+const SUBSCRIPTION_QUOTA_CONFIG = {
+  free: {
+    chat: { hourly: 0, daily: 20, monthly: 200 },
+    trending: { monthly: 10 },
+    ads: { monthly: 2 },
+    products: { total: 100 },
+    stores: { total: 2 }
   },
-  customer: {
-    chat: { daily: 10 },
-    trending: { monthly: 5 },
-    ads: { monthly: 1 },
-    products: { total: 0 },
-    stores: { total: 0 }
-  },
-  premium: {
-    chat: { daily: 50 },
-    trending: { monthly: 20 },
-    ads: { monthly: 5 },
-    products: { total: 0 },
-    stores: { total: 0 }
-  },
-  free_business: {
-    chat: { daily: 10 },
-    trending: { monthly: 5 },
-    ads: { monthly: 1 },
-    products: { total: 10 },
-    stores: { total: 1 }
-  },
-  professional_business: {
-    chat: { daily: 100 },
+  essential: {
+    chat: { hourly: 50, daily: 100, monthly: 1000 },
     trending: { monthly: 50 },
-    ads: { monthly: 20 },
-    products: { total: 50 },
+    ads: { monthly: 10 },
+    products: { total: 100 },
     stores: { total: 3 }
   },
-  enterprise_business: {
-    chat: { daily: 200 },
-    trending: { monthly: 100 },
+  premium: {
+    chat: { hourly: 100, daily: 500, monthly: 5000 },
+    trending: { monthly: 200 },
     ads: { monthly: 50 },
-    products: { total: 200 },
+    products: { total: 1000 },
     stores: { total: 10 }
   }
 } as const;
@@ -76,7 +55,7 @@ export async function checkUserQuota(
     // 获取用户信息
     const { data: user, error: userError } = await typedSupabase
       .from('user_profiles')
-      .select('user_type')
+      .select('subscription_level')
       .eq('id', userId)
       .single();
 
@@ -112,7 +91,7 @@ export async function checkUserQuota(
 
     // 如果配额不存在，创建默认配额
     if (!quota) {
-      const defaultQuota = await createDefaultQuota(userId, user.user_type, quotaType);
+      const defaultQuota = await createDefaultQuota(userId, user.subscription_level, quotaType);
       if (!defaultQuota) {
         return {
           canUse: false,
@@ -213,11 +192,11 @@ export async function updateUserQuota(
  */
 async function createDefaultQuota(
   userId: string, 
-  userType: UserType, 
+  subscriptionLevel: SubscriptionLevel, 
   quotaType: QuotaType
 ): Promise<QuotaResult | null> {
   try {
-    const userConfig = USER_QUOTA_CONFIG[userType];
+    const userConfig = SUBSCRIPTION_QUOTA_CONFIG[subscriptionLevel];
     if (!userConfig || !userConfig[quotaType]) {
       return null;
     }
