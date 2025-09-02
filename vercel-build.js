@@ -6,6 +6,10 @@ async function vercelBuild() {
   try {
     console.log('🚀 开始Vercel专用构建流程...');
     
+    // 检查是否在Vercel环境
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV;
+    console.log(`🌐 部署环境: ${isVercel ? 'Vercel' : '本地'}`);
+    
     // 1. 检查并修复依赖
     console.log('🔧 检查并修复依赖...');
     await checkAndFixDependencies();
@@ -113,13 +117,17 @@ async function vercelBuild() {
     const files = await fs.readdir(targetPath);
     console.log(`📁 目标目录包含 ${files.length} 个项目`);
     
-    // 13. 最终验证 - 确保没有SWC引用
-    console.log('🔍 最终验证 - 检查SWC引用...');
-    try {
-      const { execSync: execSyncAsync } = require('child_process');
-      execSyncAsync('node deep-check.js', { stdio: 'inherit' });
-    } catch (error) {
-      console.log('⚠️  最终验证失败，继续...');
+    // 13. 最终验证 - 只在非Vercel环境中执行
+    if (!isVercel) {
+      console.log('🔍 最终验证 - 检查SWC引用...');
+      try {
+        const { execSync: execSyncAsync } = require('child_process');
+        execSyncAsync('node deep-check.js', { stdio: 'inherit' });
+      } catch (error) {
+        console.log('⚠️  最终验证失败，继续...');
+      }
+    } else {
+      console.log('🌐 Vercel环境：跳过最终验证，避免访问已清理的依赖');
     }
     
     console.log('🎉 Vercel构建流程完成！');

@@ -11,6 +11,10 @@ async function deepCheck() {
       return;
     }
     
+    // 检查是否在Vercel环境
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV;
+    console.log(`🌐 部署环境: ${isVercel ? 'Vercel' : '本地'}`);
+    
     // 1. 检查所有文件中的SWC引用
     console.log('📋 检查所有文件中的SWC引用...');
     const allFiles = await getAllFiles(nextDir);
@@ -57,61 +61,73 @@ async function deepCheck() {
       console.log('✅ 没有发现SWC相关文件');
     }
     
-    // 3. 检查特定目录结构
-    console.log('📁 检查特定目录结构...');
-    const specificPaths = [
-      'node_modules',
-      'cache',
-      '.swc',
-      'trace',
-      'swc',
-      '@swc'
-    ];
-    
-    for (const specificPath of specificPaths) {
-      const fullPath = path.join(nextDir, specificPath);
-      if (fs.existsSync(fullPath)) {
-        console.log(`⚠️  发现目录: ${specificPath}`);
-        try {
-          const stats = await fs.stat(fullPath);
-          if (stats.isDirectory()) {
-            const files = await fs.readdir(fullPath);
-            console.log(`   包含 ${files.length} 个项目`);
+    // 3. 检查特定目录结构（只在非Vercel环境中）
+    if (!isVercel) {
+      console.log('📁 检查特定目录结构...');
+      const specificPaths = [
+        'node_modules',
+        'cache',
+        '.swc',
+        'trace',
+        'swc',
+        '@swc'
+      ];
+      
+      for (const specificPath of specificPaths) {
+        const fullPath = path.join(nextDir, specificPath);
+        if (fs.existsSync(fullPath)) {
+          console.log(`⚠️  发现目录: ${specificPath}`);
+          try {
+            const stats = await fs.stat(fullPath);
+            if (stats.isDirectory()) {
+              const files = await fs.readdir(fullPath);
+              console.log(`   包含 ${files.length} 个项目`);
+            }
+          } catch (error) {
+            console.log(`   无法读取目录内容`);
           }
-        } catch (error) {
-          console.log(`   无法读取目录内容`);
+        } else {
+          console.log(`✅ 目录不存在: ${specificPath}`);
         }
-      } else {
-        console.log(`✅ 目录不存在: ${specificPath}`);
-      }
-    }
-    
-    // 4. 检查package.json中的依赖
-    console.log('📦 检查package.json中的依赖...');
-    const packageJsonPath = path.join(nextDir, 'package.json');
-    if (fs.existsSync(packageJsonPath)) {
-      try {
-        const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
-        if (packageJson.dependencies) {
-          const swcDeps = Object.keys(packageJson.dependencies).filter(dep => 
-            dep.includes('swc') || dep.includes('@swc')
-          );
-          if (swcDeps.length > 0) {
-            console.log(`⚠️  package.json中包含SWC依赖: ${swcDeps.join(', ')}`);
-          } else {
-            console.log('✅ package.json中没有SWC依赖');
-          }
-        }
-      } catch (error) {
-        console.log('⚠️  无法读取package.json');
       }
     } else {
-      console.log('✅ 没有package.json文件');
+      console.log('🌐 Vercel环境：跳过node_modules等目录检查');
     }
     
-    // 5. 递归检查所有子目录
-    console.log('🔍 递归检查所有子目录...');
-    await checkDirectoryRecursively(nextDir, '');
+    // 4. 检查package.json中的依赖（只在非Vercel环境中）
+    if (!isVercel) {
+      console.log('📦 检查package.json中的依赖...');
+      const packageJsonPath = path.join(nextDir, 'package.json');
+      if (fs.existsSync(packageJsonPath)) {
+        try {
+          const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
+          if (packageJson.dependencies) {
+            const swcDeps = Object.keys(packageJson.dependencies).filter(dep => 
+              dep.includes('swc') || dep.includes('@swc')
+            );
+            if (swcDeps.length > 0) {
+              console.log(`⚠️  package.json中包含SWC依赖: ${swcDeps.join(', ')}`);
+            } else {
+              console.log('✅ package.json中没有SWC依赖');
+            }
+          }
+        } catch (error) {
+          console.log('⚠️  无法读取package.json');
+        }
+      } else {
+        console.log('✅ 没有package.json文件');
+      }
+    }
+    
+    // 5. 递归检查所有子目录（只在非Vercel环境中）
+    if (!isVercel) {
+      console.log('🔍 递归检查所有子目录...');
+      await checkDirectoryRecursively(nextDir, '');
+    } else {
+      console.log('🌐 Vercel环境：跳过递归目录检查');
+    }
+    
+    console.log('✅ 深度检查完成！');
     
   } catch (error) {
     console.error('❌ 深度检查失败:', error);
