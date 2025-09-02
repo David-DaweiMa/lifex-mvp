@@ -11,7 +11,7 @@
     "build": "npm run build:shared && npm run build:web",
     "build:shared": "cd packages/shared && npm run build",
     "build:web": "cd packages/web && npm run build",
-    "build:vercel": "npm run build:shared && cd packages/web && npm run build && cd ../.. && node copy-build.js",
+    "build:vercel": "node vercel-build.js",
     "build:local": "npm run build:shared && cd packages/web && npm run build && cd .. && xcopy web\\.next ..\\..\\.next /E /I /Y /H",
     "start": "npm run start:web",
     "start:web": "cd packages/web && npm run start",

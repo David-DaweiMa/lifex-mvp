@@ -10,6 +10,10 @@ async function copyBuildOutput() {
     console.log(`源路径: ${sourcePath}`);
     console.log(`目标路径: ${targetPath}`);
     
+    // 检查是否在Vercel环境
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV;
+    console.log(`🌐 部署环境: ${isVercel ? 'Vercel' : '本地'}`);
+    
     // 检查源目录是否存在
     if (!fs.existsSync(sourcePath)) {
       console.error('❌ 源目录不存在:', sourcePath);
@@ -42,6 +46,31 @@ async function copyBuildOutput() {
         }
       } catch (cleanupError) {
         console.log(`⚠️  清理失败: ${path.basename(problematicPath)}`);
+      }
+    }
+    
+    // Vercel环境特殊处理
+    if (isVercel) {
+      console.log('🚀 Vercel环境特殊处理...');
+      
+      // 移除所有可能的SWC相关文件
+      const swcPatterns = [
+        path.join(targetPath, '**', '@swc'),
+        path.join(targetPath, '**', '.swc'),
+        path.join(targetPath, '**', 'swc.config.js'),
+        path.join(targetPath, '**', 'swc.config.json')
+      ];
+      
+      for (const pattern of swcPatterns) {
+        try {
+          const files = await fs.glob(pattern);
+          for (const file of files) {
+            await fs.remove(file);
+            console.log(`🧹 已清理SWC文件: ${path.basename(file)}`);
+          }
+        } catch (error) {
+          // 忽略错误，继续处理
+        }
       }
     }
     
@@ -78,6 +107,23 @@ async function copyBuildOutput() {
       console.log('✅ 确认没有node_modules目录');
     } else {
       console.log('⚠️  警告: node_modules目录仍然存在');
+    }
+    
+    // Vercel环境最终检查
+    if (isVercel) {
+      console.log('🔍 Vercel环境最终检查...');
+      const allFiles = await fs.readdir(targetPath, { recursive: true });
+      const swcFiles = allFiles.filter(file => 
+        typeof file === 'string' && 
+        (file.includes('@swc') || file.includes('.swc') || file.includes('swc'))
+      );
+      
+      if (swcFiles.length === 0) {
+        console.log('✅ 确认没有SWC相关文件');
+      } else {
+        console.log(`⚠️  发现 ${swcFiles.length} 个SWC相关文件`);
+        swcFiles.forEach(file => console.log(`   - ${file}`));
+      }
     }
     
   } catch (error) {
