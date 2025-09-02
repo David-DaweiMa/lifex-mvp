@@ -140,6 +140,14 @@ async function vercelBuild() {
 
 async function checkAndFixDependencies() {
   try {
+    // 检查是否在Vercel环境
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV;
+    
+    if (isVercel) {
+      console.log('🌐 Vercel环境：跳过依赖检查，避免访问可能被清理的依赖');
+      return;
+    }
+    
     console.log('📦 检查关键依赖...');
     
     // 检查caniuse-lite
