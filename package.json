@@ -2,18 +2,30 @@
   "name": "lifex-mvp",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "type-check": "tsc --noEmit",
+    "dev": "npm run dev:web",
+    "dev:web": "cd packages/web && npm run dev",
+    "build": "npm run build:shared && npm run build:web",
+    "build:shared": "cd packages/shared && npm run build",
+    "build:web": "cd packages/web && npm run build",
+    "start": "npm run start:web",
+    "start:web": "cd packages/web && npm run start",
+    "lint": "npm run lint:shared && npm run lint:web",
+    "lint:shared": "cd packages/shared && npm run lint",
+    "lint:web": "cd packages/web && npm run lint",
+    "type-check": "npm run type-check:shared && npm run type-check:web",
+    "type-check:shared": "cd packages/shared && npm run type-check",
+    "type-check:web": "cd packages/web && npm run type-check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "clean": "rm -rf .next out",
+    "clean": "rm -rf .next out packages/*/dist packages/*/.next",
     "build:analyze": "ANALYZE=true npm run build",
     "deploy": "npm run clean && npm run build",
-    "postbuild": "echo 'Build completed successfully!'"
+    "postbuild": "echo 'Build completed successfully!'",
+    "setup:monorepo": "npm install && npm run build:shared"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.55.0",
