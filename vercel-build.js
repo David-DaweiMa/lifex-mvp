@@ -6,15 +6,19 @@ async function vercelBuild() {
   try {
     console.log('🚀 开始Vercel专用构建流程...');
     
-    // 1. 构建共享包
+    // 1. 检查并修复依赖
+    console.log('🔧 检查并修复依赖...');
+    await checkAndFixDependencies();
+    
+    // 2. 构建共享包
     console.log('📦 构建共享包...');
     execSync('npm run build:shared', { stdio: 'inherit' });
     
-    // 2. 切换到web目录
+    // 3. 切换到web目录
     const webDir = path.join(__dirname, 'packages', 'web');
     process.chdir(webDir);
     
-    // 3. 使用Vercel配置构建
+    // 4. 使用Vercel配置构建
     console.log('🌐 使用Vercel配置构建web包...');
     const originalConfig = 'next.config.js';
     const vercelConfig = 'next.config.vercel.js';
@@ -30,20 +34,20 @@ async function vercelBuild() {
       console.log('✅ 已切换到Vercel配置');
     }
     
-    // 4. 构建
+    // 5. 构建
     execSync('npm run build', { stdio: 'inherit' });
     
-    // 5. 恢复原配置
+    // 6. 恢复原配置
     if (fs.existsSync(originalConfig + '.backup')) {
       await fs.copy(originalConfig + '.backup', originalConfig);
       await fs.remove(originalConfig + '.backup');
       console.log('✅ 已恢复原配置');
     }
     
-    // 6. 回到根目录
+    // 7. 回到根目录
     process.chdir(__dirname);
     
-    // 7. 复制构建输出
+    // 8. 复制构建输出
     console.log('📋 复制构建输出...');
     const sourcePath = path.join(__dirname, 'packages', 'web', '.next');
     const targetPath = path.join(__dirname, '.next');
@@ -58,7 +62,7 @@ async function vercelBuild() {
     await fs.copy(sourcePath, targetPath);
     console.log('✅ 构建输出复制完成！');
     
-    // 8. Vercel环境深度清理
+    // 9. Vercel环境深度清理
     console.log('🧹 Vercel环境深度清理...');
     const problematicPaths = [
       path.join(targetPath, 'node_modules'),
@@ -78,7 +82,7 @@ async function vercelBuild() {
       }
     }
     
-    // 9. 清理NFT文件中的SWC引用
+    // 10. 清理NFT文件中的SWC引用
     console.log('🧹 清理NFT文件中的SWC引用...');
     try {
       const { execSync: execSyncAsync } = require('child_process');
@@ -88,7 +92,7 @@ async function vercelBuild() {
       console.log('⚠️  NFT文件清理失败，继续...');
     }
     
-    // 10. 验证结果
+    // 11. 验证结果
     console.log('🔍 验证构建结果...');
     const criticalFiles = [
       'routes-manifest.json',
@@ -105,11 +109,11 @@ async function vercelBuild() {
       }
     }
     
-    // 11. 最终检查
+    // 12. 最终检查
     const files = await fs.readdir(targetPath);
     console.log(`📁 目标目录包含 ${files.length} 个项目`);
     
-    // 12. 最终验证 - 确保没有SWC引用
+    // 13. 最终验证 - 确保没有SWC引用
     console.log('🔍 最终验证 - 检查SWC引用...');
     try {
       const { execSync: execSyncAsync } = require('child_process');
@@ -123,6 +127,44 @@ async function vercelBuild() {
   } catch (error) {
     console.error('❌ Vercel构建失败:', error);
     process.exit(1);
+  }
+}
+
+async function checkAndFixDependencies() {
+  try {
+    console.log('📦 检查关键依赖...');
+    
+    // 检查caniuse-lite
+    const caniusePath = path.join(__dirname, 'node_modules', 'caniuse-lite');
+    const caniuseDataPath = path.join(caniusePath, 'data', 'agents.js');
+    
+    if (!fs.existsSync(caniuseDataPath)) {
+      console.log('⚠️  caniuse-lite数据文件缺失，尝试修复...');
+      
+      // 尝试重新安装caniuse-lite
+      try {
+        execSync('npm install caniuse-lite@latest', { stdio: 'inherit' });
+        console.log('✅ caniuse-lite重新安装完成');
+      } catch (error) {
+        console.log('⚠️  caniuse-lite重新安装失败，继续...');
+      }
+    } else {
+      console.log('✅ caniuse-lite数据文件正常');
+    }
+    
+    // 检查其他关键依赖
+    const criticalDeps = ['autoprefixer', 'postcss', 'tailwindcss'];
+    for (const dep of criticalDeps) {
+      const depPath = path.join(__dirname, 'node_modules', dep);
+      if (fs.existsSync(depPath)) {
+        console.log(`✅ ${dep} 正常`);
+      } else {
+        console.log(`⚠️  ${dep} 缺失`);
+      }
+    }
+    
+  } catch (error) {
+    console.log('⚠️  依赖检查失败，继续...');
   }
 }
 
