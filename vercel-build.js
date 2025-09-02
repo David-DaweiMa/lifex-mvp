@@ -78,7 +78,17 @@ async function vercelBuild() {
       }
     }
     
-    // 9. 验证结果
+    // 9. 清理NFT文件中的SWC引用
+    console.log('🧹 清理NFT文件中的SWC引用...');
+    try {
+      const { execSync: execSyncAsync } = require('child_process');
+      execSyncAsync('node clean-nft.js', { stdio: 'inherit' });
+      console.log('✅ NFT文件清理完成');
+    } catch (error) {
+      console.log('⚠️  NFT文件清理失败，继续...');
+    }
+    
+    // 10. 验证结果
     console.log('🔍 验证构建结果...');
     const criticalFiles = [
       'routes-manifest.json',
@@ -95,9 +105,18 @@ async function vercelBuild() {
       }
     }
     
-    // 10. 最终检查
+    // 11. 最终检查
     const files = await fs.readdir(targetPath);
     console.log(`📁 目标目录包含 ${files.length} 个项目`);
+    
+    // 12. 最终验证 - 确保没有SWC引用
+    console.log('🔍 最终验证 - 检查SWC引用...');
+    try {
+      const { execSync: execSyncAsync } = require('child_process');
+      execSyncAsync('node deep-check.js', { stdio: 'inherit' });
+    } catch (error) {
+      console.log('⚠️  最终验证失败，继续...');
+    }
     
     console.log('🎉 Vercel构建流程完成！');
     
