@@ -26,6 +26,17 @@ async function copyBuildOutput() {
     await fs.copy(sourcePath, targetPath);
     console.log('✅ 构建输出复制完成！');
     
+    // 清理可能导致问题的文件
+    try {
+      const swcHelpersPath = path.join(targetPath, 'node_modules', '@swc', 'helpers');
+      if (fs.existsSync(swcHelpersPath)) {
+        await fs.remove(swcHelpersPath);
+        console.log('🧹 已清理SWC helpers目录');
+      }
+    } catch (cleanupError) {
+      console.log('⚠️  SWC helpers清理失败，继续...');
+    }
+    
     // 验证复制结果
     if (fs.existsSync(path.join(targetPath, 'routes-manifest.json'))) {
       console.log('✅ routes-manifest.json 文件已找到');
@@ -36,6 +47,22 @@ async function copyBuildOutput() {
     // 列出目标目录内容
     const files = await fs.readdir(targetPath);
     console.log(`📁 目标目录包含 ${files.length} 个项目`);
+    
+    // 验证关键文件
+    const criticalFiles = [
+      'routes-manifest.json',
+      'build-manifest.json',
+      'prerender-manifest.json'
+    ];
+    
+    for (const file of criticalFiles) {
+      const filePath = path.join(targetPath, file);
+      if (fs.existsSync(filePath)) {
+        console.log(`✅ ${file} 存在`);
+      } else {
+        console.log(`⚠️  ${file} 缺失`);
+      }
+    }
     
   } catch (error) {
     console.error('❌ 复制失败:', error);
