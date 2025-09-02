@@ -26,15 +26,23 @@ async function copyBuildOutput() {
     await fs.copy(sourcePath, targetPath);
     console.log('✅ 构建输出复制完成！');
     
-    // 清理可能导致问题的文件
-    try {
-      const swcHelpersPath = path.join(targetPath, 'node_modules', '@swc', 'helpers');
-      if (fs.existsSync(swcHelpersPath)) {
-        await fs.remove(swcHelpersPath);
-        console.log('🧹 已清理SWC helpers目录');
+    // 深度清理可能导致问题的文件和目录
+    const problematicPaths = [
+      path.join(targetPath, 'node_modules'),
+      path.join(targetPath, 'cache'),
+      path.join(targetPath, '.swc'),
+      path.join(targetPath, 'trace')
+    ];
+    
+    for (const problematicPath of problematicPaths) {
+      try {
+        if (fs.existsSync(problematicPath)) {
+          await fs.remove(problematicPath);
+          console.log(`🧹 已清理: ${path.basename(problematicPath)}`);
+        }
+      } catch (cleanupError) {
+        console.log(`⚠️  清理失败: ${path.basename(problematicPath)}`);
       }
-    } catch (cleanupError) {
-      console.log('⚠️  SWC helpers清理失败，继续...');
     }
     
     // 验证复制结果
@@ -62,6 +70,14 @@ async function copyBuildOutput() {
       } else {
         console.log(`⚠️  ${file} 缺失`);
       }
+    }
+    
+    // 最终验证 - 确保没有node_modules
+    const finalCheck = path.join(targetPath, 'node_modules');
+    if (!fs.existsSync(finalCheck)) {
+      console.log('✅ 确认没有node_modules目录');
+    } else {
+      console.log('⚠️  警告: node_modules目录仍然存在');
     }
     
   } catch (error) {
