@@ -17,7 +17,13 @@ const nextConfig = {
   experimental: {
     // 禁用所有实验性功能
     cpus: 1,
+    // 禁用SWC相关实验性功能
+    forceSwcTransforms: false,
+    swcTraceProfiling: false,
   },
+  
+  // 禁用SWC优化
+  swcMinify: false,
   
   // 环境变量处理
   env: {
