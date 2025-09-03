@@ -1,0 +1,12 @@
+{
+  "extends": "@react-native/typescript-config",
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["**/node_modules", "**/Pods"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@lifex/shared": ["../shared/src"],
+      "@lifex/shared/*": ["../shared/src/*"]
+    }
+  }
+}
