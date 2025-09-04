@@ -1,9 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-// 从环境变量或配置文件获取Supabase配置
-// 注意：在生产环境中，这些值应该从环境变量获取
-const supabaseUrl = 'http://localhost:54321'; // 本地开发
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
+// 从环境变量获取Supabase配置
+// 在React Native中，环境变量需要通过react-native-config或其他方式配置
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
+
+// 检查环境变量是否存在
+if (!process.env.EXPO_PUBLIC_SUPABASE_URL || !process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY) {
+  console.warn('Supabase environment variables are missing. Some features may not work properly.');
+}
 
 // 创建Supabase客户端
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

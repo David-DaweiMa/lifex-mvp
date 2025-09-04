@@ -36,8 +36,11 @@
           "locationAlwaysAndWhenInUsePermission": "此应用需要访问您的位置以提供基于位置的推荐服务。"
         }
       ]
-    ]
-  },
-  "name": "mobile",
-  "displayName": "LifeX MVP"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id-here"
+      }
+    }
+  }
 }

@@ -1,97 +1,115 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# LifeX MVP Mobile App
 
-# Getting Started
+## 📱 **支持平台**
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+- ✅ **Android** - 完整支持，可在Windows上开发
+- ✅ **iOS** - 通过Expo Go测试，无需Mac设备
 
-## Step 1: Start Metro
+## 🚀 **快速开始**
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
-
-To start the Metro dev server, run the following command from the root of your React Native project:
-
-```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
-```
-
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
+### **Android开发（Windows）**
+```bash
+# 1. 安装Android Studio
+# 2. 配置Android SDK
+# 3. 启动应用
+cd packages/mobile
+npm install
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+### **iOS测试（无需Mac）**
+```bash
+# 1. 在iPhone上安装Expo Go应用
+# 2. 启动开发服务器
+cd packages/mobile
+npm install
+npm run expo
+# 3. 扫描二维码测试
 ```
 
-Then, and every time you update your native dependencies, run:
+## 🛠️ **开发环境**
 
-```sh
-bundle exec pod install
+### **Windows开发环境：**
+- Node.js >= 18
+- Android Studio (Android开发)
+- Expo CLI (iOS测试)
+
+### **测试设备：**
+- Android手机/模拟器
+- iPhone + Expo Go应用
+
+## 📋 **功能特性**
+
+### **核心功能：**
+- 用户认证系统
+- AI智能对话
+- 个性化推荐
+- 位置服务
+- 相机功能
+- 推送通知
+
+### **技术栈：**
+- React Native 0.81.1
+- TypeScript
+- Supabase
+- Expo SDK
+- AsyncStorage
+
+## 🔧 **项目结构**
+
+```
+packages/mobile/
+├── src/
+│   ├── components/     # React组件
+│   ├── services/       # 业务逻辑服务
+│   └── lib/           # 工具库
+├── android/           # Android原生代码
+├── ios/              # iOS原生代码
+├── assets/           # 静态资源
+├── app.json          # 应用配置
+└── expo.json         # Expo配置
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## 📖 **详细指南**
 
-```sh
-# Using npm
-npm run ios
+- [Android开发指南](./ANDROID_SETUP_GUIDE.md)
+- [iOS测试指南](./IOS_TESTING_GUIDE.md)
 
-# OR using Yarn
-yarn ios
+## 🚀 **启动脚本**
+
+### **Windows批处理：**
+```bash
+# 双击运行
+start-expo.bat
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+### **PowerShell：**
+```bash
+# 右键运行
+start-expo.ps1
+```
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## 🔍 **故障排除**
 
-## Step 3: Modify your app
+### **常见问题：**
+1. **依赖安装失败** - 清理node_modules重新安装
+2. **Android构建失败** - 检查Android Studio配置
+3. **Expo连接失败** - 确保网络连接正常
+4. **功能不工作** - 检查权限配置
 
-Now that you have successfully run the app, let's make changes!
+### **获取帮助：**
+- 查看详细指南文档
+- 检查控制台错误日志
+- 验证环境配置
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## 📊 **开发状态**
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+- ✅ 基础架构完成
+- ✅ Android配置完成
+- ✅ iOS Expo支持完成
+- ✅ 核心功能实现
+- 🔄 持续测试和优化
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+---
 
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+**注意：** 此项目支持在Windows上开发Android和iOS应用，iOS测试通过Expo Go实现，无需Mac设备。

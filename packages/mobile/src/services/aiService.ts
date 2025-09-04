@@ -4,7 +4,7 @@ import locationService from './locationService';
 import notificationService from './notificationService';
 
 export class MobileAIService extends BaseAIService {
-  private apiBaseUrl = 'http://localhost:3000/api'; // Web端的API地址
+  private apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000/api'; // Web端的API地址
   
   // 实现抽象属性
   protected openai: any = null;
