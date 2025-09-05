@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 转换数据格式
-    const formattedPosts = posts?.map(post => {
+    const formattedPosts = posts?.map((post: any) => {
       // 正确处理Supabase关联查询的结果
       const userProfile = post.user_profiles as any;
       

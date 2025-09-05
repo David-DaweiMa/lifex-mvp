@@ -252,7 +252,7 @@ export async function getTrendingHashtags(limit: number = 20): Promise<{
 
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-    posts?.forEach(post => {
+    posts?.forEach((post: any) => {
       const postDate = new Date(post.created_at);
       post.hashtags?.forEach((tag: string) => {
         tagCounts[tag] = (tagCounts[tag] || 0) + 1;
@@ -337,7 +337,7 @@ export async function searchTrendingPosts(
     }
 
     // 转换数据格式
-    const formattedPosts: TrendingPost[] = posts?.map(post => {
+    const formattedPosts: TrendingPost[] = posts?.map((post: any) => {
       const userProfile = post.user_profiles as any;
       
       return {
@@ -409,7 +409,7 @@ export async function getUserTrendingPosts(
     }
 
     // 转换数据格式
-    const formattedPosts: TrendingPost[] = posts?.map(post => {
+    const formattedPosts: TrendingPost[] = posts?.map((post: any) => {
       const userProfile = post.user_profiles as any;
       
       return {
@@ -632,7 +632,7 @@ export async function getRecommendedPosts(
     }
 
     // 转换数据格式
-    const formattedPosts: TrendingPost[] = posts?.map(post => {
+    const formattedPosts: TrendingPost[] = posts?.map((post: any) => {
       const userProfile = post.user_profiles as any;
       
       return {

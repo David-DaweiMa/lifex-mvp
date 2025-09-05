@@ -43,13 +43,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Process product quota data
-    const dailyQuota = productQuota?.find(q => q.quota_type === 'daily') || { current_count: 0, limit_count: 0 };
-    const monthlyQuota = productQuota?.find(q => q.quota_type === 'monthly') || { current_count: 0, limit_count: 0 };
-    const totalQuota = productQuota?.find(q => q.quota_type === 'total') || { current_count: 0, limit_count: 0 };
+    const dailyQuota = productQuota?.find((q: any) => q.quota_type === 'daily') || { current_count: 0, limit_count: 0 };
+    const monthlyQuota = productQuota?.find((q: any) => q.quota_type === 'monthly') || { current_count: 0, limit_count: 0 };
+    const totalQuota = productQuota?.find((q: any) => q.quota_type === 'total') || { current_count: 0, limit_count: 0 };
 
     // Process assistant usage data
-    const colyUsage = assistantUsage?.filter(u => u.assistant_type === 'coly').length || 0;
-    const maxUsage = assistantUsage?.filter(u => u.assistant_type === 'max').length || 0;
+    const colyUsage = assistantUsage?.filter((u: any) => u.assistant_type === 'coly').length || 0;
+    const maxUsage = assistantUsage?.filter((u: any) => u.assistant_type === 'max').length || 0;
 
     // Get quota limits from config
     const quotaLimits = {

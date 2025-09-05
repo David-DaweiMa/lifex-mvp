@@ -163,7 +163,7 @@ function detectLocationIntent(message: string): boolean {
   ];
 
   const messageLower = message.toLowerCase();
-  return locationKeywords.some(keyword => messageLower.includes(keyword));
+  return locationKeywords.some((keyword: any) => messageLower.includes(keyword));
 }
 
 function extractCategoryFromMessage(message: string): string | null {
@@ -178,7 +178,7 @@ function extractCategoryFromMessage(message: string): string | null {
   const messageLower = message.toLowerCase();
   
   for (const [category, keywords] of Object.entries(categoryMap)) {
-    if (keywords.some(keyword => messageLower.includes(keyword))) {
+    if (keywords.some((keyword: any) => messageLower.includes(keyword))) {
       // Need to convert category name to UUID - this would need to be looked up from your categories table
       // For now, return null to get all categories
       return null;

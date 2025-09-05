@@ -112,7 +112,7 @@ export const useTrending = (initialFilters: TrendingFilters = {}): UseTrendingRe
   const likePost = useCallback(async (postId: string, liked: boolean) => {
     try {
       // 乐观更新UI
-      setPosts(prev => prev.map(post => 
+      setPosts(prev => prev.map((post: any) => 
         post.id === postId 
           ? { ...post, likes: Math.max(0, post.likes + (liked ? 1 : -1)) }
           : post
@@ -122,7 +122,7 @@ export const useTrending = (initialFilters: TrendingFilters = {}): UseTrendingRe
       
       if (!result.success) {
         // 回滚乐观更新
-        setPosts(prev => prev.map(post => 
+        setPosts(prev => prev.map((post: any) => 
           post.id === postId 
             ? { ...post, likes: Math.max(0, post.likes + (liked ? -1 : 1)) }
             : post
@@ -131,7 +131,7 @@ export const useTrending = (initialFilters: TrendingFilters = {}): UseTrendingRe
         setError(result.error || 'Failed to update like');
       } else if (result.newCount !== undefined) {
         // 使用服务器返回的准确计数
-        setPosts(prev => prev.map(post => 
+        setPosts(prev => prev.map((post: any) => 
           post.id === postId 
             ? { ...post, likes: result.newCount! }
             : post
@@ -141,7 +141,7 @@ export const useTrending = (initialFilters: TrendingFilters = {}): UseTrendingRe
       setError(err instanceof Error ? err.message : 'Failed to like post');
       
       // 回滚乐观更新
-      setPosts(prev => prev.map(post => 
+      setPosts(prev => prev.map((post: any) => 
         post.id === postId 
           ? { ...post, likes: Math.max(0, post.likes + (liked ? -1 : 1)) }
           : post
@@ -153,7 +153,7 @@ export const useTrending = (initialFilters: TrendingFilters = {}): UseTrendingRe
   const sharePost = useCallback(async (postId: string) => {
     try {
       // 乐观更新UI
-      setPosts(prev => prev.map(post => 
+      setPosts(prev => prev.map((post: any) => 
         post.id === postId 
           ? { ...post, shares: post.shares + 1 }
           : post
@@ -163,7 +163,7 @@ export const useTrending = (initialFilters: TrendingFilters = {}): UseTrendingRe
       
       if (!result.success) {
         // 回滚乐观更新
-        setPosts(prev => prev.map(post => 
+        setPosts(prev => prev.map((post: any) => 
           post.id === postId 
             ? { ...post, shares: Math.max(0, post.shares - 1) }
             : post
@@ -172,7 +172,7 @@ export const useTrending = (initialFilters: TrendingFilters = {}): UseTrendingRe
         setError(result.error || 'Failed to share post');
       } else if (result.newCount !== undefined) {
         // 使用服务器返回的准确计数
-        setPosts(prev => prev.map(post => 
+        setPosts(prev => prev.map((post: any) => 
           post.id === postId 
             ? { ...post, shares: result.newCount! }
             : post
@@ -182,7 +182,7 @@ export const useTrending = (initialFilters: TrendingFilters = {}): UseTrendingRe
       setError(err instanceof Error ? err.message : 'Failed to share post');
       
       // 回滚乐观更新
-      setPosts(prev => prev.map(post => 
+      setPosts(prev => prev.map((post: any) => 
         post.id === postId 
           ? { ...post, shares: Math.max(0, post.shares - 1) }
           : post
@@ -194,7 +194,7 @@ export const useTrending = (initialFilters: TrendingFilters = {}): UseTrendingRe
   const viewPost = useCallback(async (postId: string) => {
     try {
       // 乐观更新UI
-      setPosts(prev => prev.map(post => 
+      setPosts(prev => prev.map((post: any) => 
         post.id === postId 
           ? { ...post, views: post.views + 1 }
           : post

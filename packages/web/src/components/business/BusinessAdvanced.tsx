@@ -87,10 +87,10 @@ const MediaManagement: React.FC = () => {
 
   const filteredPortfolio = activeCategory === 'all' 
     ? portfolio 
-    : portfolio.filter(item => item.category === activeCategory);
+    : portfolio.filter((item: any) => item.category === activeCategory);
 
   const deleteMedia = (id: number) => {
-    setPortfolio(portfolio.filter(item => item.id !== id));
+    setPortfolio(portfolio.filter((item: any) => item.id !== id));
   };
 
   return (
@@ -353,7 +353,7 @@ const BusinessSettings: React.FC = () => {
                 color: darkTheme.text.primary
               }}
             >
-              {languages.map(lang => (
+              {languages.map((lang: any) => (
                 <option key={lang.code} value={lang.code}>{lang.name}</option>
               ))}
             </select>
@@ -397,11 +397,11 @@ const ReviewsManagement: React.FC = () => {
   const [responseText, setResponseText] = useState('');
   const [respondingTo, setRespondingTo] = useState<number | null>(null);
 
-  const avgRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+  const avgRating = reviews.reduce((sum: any, review: any) => sum + review.rating, 0) / reviews.length;
 
   const respondToReview = (reviewId: number) => {
     if (responseText.trim()) {
-      setReviews(reviews.map(review => 
+      setReviews(reviews.map((review: any) => 
         review.id === reviewId 
           ? { ...review, responded: true, response: responseText.trim() }
           : review
@@ -559,7 +559,7 @@ const BusinessAdvanced: React.FC = () => {
     { id: 'settings' as const, label: 'Settings', icon: Settings, color: darkTheme.neon.purple, component: BusinessSettings }
   ];
 
-  const ActiveComponent = sections.find(s => s.id === activeSection)?.component;
+  const ActiveComponent = sections.find((s: any) => s.id === activeSection)?.component;
 
   return (
     <div className="min-h-screen" style={{ background: darkTheme.background.primary }}>

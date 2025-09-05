@@ -397,7 +397,7 @@ export class LocationService {
   }
 
   private notifyLocationUpdate(location: UserLocation | null): void {
-    this.locationCallbacks.forEach(callback => {
+    this.locationCallbacks.forEach((callback: any) => {
       try {
         callback(location);
       } catch (error) {

@@ -427,7 +427,7 @@ export default function NearbyBusinesses() {
                 }))}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                {transportModes.map(mode => (
+                {transportModes.map((mode: any) => (
                   <option key={mode.value} value={mode.value}>
                     {mode.icon} {mode.label} ({mode.speed})
                   </option>
@@ -466,7 +466,7 @@ export default function NearbyBusinesses() {
 
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[1, 2, 3, 4].map(i => (
+              {[1, 2, 3, 4].map((i: any) => (
                 <div key={i} className="bg-gray-200 rounded-lg h-48 animate-pulse"></div>
               ))}
             </div>

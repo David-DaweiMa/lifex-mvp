@@ -214,27 +214,27 @@ export function getKeywordBasedRecommendations(query: string, limit: number = 3)
   const queryWords = queryLower.split(/\s+/);
   
   // Score each business based on query relevance
-  const scoredBusinesses = mockBusinesses.map(business => {
+  const scoredBusinesses = mockBusinesses.map((business: any) => {
     let score = 0;
     
     // Check keyword matches
     Object.entries(keywords).forEach(([category, categoryKeywords]) => {
-      const matchCount = categoryKeywords.filter(keyword => 
-        queryWords.some(word => word.includes(keyword) || keyword.includes(word))
+      const matchCount = categoryKeywords.filter((keyword: any) => 
+        queryWords.some((word: any) => word.includes(keyword) || keyword.includes(word))
       ).length;
       
       if (matchCount > 0) {
         // Check if business matches this category
         const businessText = `${(business as any).name} ${(business as any).type} ${(business as any).highlights.join(' ')} ${(business as any).category}`.toLowerCase();
         
-        if (categoryKeywords.some(keyword => businessText.includes(keyword))) {
+        if (categoryKeywords.some((keyword: any) => businessText.includes(keyword))) {
           score += matchCount * 10;
         }
       }
     });
     
     // Direct text matching
-    queryWords.forEach(word => {
+    queryWords.forEach((word: any) => {
       const businessText = `${(business as any).name} ${(business as any).type} ${(business as any).highlights.join(' ')}`.toLowerCase();
       if (businessText.includes(word)) {
         score += 5;
@@ -307,7 +307,7 @@ export function getRecommendationsByCategory(category: string, limit: number = 5
   const targetCategories = categoryMap[category.toLowerCase()] || categoryMap['all'];
   
   return mockBusinesses
-    .filter(business => targetCategories.includes((business as any).category))
+    .filter((business: any) => targetCategories.includes((business as any).category))
     .sort((a, b) => b.rating - a.rating)
     .slice(0, limit);
 }
@@ -340,24 +340,24 @@ export function searchBusinesses(filters: {
   }
   
   if (filters.category) {
-    results = results.filter(business => (business as any).category === filters.category);
+    results = results.filter((business: any) => (business as any).category === filters.category);
   }
   
   if (filters.priceRange && filters.priceRange.length > 0) {
-    results = results.filter(business => filters.priceRange!.includes((business as any).price));
+    results = results.filter((business: any) => filters.priceRange!.includes((business as any).price));
   }
   
   if (filters.rating) {
-    results = results.filter(business => (business as any).rating >= filters.rating!);
+    results = results.filter((business: any) => (business as any).rating >= filters.rating!);
   }
   
   if (filters.isOpen !== undefined) {
-    results = results.filter(business => (business as any).isOpen === filters.isOpen);
+    results = results.filter((business: any) => (business as any).isOpen === filters.isOpen);
   }
   
   if (filters.maxDistance) {
     // Simple distance filtering (in real app, would use actual coordinates)
-    results = results.filter(business => {
+    results = results.filter((business: any) => {
       const distance = parseFloat((business as any).distance.replace('km', ''));
       const maxDistance = parseFloat(filters.maxDistance!.replace('km', ''));
       return distance <= maxDistance;
@@ -385,7 +385,7 @@ export function makeCall(phone: string): void {
 
 // Get business by ID
 export function getBusinessById(id: string): Business | undefined {
-  return mockBusinesses.find(business => (business as any).id === id);
+  return mockBusinesses.find((business: any) => (business as any).id === id);
 }
 
 // Get similar businesses
@@ -394,7 +394,7 @@ export function getSimilarBusinesses(businessId: string, limit: number = 3): Bus
   if (!business) return [];
   
   return mockBusinesses
-    .filter(b => b.id !== businessId && b.category === (business as any).category)
+    .filter((b: any) => b.id !== businessId && b.category === (business as any).category)
     .sort((a, b) => {
       // Score based on category match and rating
       let score = 0;

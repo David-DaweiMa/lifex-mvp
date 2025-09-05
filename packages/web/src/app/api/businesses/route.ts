@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform data to match frontend expectations
-    const transformedBusinesses = businesses?.map(business => ({
+    const transformedBusinesses = businesses?.map((business: any) => ({
       id: (business as any).id,
       name: (business as any).name,
       type: (business as any).description || 'Local Business',

@@ -22,14 +22,14 @@ const BookingPage: React.FC<BookingPageProps> = ({
   
   const getFilteredBookings = () => {
     if (selectedFilter === 'All Bookings') return bookings;
-    if (selectedFilter === 'Upcoming') return bookings.filter(b => b.status === 'confirmed' || b.status === 'pending');
-    if (selectedFilter === 'Completed') return bookings.filter(b => b.status === 'confirmed');
-    if (selectedFilter === 'Cancelled') return bookings.filter(b => b.status === 'cancelled');
+    if (selectedFilter === 'Upcoming') return bookings.filter((b: any) => b.status === 'confirmed' || b.status === 'pending');
+    if (selectedFilter === 'Completed') return bookings.filter((b: any) => b.status === 'confirmed');
+    if (selectedFilter === 'Cancelled') return bookings.filter((b: any) => b.status === 'cancelled');
     return bookings;
   };
 
   const handleReminderToggle = (bookingId: number) => {
-    setBookings(bookings.map(booking => 
+    setBookings(bookings.map((booking: any) => 
       booking.id === bookingId 
         ? { ...booking, reminder: !booking.reminder }
         : booking

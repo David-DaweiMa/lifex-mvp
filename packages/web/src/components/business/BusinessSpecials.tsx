@@ -106,7 +106,7 @@ const SpecialServices: React.FC = () => {
 
   const toggleDay = (day: string) => {
     const updatedDays = newSpecial.days.includes(day)
-      ? newSpecial.days.filter(d => d !== day)
+      ? newSpecial.days.filter((d: any) => d !== day)
       : [...newSpecial.days, day];
     setNewSpecial({ ...newSpecial, days: updatedDays });
   };
@@ -122,7 +122,7 @@ const SpecialServices: React.FC = () => {
   };
 
   const deleteSpecial = (id: number) => {
-    setSpecialServices(specialServices.filter(s => s.id !== id));
+    setSpecialServices(specialServices.filter((s: any) => s.id !== id));
   };
 
   return (
@@ -235,7 +235,7 @@ const SpecialServices: React.FC = () => {
                     <span className="text-xs" style={{ color: darkTheme.text.muted }}>{special.time}</span>
                   </div>
                   <div className="flex gap-1">
-                    {special.days.map(day => (
+                    {special.days.map((day: any) => (
                       <span 
                         key={day}
                         className="px-2 py-1 rounded text-xs"
@@ -295,7 +295,7 @@ const BusinessTypeSettings: React.FC = () => {
   ];
 
   const currentSettings = typeSpecificSettings[businessType];
-  const currentType = businessTypes.find(t => t.id === businessType);
+  const currentType = businessTypes.find((t: any) => t.id === businessType);
 
   // Type-safe update function for different business types
   const updateRestaurantSetting = (key: keyof BusinessTypeConfig['restaurant'], value: any) => {
@@ -620,13 +620,13 @@ const NotificationCenter: React.FC = () => {
   };
 
   const markAsRead = (id: number) => {
-    setNotifications(notifications.map(notif => 
+    setNotifications(notifications.map((notif: any) => 
       notif.id === id ? { ...notif, read: true } : notif
     ));
   };
 
   const deleteNotification = (id: number) => {
-    setNotifications(notifications.filter(notif => notif.id !== id));
+    setNotifications(notifications.filter((notif: any) => notif.id !== id));
   };
 
   return (
@@ -702,7 +702,7 @@ const BusinessSpecials: React.FC = () => {
     { id: 'notifications' as const, label: 'Alerts', icon: AlertTriangle, color: '#F59E0B', component: NotificationCenter }
   ];
 
-  const ActiveComponent = tabs.find(t => t.id === activeTab)?.component;
+  const ActiveComponent = tabs.find((t: any) => t.id === activeTab)?.component;
 
   return (
     <div className="min-h-screen" style={{ background: darkTheme.background.primary }}>

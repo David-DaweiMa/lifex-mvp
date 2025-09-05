@@ -377,7 +377,7 @@ export default function LocationManager() {
             { id: 'nearby', label: 'Nearby Places', icon: MapPin },
             { id: 'chat', label: 'AI Chat', icon: MessageCircle },
             { id: 'settings', label: 'Settings', icon: Settings }
-          ].map(tab => {
+          ].map((tab: any) => {
             const Icon = tab.icon;
             return (
               <button
@@ -421,13 +421,13 @@ export default function LocationManager() {
 
                 {businessesLoading ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[1, 2, 3, 4].map(i => (
+                    {[1, 2, 3, 4].map((i: any) => (
                       <div key={i} className="bg-gray-200 rounded-lg h-32 animate-pulse"></div>
                     ))}
                   </div>
                 ) : nearbyBusinesses.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {nearbyBusinesses.map(business => renderBusinessCard(business))}
+                    {nearbyBusinesses.map((business: any) => renderBusinessCard(business))}
                   </div>
                 ) : (
                   <div className="text-center py-8">
@@ -476,7 +476,7 @@ export default function LocationManager() {
                         "Find restaurants near me",
                         "Best coffee shops nearby",
                         "What attractions should I visit?"
-                      ].map(suggestion => (
+                      ].map((suggestion: any) => (
                         <button
                           key={suggestion}
                           onClick={() => setCurrentMessage(suggestion)}
@@ -489,7 +489,7 @@ export default function LocationManager() {
                   </div>
                 </div>
               ) : (
-                chatMessages.map(chat => (
+                chatMessages.map((chat: any) => (
                   <div key={chat.id} className="space-y-3">
                     {/* User message */}
                     <div className="flex justify-end">
@@ -507,7 +507,7 @@ export default function LocationManager() {
                         {chat.recommendations && chat.recommendations.length > 0 && (
                           <div className="space-y-2 mt-3">
                             <p className="text-xs text-gray-600 font-medium">Recommendations:</p>
-                            {chat.recommendations.map(business => renderBusinessCard(business, false))}
+                            {chat.recommendations.map((business: any) => renderBusinessCard(business, false))}
                           </div>
                         )}
                       </div>

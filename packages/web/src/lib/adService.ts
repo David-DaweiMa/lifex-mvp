@@ -57,7 +57,7 @@ export async function getAdForChat(request: AdRequest): Promise<AdInfo | null> {
     }
 
     // 根据相关性和用户类型筛选广告
-    const relevantAds = ads.filter(ad => {
+    const relevantAds = ads.filter((ad: any) => {
       // 检查预算限制
       if (ad.daily_budget && ad.total_spent >= ad.daily_budget) {
         return false;
@@ -192,7 +192,7 @@ export async function getAdForSearch(
     }
 
     // 根据搜索关键词匹配广告
-    const relevantAds = ads.filter(ad => {
+    const relevantAds = ads.filter((ad: any) => {
       const relevanceScore = calculateRelevanceScore(ad, keywords);
       return relevanceScore > 0.5; // 搜索广告需要更高的相关性
     });
@@ -229,7 +229,7 @@ function extractKeywords(text: string): string[] {
     .toLowerCase()
     .replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s]/g, '')
     .split(/\s+/)
-    .filter(word => word.length > 1 && !stopWords.includes(word));
+    .filter((word: any) => word.length > 1 && !stopWords.includes(word));
 }
 
 /**
@@ -266,7 +266,7 @@ function calculateRelevanceScore(ad: any, keywords: string[]): number {
  */
 function selectBestAd(ads: any[], keywords: string[]): any {
   // 计算每个广告的综合分数
-  const scoredAds = ads.map(ad => {
+  const scoredAds = ads.map((ad: any) => {
     const relevanceScore = calculateRelevanceScore(ad, keywords);
     const ctrScore = ad.impressions > 0 ? ad.clicks / ad.impressions : 0;
     const budgetScore = ad.daily_budget ? (ad.daily_budget - ad.total_spent) / ad.daily_budget : 1;

@@ -98,7 +98,7 @@ If unable to provide specific recommendations, please return an empty array but 
 
       // Map business IDs to actual business objects
       const recommendedBusinesses = availableBusinesses ? 
-        availableBusinesses.filter(business =>
+        availableBusinesses.filter((business: any) =>
           parsedResponse.recommendations.includes((business as any).id)
         ) : [];
 
@@ -223,7 +223,7 @@ ${userContext ? `用户上下文: ${JSON.stringify(userContext)}` : ''}
 
     try {
       const conversationText = conversationHistory
-        .map(msg => `${msg.role}: ${msg.content}`)
+        .map((msg: any) => `${msg.role}: ${msg.content}`)
         .join('\n');
 
       const prompt = `

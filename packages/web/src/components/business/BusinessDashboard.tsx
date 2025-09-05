@@ -108,7 +108,7 @@ const MenuManagement: React.FC<{
   };
 
   const deleteItem = (id: number) => {
-    setItems(items.filter(item => item.id !== id));
+    setItems(items.filter((item: any) => item.id !== id));
   };
 
   return (
@@ -163,7 +163,7 @@ const MenuManagement: React.FC<{
               color: darkTheme.text.primary
             }}
           >
-            {categories.map(cat => (
+            {categories.map((cat: any) => (
               <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
           </select>
@@ -196,8 +196,8 @@ const MenuManagement: React.FC<{
       </div>
 
       {/* Items by Category */}
-      {categories.map(category => {
-        const categoryItems = items.filter(item => item.category === category.id);
+      {categories.map((category: any) => {
+        const categoryItems = items.filter((item: any) => item.category === category.id);
         if (categoryItems.length === 0) return null;
         
         return (
@@ -584,7 +584,7 @@ const BusinessProfile: React.FC = () => {
                   color: darkTheme.text.primary
                 }}
               >
-                {businessTypes.map(type => (
+                {businessTypes.map((type: any) => (
                   <option key={type.id} value={type.id}>{type.icon} {type.name}</option>
                 ))}
               </select>

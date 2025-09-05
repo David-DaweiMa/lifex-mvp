@@ -255,7 +255,7 @@ const LifeXApp: React.FC = () => {
             { id: 'discover' as ViewType, icon: Camera, label: 'Discover' },
             { id: 'subscription' as ViewType, icon: Heart, label: 'Coly' },
             { id: 'profile' as ViewType, icon: User, label: 'Profile' }
-          ].map(tab => (
+          ].map((tab: any) => (
             <button
               key={tab.id}
               onClick={() => setCurrentView(tab.id)}

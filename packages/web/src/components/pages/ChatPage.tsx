@@ -112,7 +112,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
             
             {message.recommendations && (
               <div className="mt-4 space-y-4">
-                {message.recommendations.map(rec => (
+                {message.recommendations.map((rec: any) => (
                   <div 
                     key={rec.id} 
                     className="bg-dark-card border border-dark-glass rounded-xl overflow-hidden"

@@ -145,7 +145,7 @@ export default function BusinessDashboardPage() {
     );
   }
 
-  const activeModuleData = modules.find(m => m.id === activeModule);
+  const activeModuleData = modules.find((m: any) => m.id === activeModule);
   const ActiveComponent = activeModuleData?.component;
 
   return (

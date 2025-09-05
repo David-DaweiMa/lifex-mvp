@@ -88,7 +88,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
+    setTags(tags.filter((tag: any) => tag !== tagToRemove));
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
@@ -457,7 +457,7 @@ const TrendingPage: React.FC = () => {
         .from('post_likes')
         .select('post_id')
         .eq('user_id', user.id)
-        .in('post_id', posts.map(p => p.id));
+        .in('post_id', posts.map((p: any) => p.id));
 
       if (data) {
         setLikedPosts(new Set(data.map((like: any) => like.post_id)));
@@ -525,7 +525,7 @@ const TrendingPage: React.FC = () => {
       return newSet;
     });
 
-    setPosts(prev => prev.map(post => 
+    setPosts(prev => prev.map((post: any) => 
       post.id === postId 
         ? { ...post, like_count: Math.max(0, post.like_count + (isCurrentlyLiked ? -1 : 1)) }
           : post
@@ -559,7 +559,7 @@ const TrendingPage: React.FC = () => {
         return newSet;
       });
 
-      setPosts(prev => prev.map(post => 
+      setPosts(prev => prev.map((post: any) => 
         post.id === postId 
           ? { ...post, like_count: Math.max(0, post.like_count + (isCurrentlyLiked ? 1 : -1)) }
           : post
@@ -585,7 +585,7 @@ const TrendingPage: React.FC = () => {
         });
 
       // Update share count
-      setPosts(prev => prev.map(post => 
+      setPosts(prev => prev.map((post: any) => 
         post.id === postId 
           ? { ...post, share_count: post.share_count + 1 }
           : post
@@ -656,7 +656,7 @@ const TrendingPage: React.FC = () => {
     } else {
       setSelectedTags(prev => 
         prev.includes(tagKey) 
-          ? prev.filter(t => t !== tagKey)
+          ? prev.filter((t: any) => t !== tagKey)
           : [...prev, tagKey]
       );
     }
