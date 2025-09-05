@@ -345,6 +345,38 @@ export interface Database {
           updated_at?: string;
         };
       };
+      anonymous_usage: {
+        Row: {
+          id: string;
+          session_id: string;
+          device_fingerprint: string | null;
+          quota_type: 'chat' | 'trending' | 'ads';
+          usage_date: string;
+          usage_count: number | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          session_id: string;
+          device_fingerprint?: string | null;
+          quota_type: 'chat' | 'trending' | 'ads';
+          usage_date: string;
+          usage_count?: number | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          session_id?: string;
+          device_fingerprint?: string | null;
+          quota_type?: 'chat' | 'trending' | 'ads';
+          usage_date?: string;
+          usage_count?: number | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
     };
   };
 }

@@ -352,7 +352,7 @@ $$;
 -- 记录匿名使用
 CREATE OR REPLACE FUNCTION record_anonymous_usage(
   session_id TEXT,
-  feature TEXT,
+  quota_type TEXT,
   usage_date DATE DEFAULT CURRENT_DATE
 )
 RETURNS VOID
@@ -361,9 +361,9 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  INSERT INTO anonymous_usage (session_id, feature, usage_count, usage_date, created_at, updated_at)
-  VALUES (session_id, feature, 1, usage_date, NOW(), NOW())
-  ON CONFLICT (session_id, feature, usage_date) 
+  INSERT INTO anonymous_usage (session_id, quota_type, usage_count, usage_date, created_at, updated_at)
+  VALUES (session_id, quota_type, 1, usage_date, NOW(), NOW())
+  ON CONFLICT (session_id, quota_type, usage_date) 
   DO UPDATE SET 
     usage_count = anonymous_usage.usage_count + 1,
     updated_at = NOW();
@@ -534,7 +534,7 @@ GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO service_role;
    SELECT record_assistant_usage('user-uuid', 'coly');
 
 7. 记录匿名使用：
-   SELECT record_anonymous_usage('session-id', 'coly');
+   SELECT record_anonymous_usage('session-id', 'chat');
 
 8. 创建聊天消息：
    SELECT create_chat_message('user-uuid', 'session-id', 'user', 'Hello AI!');
