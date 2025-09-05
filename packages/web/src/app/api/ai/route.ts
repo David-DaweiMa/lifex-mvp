@@ -59,78 +59,92 @@ async function handleAnonymousUser(
   sessionId: string,
   assistant: AssistantType
 ) {
-  const language = detectLanguage(message);
-  
-  // Anonymous users can only use Coly with very limited access
-  if (assistant === 'max') {
-    const response = getPersonalityResponse('max', 'tired', language);
-    return NextResponse.json({
-      success: false,
-      error: response,
-      data: {
-        message: response,
-        assistant: 'max',
-        requiresUpgrade: true
-      }
-    }, { status: 403 });
-  }
+  try {
+    const language = detectLanguage(message);
+    
+    // Anonymous users can only use Coly with very limited access
+    if (assistant === 'max') {
+      const response = getPersonalityResponse('max', 'tired', language);
+      return NextResponse.json({
+        success: false,
+        error: response,
+        data: {
+          message: response,
+          assistant: 'max',
+          requiresUpgrade: true
+        }
+      }, { status: 403 });
+    }
 
-  // Check anonymous usage limits (10 per day)
-  const today = new Date().toISOString().split('T')[0];
-  const { data: usageData, error: usageError } = await typedSupabase
-    .from('anonymous_usage')
-    .select('usage_count')
-    .eq('session_id', sessionId)
-    .eq('quota_type', 'chat')
-    .eq('usage_date', today)
-    .maybeSingle();
+    // Check anonymous usage limits (10 per day)
+    const today = new Date().toISOString().split('T')[0];
+    const { data: usageData, error: usageError } = await typedSupabase
+      .from('anonymous_usage')
+      .select('usage_count')
+      .eq('session_id', sessionId)
+      .eq('quota_type', 'chat')
+      .eq('usage_date', today)
+      .maybeSingle();
 
-  const currentUsage = (usageData as { usage_count: number | null } | null)?.usage_count || 0;
-  const maxUsage = 10;
-  
-  if (currentUsage >= maxUsage) {
-    const response = getPersonalityResponse('coly', 'tired', language);
+    if (usageError) {
+      console.error('Error checking anonymous usage:', usageError);
+      // Allow usage if we can't check (fail open)
+    }
+
+    const currentUsage = (usageData as { usage_count: number | null } | null)?.usage_count || 0;
+    const maxUsage = 10;
+    
+    if (currentUsage >= maxUsage) {
+      const response = getPersonalityResponse('coly', 'tired', language);
+      return NextResponse.json({
+        success: false,
+        error: response,
+        data: {
+          message: response,
+          assistant: 'coly',
+          requiresUpgrade: true,
+          quota: {
+            current: currentUsage,
+            limit: maxUsage,
+            remaining: 0,
+            resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+          }
+        }
+      }, { status: 429 });
+    }
+
+    // Generate response for anonymous user
+    const aiResponse = await generateAIResponse(message, {
+      userType: 'anonymous',
+      location: { city: 'Auckland', country: 'New Zealand' },
+      assistant,
+      language
+    });
+
+    // Record usage
+    await recordAnonymousUsage(sessionId, 'chat', today);
+
     return NextResponse.json({
-      success: false,
-      error: response,
+      success: true,
       data: {
-        message: response,
+        ...aiResponse,
         assistant: 'coly',
-        requiresUpgrade: true,
         quota: {
-          current: currentUsage,
+          current: currentUsage + 1,
           limit: maxUsage,
-          remaining: 0,
+          remaining: maxUsage - currentUsage - 1,
           resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
         }
       }
-    }, { status: 429 });
+    });
+
+  } catch (error) {
+    console.error('Error in handleAnonymousUser:', error);
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable' },
+      { status: 500 }
+    );
   }
-
-  // Generate response for anonymous user
-  const aiResponse = await generateAIResponse(message, {
-    userType: 'anonymous',
-    location: { city: 'Auckland', country: 'New Zealand' },
-    assistant,
-    language
-  });
-
-  // Record usage
-  await recordAnonymousUsage(sessionId, 'chat', today);
-
-  return NextResponse.json({
-    success: true,
-    data: {
-      ...aiResponse,
-      assistant: 'coly',
-      quota: {
-        current: currentUsage + 1,
-        limit: maxUsage,
-        remaining: maxUsage - currentUsage - 1,
-        resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-      }
-    }
-  });
 }
 
 /**
@@ -142,24 +156,33 @@ async function handleUnlimitedUser(
   sessionId: string,
   assistant: AssistantType
 ) {
-  const language = detectLanguage(message);
-  
-  // Generate response
-  const aiResponse = await generateAIResponse(message, {
-    userType: userId === 'demo-user' ? 'demo' : 'admin',
-    location: { city: 'Auckland', country: 'New Zealand' },
-    assistant,
-    language
-  });
-
-  return NextResponse.json({
-    success: true,
-    data: {
-      ...aiResponse,
+  try {
+    const language = detectLanguage(message);
+    
+    // Generate response
+    const aiResponse = await generateAIResponse(message, {
+      userType: userId === 'demo-user' ? 'demo' : 'admin',
+      location: { city: 'Auckland', country: 'New Zealand' },
       assistant,
-      unlimited: true
-    }
-  });
+      language
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...aiResponse,
+        assistant,
+        unlimited: true
+      }
+    });
+
+  } catch (error) {
+    console.error('Error in handleUnlimitedUser:', error);
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable' },
+      { status: 500 }
+    );
+  }
 }
 
 /**
@@ -171,75 +194,95 @@ async function handleRegisteredUser(
   sessionId: string,
   assistant: AssistantType
 ) {
-  // Get user profile
-  const { data: userProfile, error: userError } = await typedSupabase
-    .from('user_profiles')
-    .select('subscription_level, location')
-    .eq('id', userId)
-    .maybeSingle();
+  try {
+    // Get user profile with proper error handling
+    const { data: userProfile, error: userError } = await typedSupabase
+      .from('user_profiles')
+      .select('subscription_level, location')
+      .eq('id', userId)
+      .maybeSingle();
 
-  if (userError || !userProfile) {
+    if (userError) {
+      console.error('Database error fetching user profile:', userError);
+      return NextResponse.json(
+        { error: 'Database error' },
+        { status: 500 }
+      );
+    }
+
+    if (!userProfile) {
+      return NextResponse.json(
+        { error: 'User profile not found' },
+        { status: 401 }
+      );
+    }
+
+    // Use explicit variables to avoid TypeScript inference issues
+    const subscriptionLevel = userProfile.subscription_level || 'free';
+    const userLocation = userProfile.location || { city: 'Auckland', country: 'New Zealand' };
+
+    // Check assistant usage limits
+    const usageCheck = await checkAssistantLimit(
+      userId,
+      assistant,
+      subscriptionLevel,
+      message
+    );
+
+    if (!usageCheck.canUse) {
+      return NextResponse.json({
+        success: false,
+        error: usageCheck.message,
+        data: {
+          message: usageCheck.message,
+          assistant,
+          requiresUpgrade: true,
+          quota: {
+            current: usageCheck.currentUsage,
+            limit: usageCheck.limit,
+            remaining: usageCheck.remaining,
+            resetTime: usageCheck.resetTime
+          }
+        }
+      }, { status: 429 });
+    }
+
+    // Generate AI response
+    const aiResponse = await generateAIResponse(message, {
+      userType: subscriptionLevel,
+      location: userLocation,
+      assistant,
+      language: detectLanguage(message)
+    });
+
+    // Record usage
+    await recordAssistantUsage(userId, assistant);
+
+    // Save conversation to database
+    await saveConversation(userId, sessionId, message, aiResponse.message, assistant);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...aiResponse,
+        assistant,
+        quota: {
+          current: usageCheck.currentUsage + 1,
+          limit: usageCheck.limit,
+          remaining: usageCheck.remaining - 1,
+          resetTime: usageCheck.resetTime
+        },
+        warning: usageCheck.message // Include warning if approaching limit
+      }
+    });
+
+  } catch (error) {
+    console.error('Error in handleRegisteredUser:', error);
     return NextResponse.json(
-      { error: 'User profile not found' },
-      { status: 401 }
+      { error: 'Service temporarily unavailable' },
+      { status: 500 }
     );
   }
-
-  // Check assistant usage limits
-  const subscriptionLevel = userProfile?.subscription_level || 'free';
-  const usageCheck = await checkAssistantLimit(
-    userId,
-    assistant,
-    subscriptionLevel,
-    message
-  );
-
-  if (!usageCheck.canUse) {
-    return NextResponse.json({
-      success: false,
-      error: usageCheck.message,
-      data: {
-        message: usageCheck.message,
-        assistant,
-        requiresUpgrade: true,
-        quota: {
-          current: usageCheck.currentUsage,
-          limit: usageCheck.limit,
-          remaining: usageCheck.remaining,
-          resetTime: usageCheck.resetTime
-        }
-      }
-    }, { status: 429 });
-  }
-
-  // Generate AI response
-  const aiResponse = await generateAIResponse(message, {
-    userType: userProfile.subscription_level,
-    location: userProfile.location || { city: 'Auckland', country: 'New Zealand' },
-    assistant,
-    language: detectLanguage(message)
-  });
-
-  // Record usage
-  await recordAssistantUsage(userId, assistant);
-
-  // Save conversation to database
-  await saveConversation(userId, sessionId, message, aiResponse.message, assistant);
-
-  return NextResponse.json({
-    success: true,
-    data: {
-      ...aiResponse,
-      assistant,
-      quota: {
-        current: usageCheck.currentUsage + 1,
-        limit: usageCheck.limit,
-        remaining: usageCheck.remaining - 1,
-        resetTime: usageCheck.resetTime
-      },
-      warning: usageCheck.message // Include warning if approaching limit
-    }
-  });
 }
 
 /**
@@ -400,4 +443,3 @@ async function recordAnonymousUsage(sessionId: string, quotaType: string, date: 
     console.error('Error recording anonymous usage:', error);
   }
 }
-
