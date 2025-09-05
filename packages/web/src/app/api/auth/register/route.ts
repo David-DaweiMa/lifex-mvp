@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
           businessName: business_name
         });
 
-        const { data: businessData, error: businessError } = await typedSupabaseAdmin
+        const { data: businessData, error: businessError } = await (typedSupabaseAdmin as any)
           .from('businesses')
           .insert({
             owner_id: result.user.id,
