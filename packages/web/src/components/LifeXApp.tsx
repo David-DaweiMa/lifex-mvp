@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Search, Bell, MessageCircle, Zap, Camera, Crown, User, Heart } from 'lucide-react';
+import { Bell, MessageCircle, Zap, Camera, Crown, User, Heart, Tag } from 'lucide-react';
 import { darkTheme } from '../lib/theme';
 import { ViewType, Message, Booking } from '../lib/types';
 import { mockBookings } from '../lib/mockData';
@@ -13,6 +13,7 @@ import { useAuth } from '../lib/hooks/useAuth';
 import ChatPage from './pages/ChatPage';
 import TrendingPage from './pages/TrendingPage';
 import DiscoverPage from './pages/DiscoverPage';
+import SpecialsPage from './pages/SpecialsPage';
 import ColyPage from './pages/ColyPage';
 import ProfilePage from './pages/ProfilePage';
 import MembershipPlansPage from './pages/MembershipPlansPage';
@@ -187,10 +188,13 @@ const LifeXApp: React.FC = () => {
           </div>
           <div className="flex gap-1">
             <button className="p-2 rounded-lg transition-colors hover:bg-white/5">
-              <Search size={16} className="md:w-5 md:h-5" style={{ color: darkTheme.neon.purple }} />
-            </button>
-            <button className="p-2 rounded-lg transition-colors hover:bg-white/5">
               <Bell size={16} className="md:w-5 md:h-5" style={{ color: darkTheme.neon.purple }} />
+            </button>
+            <button 
+              className="p-2 rounded-lg transition-colors hover:bg-white/5"
+              onClick={() => setCurrentView('profile')}
+            >
+              <User size={16} className="md:w-5 md:h-5" style={{ color: darkTheme.neon.purple }} />
             </button>
           </div>
         </div>
@@ -223,6 +227,10 @@ const LifeXApp: React.FC = () => {
           />
         )}
 
+        {currentView === 'specials' && (
+          <SpecialsPage />
+        )}
+
         {currentView === 'subscription' && (
           <ColyPage
             onNavigateToChat={handleNavigateToChat}
@@ -253,8 +261,8 @@ const LifeXApp: React.FC = () => {
             { id: 'chat' as ViewType, icon: MessageCircle, label: 'Chat' },
             { id: 'trending' as ViewType, icon: Zap, label: 'Trending' },
             { id: 'discover' as ViewType, icon: Camera, label: 'Discover' },
-            { id: 'subscription' as ViewType, icon: Heart, label: 'Coly' },
-            { id: 'profile' as ViewType, icon: User, label: 'Profile' }
+            { id: 'specials' as ViewType, icon: Tag, label: 'Specials' },
+            { id: 'subscription' as ViewType, icon: Heart, label: 'Coly' }
           ].map((tab: any) => (
             <button
               key={tab.id}
