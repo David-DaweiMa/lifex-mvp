@@ -332,7 +332,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                       
                       {/* Tags */}
                       <div className="flex flex-wrap gap-1 mb-2">
-                        {getTags().map((tag, index) => (
+                        {getTags().map((tag: any, index: any) => (
                           <span 
                             key={index}
                             className="px-2 py-1 rounded-full text-xs font-medium"

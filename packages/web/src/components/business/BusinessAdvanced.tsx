@@ -429,7 +429,7 @@ const ReviewsManagement: React.FC = () => {
             <div className="flex items-center mt-2">
               <span className="text-2xl font-bold mr-2" style={{ color: '#F59E0B' }}>{avgRating.toFixed(1)}</span>
               <div className="flex">
-                {[...Array(5)].map((_, i) => (
+                {[...Array(5)].map((_: any, i: any) => (
                   <Star
                     key={i}
                     size={16}
@@ -455,7 +455,7 @@ const ReviewsManagement: React.FC = () => {
               <div>
                 <span className="font-medium" style={{ color: darkTheme.text.primary }}>{review.customer}</span>
                 <div className="flex items-center mt-1">
-                  {[...Array(5)].map((_, i) => (
+                  {[...Array(5)].map((_: any, i: any) => (
                     <Star
                       key={i}
                       size={14}

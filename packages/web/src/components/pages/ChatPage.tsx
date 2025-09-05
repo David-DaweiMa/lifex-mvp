@@ -136,7 +136,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                       <div className="bg-lifex-purple/20 border border-lifex-purple/40 rounded-lg p-2.5 mb-3">
                         <p className="text-xs md:text-sm text-text-primary mb-2">{rec.aiReason}</p>
                         <div className="flex flex-wrap gap-1">
-                          {rec.tags.map((tag, tagIdx) => (
+                          {rec.tags.map((tag: any, tagIdx: any) => (
                             <span 
                               key={tagIdx}
                               className="px-2 py-1 rounded-full text-xs font-medium"
@@ -200,7 +200,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
-            {messages.map((message, index) => renderMessage(message, index))}
+            {messages.map((message: any, index: any) => renderMessage(message, index))}
             {isTyping && (
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-lifex-purple">
@@ -226,7 +226,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                   <div className="flex-1">
                     <p className="text-sm md:text-base text-text-secondary mb-3">You might also want to ask:</p>
                     <div className="flex flex-wrap gap-2">
-                      {followUpQuestions.map((question, index) => (
+                      {followUpQuestions.map((question: any, index: any) => (
                         <button
                           key={index}
                           onClick={() => onQuickPrompt(question)}
@@ -367,7 +367,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                                  {/* Quick Prompts - Auto-scrolling */}
             <div className="mb-16 md:mb-20">
               <div className="space-y-1">
-               {quickPrompts.map((row, rowIdx) => (
+               {quickPrompts.map((row: any, rowIdx: any) => (
                  <div 
                    key={rowIdx} 
                    className="flex gap-2 overflow-hidden pb-2"
@@ -381,7 +381,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                      }}
                    >
                      {/* Duplicate items for seamless scrolling */}
-                     {[...row, ...row].map((prompt, idx) => (
+                     {[...row, ...row].map((prompt: any, idx: any) => (
                        <button
                          key={idx}
                          onClick={() => onQuickPrompt(prompt)}
@@ -428,7 +428,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
              
              {/* Discovery content cards */}
              <div className="space-y-3">
-               {recentDiscoveries.map((discovery, idx) => (
+               {recentDiscoveries.map((discovery: any, idx: any) => (
                  <div 
                    key={idx}
                    className="flex items-center p-3 rounded-xl bg-dark-card border border-dark-glass cursor-pointer hover:bg-dark-secondary transition-colors"

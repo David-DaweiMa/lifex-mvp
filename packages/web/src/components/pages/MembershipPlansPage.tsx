@@ -212,7 +212,7 @@ const MembershipPlansPage: React.FC<MembershipPlansPageProps> = ({
                   </div>
                   
                   <div className="space-y-3 mb-6">
-                    {plan.features.map((feature, index) => (
+                    {plan.features.map((feature: any, index: any) => (
                       <div key={index} className="flex items-center">
                         <Check 
                           className="w-4 h-4 mr-3 flex-shrink-0" 

@@ -234,22 +234,22 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
           {/* Media Preview */}
           {(images.length > 0 || videos.length > 0) && (
             <div className="grid grid-cols-3 gap-2 mb-4">
-              {images.map((url, index) => (
+              {images.map((url: any, index: any) => (
                 <div key={index} className="relative aspect-square rounded-lg overflow-hidden">
                   <img src={url} alt="Upload" className="w-full h-full object-cover" />
                   <button
-                    onClick={() => setImages(images.filter((_, i) => i !== index))}
+                    onClick={() => setImages(images.filter((_: any, i: any) => i !== index))}
                     className="absolute top-1 right-1 p-1 rounded-full bg-black/50"
                   >
                     <X size={12} className="text-white" />
                   </button>
                 </div>
               ))}
-              {videos.map((url, index) => (
+              {videos.map((url: any, index: any) => (
                 <div key={index} className="relative aspect-square rounded-lg overflow-hidden">
                   <video src={url} className="w-full h-full object-cover" />
                   <button
-                    onClick={() => setVideos(videos.filter((_, i) => i !== index))}
+                    onClick={() => setVideos(videos.filter((_: any, i: any) => i !== index))}
                     className="absolute top-1 right-1 p-1 rounded-full bg-black/50"
                   >
                     <X size={12} className="text-white" />
@@ -789,7 +789,7 @@ const TrendingPage: React.FC = () => {
             {/* Left column */}
             <div className="space-y-3 md:space-y-4">
               {/* Hot trends - Left column */}
-              {trendingData.filter((_, index) => index % 2 === 0).map((trend, idx) => (
+              {trendingData.filter((_: any, index: any) => index % 2 === 0).map((trend: any, idx: any) => (
                 <div 
                   key={trend.id}
                   className="p-4 md:p-5 rounded-xl border cursor-pointer transition-all hover:scale-[1.02]"
@@ -841,7 +841,7 @@ const TrendingPage: React.FC = () => {
               ))}
 
               {/* User posts - Left column */}
-              {posts.filter((_, index) => index % 2 === 0).map((post) => (
+              {posts.filter((_: any, index: any) => index % 2 === 0).map((post) => (
                 <div 
                   key={post.id}
                   className="rounded-2xl border overflow-hidden cursor-pointer transition-all hover:scale-[1.02]"
@@ -897,7 +897,7 @@ const TrendingPage: React.FC = () => {
                           />
                         ) : (
                           <div className="grid grid-cols-2 gap-1">
-                            {post.images.slice(0, 4).map((img, idx) => (
+                            {post.images.slice(0, 4).map((img: any, idx: any) => (
                               <div key={idx} className="relative aspect-square">
                                 <img 
                                   src={img} 
@@ -995,7 +995,7 @@ const TrendingPage: React.FC = () => {
             {/* Right column */}
             <div className="space-y-3 md:space-y-4">
               {/* Hot trends - Right column */}
-              {trendingData.filter((_, index) => index % 2 === 1).map((trend, idx) => (
+              {trendingData.filter((_: any, index: any) => index % 2 === 1).map((trend: any, idx: any) => (
                 <div 
                   key={trend.id}
                   className="p-4 md:p-5 rounded-xl border cursor-pointer transition-all hover:scale-[1.02]"
@@ -1047,7 +1047,7 @@ const TrendingPage: React.FC = () => {
               ))}
 
               {/* User posts - Right column */}
-              {posts.filter((_, index) => index % 2 === 1).map((post) => (
+              {posts.filter((_: any, index: any) => index % 2 === 1).map((post) => (
                 <div 
                   key={post.id}
                   className="rounded-2xl border overflow-hidden cursor-pointer transition-all hover:scale-[1.02]"
@@ -1103,7 +1103,7 @@ const TrendingPage: React.FC = () => {
                           />
                         ) : (
                           <div className="grid grid-cols-2 gap-1">
-                            {post.images.slice(0, 4).map((img, idx) => (
+                            {post.images.slice(0, 4).map((img: any, idx: any) => (
                               <div key={idx} className="relative aspect-square">
                                 <img 
                                   src={img} 

@@ -343,7 +343,7 @@ const ServiceAreas: React.FC<{
   };
 
   const removeArea = (index: number) => {
-    setAreas(areas.filter((_, i) => i !== index));
+    setAreas(areas.filter((_: any, i: any) => i !== index));
   };
 
   return (
@@ -384,7 +384,7 @@ const ServiceAreas: React.FC<{
         </div>
         
         <div className="space-y-2">
-          {areas.map((area, index) => (
+          {areas.map((area: any, index: any) => (
             <div key={index} className="flex justify-between items-center p-3 rounded-lg" style={{ background: darkTheme.background.secondary }}>
               <span style={{ color: darkTheme.text.primary }}>{area}</span>
               <button 

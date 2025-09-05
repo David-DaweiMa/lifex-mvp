@@ -222,7 +222,7 @@ export default function BusinessDetailPage() {
                   Highlights
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {business.highlights.map((highlight, index) => (
+                  {business.highlights.map((highlight: any, index: any) => (
                     <span
                       key={index}
                       className="px-3 py-1 rounded-full text-sm font-medium"
@@ -281,7 +281,7 @@ export default function BusinessDetailPage() {
                     <div key={index} className="border-b pb-4 last:border-b-0" style={{ borderColor: darkTheme.background.glass }}>
                       <div className="flex items-center gap-2 mb-2">
                         <div className="flex items-center gap-1">
-                          {[...Array(5)].map((_, i) => (
+                          {[...Array(5)].map((_: any, i: any) => (
                             <Star 
                               key={i} 
                               size={12} 

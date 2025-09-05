@@ -240,7 +240,7 @@ const ProfilePage: React.FC = () => {
               Quick Actions
             </h3>
             <div className="grid grid-cols-2 gap-3 md:gap-4">
-              {quickActions.map((action, index) => (
+              {quickActions.map((action: any, index: any) => (
                 <button
                   key={index}
                   className="p-3 md:p-4 rounded-xl border text-left transition-all hover:scale-105 group"
@@ -277,7 +277,7 @@ const ProfilePage: React.FC = () => {
               Settings
             </h3>
             <div className="space-y-2 md:space-y-3">
-              {settingsItems.map((setting, index) => (
+              {settingsItems.map((setting: any, index: any) => (
                 <button
                   key={index}
                   className="w-full p-3 md:p-4 rounded-xl border flex items-center justify-between transition-all hover:scale-105 group"
@@ -368,7 +368,7 @@ const ProfilePage: React.FC = () => {
                   
                   {/* Premium Features List */}
                   <div className="space-y-2">
-                    {premiumFeatures.map((feature, idx) => (
+                    {premiumFeatures.map((feature: any, idx: any) => (
                       <div key={idx} className="flex items-center gap-2">
                         <div 
                           className="w-2 h-2 rounded-full"
@@ -515,7 +515,7 @@ const ProfilePage: React.FC = () => {
                 { label: 'Privacy Policy', href: '/privacy' },
                 { label: 'Business Obligations', href: '/legal/business-obligations' },
                 { label: 'Contact Support', href: '/support' }
-              ].map((item, index) => (
+              ].map((item: any, index: any) => (
                 <button
                   key={index}
                   onClick={() => router.push(item.href)}

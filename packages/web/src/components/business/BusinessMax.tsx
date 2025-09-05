@@ -230,7 +230,7 @@ const BusinessMax: React.FC = () => {
 
               {/* Feature showcase */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {maxPermission.features.map((feature, index) => (
+                {maxPermission.features.map((feature: any, index: any) => (
                   <div 
                     key={index}
                     className="p-4 rounded-xl border text-center"
@@ -314,7 +314,7 @@ const BusinessMax: React.FC = () => {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
-            {messages.map((message, index) => renderMessage(message, index))}
+            {messages.map((message: any, index: any) => renderMessage(message, index))}
             {isTyping && (
               <div className="flex items-start gap-3">
                 <div 
@@ -348,7 +348,7 @@ const BusinessMax: React.FC = () => {
                   <div className="flex-1">
                     <p className="text-sm md:text-base text-text-secondary mb-3">You might also want to ask:</p>
                     <div className="flex flex-wrap gap-2">
-                      {followUpQuestions.map((question, index) => (
+                      {followUpQuestions.map((question: any, index: any) => (
                         <button
                           key={index}
                           onClick={() => handleQuickPrompt(question)}
@@ -463,9 +463,9 @@ const BusinessMax: React.FC = () => {
               {[
                 ['How can I increase revenue?', 'Help me optimize operations', 'What\'s my market opportunity?'],
                 ['How to acquire more customers?', 'Analyze my competition', 'Improve my pricing strategy']
-              ].map((row, rowIdx) => (
+              ].map((row: any, rowIdx: any) => (
                 <div key={rowIdx} className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                  {row.map((prompt, idx) => (
+                  {row.map((prompt: any, idx: any) => (
                     <button
                       key={idx}
                       onClick={() => handleQuickPrompt(prompt)}
@@ -489,7 +489,7 @@ const BusinessMax: React.FC = () => {
                 { icon: Target, label: 'Market Analysis', color: darkTheme.neon.cyan },
                 { icon: DollarSign, label: 'Revenue Optimization', color: darkTheme.neon.yellow },
                 { icon: Users, label: 'Customer Acquisition', color: darkTheme.neon.pink }
-              ].map((insight, index) => (
+              ].map((insight: any, index: any) => (
                 <div 
                   key={index}
                   className="p-4 rounded-xl border text-center transition-all hover:scale-105 cursor-pointer"

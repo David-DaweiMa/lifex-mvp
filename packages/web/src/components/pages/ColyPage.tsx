@@ -194,7 +194,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
               { label: "Stay On Top", value: "Bills & Tasks", color: "blue" },
               { label: "Find Deals", value: "Save Money", color: "yellow" },
               { label: "Built Local", value: "NZ Data", color: "primary" }
-            ].map((stat, index) => (
+            ].map((stat: any, index: any) => (
               <div 
                 key={index}
                 className="p-4 rounded-lg border text-center"
@@ -265,7 +265,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
                 }}
               >
                 <div className="space-y-4">
-                  {(expandedDemo ? extendedMessages : demoMessages).map((message, index) => (
+                  {(expandedDemo ? extendedMessages : demoMessages).map((message: any, index: any) => (
                     <div key={index} className="flex flex-col">
                       {message.type === 'user' ? (
                         <div className="flex justify-end">
@@ -324,7 +324,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
                 What Coly Does
               </h3>
               <div className="space-y-4">
-                {kiwiBenefits.map((benefit, index) => (
+                {kiwiBenefits.map((benefit: any, index: any) => (
                   <div 
                     key={index}
                     className="p-4 rounded-lg border"
@@ -369,7 +369,7 @@ const ColyPage: React.FC<ColyPageProps> = ({
           </p>
           
           <div className="space-y-6">
-            {dailyScenarios.map((scenario, index) => (
+            {dailyScenarios.map((scenario: any, index: any) => (
               <div 
                 key={index}
                 className="p-6 rounded-xl border"

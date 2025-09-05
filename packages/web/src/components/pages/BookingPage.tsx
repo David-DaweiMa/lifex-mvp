@@ -81,7 +81,7 @@ const BookingPage: React.FC<BookingPageProps> = ({
               { label: "Upcoming", active: selectedFilter === 'Upcoming' },
               { label: "Completed", active: selectedFilter === 'Completed' },
               { label: "Cancelled", active: selectedFilter === 'Cancelled' }
-            ].map((tab, idx) => (
+            ].map((tab: any, idx: any) => (
               <button
                 key={idx}
                 onClick={() => setSelectedFilter(tab.label)}
