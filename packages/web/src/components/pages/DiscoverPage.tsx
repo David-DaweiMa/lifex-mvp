@@ -151,7 +151,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
       <div className="px-4 md:px-6 lg:px-8 pt-4 pb-2">
         <div className="text-center">
           <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
-            Find amazing local businesses and discover hidden gems in your area
+            Discover local gems & amazing businesses
           </p>
         </div>
       </div>

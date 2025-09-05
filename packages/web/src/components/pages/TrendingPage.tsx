@@ -677,7 +677,7 @@ const TrendingPage: React.FC = () => {
           {/* Page Description */}
           <div className="text-center mb-6">
             <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
-              Explore trending content and discover what's happening in your community
+              What's trending in your community
             </p>
           </div>
           
