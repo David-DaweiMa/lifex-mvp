@@ -460,7 +460,7 @@ const TrendingPage: React.FC = () => {
         .in('post_id', posts.map(p => p.id));
 
       if (data) {
-        setLikedPosts(new Set(data.map(like => like.post_id)));
+        setLikedPosts(new Set(data.map((like: any) => like.post_id)));
       }
     } catch (error) {
       console.error('Error checking liked posts:', error);
