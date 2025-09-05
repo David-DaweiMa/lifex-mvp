@@ -83,7 +83,7 @@ class BusinessService {
     }
 
     const result = await response.json();
-    return result.data;
+    return (result as any).data;
   }
 
   async searchBusinesses(query: string, filters: Omit<BusinessFilters, 'search'> = {}): Promise<BusinessResponse> {
@@ -114,22 +114,22 @@ class BusinessService {
   formatBusinessForDisplay(business: Business) {
     return {
       ...business,
-      displayRating: business.rating.toFixed(1),
-      displayReviews: business.review_count > 1000 
-        ? `${(business.review_count / 1000).toFixed(1)}k` 
-        : business.review_count.toString(),
-      displayDistance: business.distance,
-      displayPrice: business.price || '$$',
-      isHighlyRated: business.rating >= 4.5,
-      hasManyReviews: business.review_count >= 100
+      displayRating: (business as any).rating.toFixed(1),
+      displayReviews: (business as any).review_count > 1000 
+        ? `${((business as any).review_count / 1000).toFixed(1)}k` 
+        : (business as any).review_count.toString(),
+      displayDistance: (business as any).distance,
+      displayPrice: (business as any).price || '$$',
+      isHighlyRated: (business as any).rating >= 4.5,
+      hasManyReviews: (business as any).review_count >= 100
     };
   }
 
   // Helper method to get business status
   getBusinessStatus(business: Business) {
-    if (!business.isOpen) return { status: 'closed', text: 'Closed', color: 'red' };
-    if (business.rating >= 4.5) return { status: 'excellent', text: 'Excellent', color: 'green' };
-    if (business.rating >= 4.0) return { status: 'good', text: 'Good', color: 'blue' };
+    if (!(business as any).isOpen) return { status: 'closed', text: 'Closed', color: 'red' };
+    if ((business as any).rating >= 4.5) return { status: 'excellent', text: 'Excellent', color: 'green' };
+    if ((business as any).rating >= 4.0) return { status: 'good', text: 'Good', color: 'blue' };
     return { status: 'average', text: 'Average', color: 'yellow' };
   }
 
@@ -138,13 +138,13 @@ class BusinessService {
     const status = this.getBusinessStatus(business);
     
     if (status.status === 'excellent') {
-      return `🌟 Highly recommended! ${business.name} has excellent ratings and ${business.review_count} reviews.`;
+      return `🌟 Highly recommended! ${(business as any).name} has excellent ratings and ${(business as any).review_count} reviews.`;
     } else if (status.status === 'good') {
-      return `👍 Great choice! ${business.name} is well-rated with ${business.review_count} reviews.`;
-    } else if (business.review_count >= 50) {
-      return `📊 Popular spot! ${business.name} has ${business.review_count} reviews from the community.`;
+      return `👍 Great choice! ${(business as any).name} is well-rated with ${(business as any).review_count} reviews.`;
+    } else if ((business as any).review_count >= 50) {
+      return `📊 Popular spot! ${(business as any).name} has ${(business as any).review_count} reviews from the community.`;
     } else {
-      return `📍 Local favorite! ${business.name} is a hidden gem in the area.`;
+      return `📍 Local favorite! ${(business as any).name} is a hidden gem in the area.`;
     }
   }
 }

@@ -115,7 +115,7 @@ If unable to provide specific recommendations, please return an empty array but 
     // Map business IDs to actual business objects
     const recommendedBusinesses = availableBusinesses ? 
       availableBusinesses.filter(business =>
-        parsedResponse.recommendations.includes(business.id)
+        parsedResponse.recommendations.includes((business as any).id)
       ) : [];
 
     return {
@@ -258,7 +258,7 @@ export async function generateBusinessReasoning(
   // Check if OpenAI client is available
   if (!openai) {
     console.warn('OpenAI API key not configured, using fallback reasoning');
-    return business.aiReason || '这个商家看起来不错，值得一试！';
+    return (business as any).aiReason || '这个商家看起来不错，值得一试！';
   }
 
   try {
@@ -281,11 +281,11 @@ export async function generateBusinessReasoning(
 
     console.log(`使用模型: ${AI_MODEL}`);
 
-    return response || business.aiReason;
+    return response || (business as any).aiReason;
 
   } catch (error) {
     console.error('AI reasoning error:', error);
-    return business.aiReason || '这个商家看起来不错，值得一试！';
+    return (business as any).aiReason || '这个商家看起来不错，值得一试！';
   }
 }
 

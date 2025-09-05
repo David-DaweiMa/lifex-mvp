@@ -225,7 +225,7 @@ export function getKeywordBasedRecommendations(query: string, limit: number = 3)
       
       if (matchCount > 0) {
         // Check if business matches this category
-        const businessText = `${business.name} ${business.type} ${business.highlights.join(' ')} ${business.category}`.toLowerCase();
+        const businessText = `${(business as any).name} ${(business as any).type} ${(business as any).highlights.join(' ')} ${(business as any).category}`.toLowerCase();
         
         if (categoryKeywords.some(keyword => businessText.includes(keyword))) {
           score += matchCount * 10;
@@ -235,18 +235,18 @@ export function getKeywordBasedRecommendations(query: string, limit: number = 3)
     
     // Direct text matching
     queryWords.forEach(word => {
-      const businessText = `${business.name} ${business.type} ${business.highlights.join(' ')}`.toLowerCase();
+      const businessText = `${(business as any).name} ${(business as any).type} ${(business as any).highlights.join(' ')}`.toLowerCase();
       if (businessText.includes(word)) {
         score += 5;
       }
     });
     
     // Boost score based on rating and reviews
-    score += business.rating * 2;
-    score += Math.min(business.review_count / 50, 5);
+    score += (business as any).rating * 2;
+    score += Math.min((business as any).review_count / 50, 5);
     
     // Boost if currently open
-    if (business.isOpen) {
+    if ((business as any).isOpen) {
       score += 3;
     }
     
@@ -307,7 +307,7 @@ export function getRecommendationsByCategory(category: string, limit: number = 5
   const targetCategories = categoryMap[category.toLowerCase()] || categoryMap['all'];
   
   return mockBusinesses
-    .filter(business => targetCategories.includes(business.category))
+    .filter(business => targetCategories.includes((business as any).category))
     .sort((a, b) => b.rating - a.rating)
     .slice(0, limit);
 }
@@ -340,25 +340,25 @@ export function searchBusinesses(filters: {
   }
   
   if (filters.category) {
-    results = results.filter(business => business.category === filters.category);
+    results = results.filter(business => (business as any).category === filters.category);
   }
   
   if (filters.priceRange && filters.priceRange.length > 0) {
-    results = results.filter(business => filters.priceRange!.includes(business.price));
+    results = results.filter(business => filters.priceRange!.includes((business as any).price));
   }
   
   if (filters.rating) {
-    results = results.filter(business => business.rating >= filters.rating!);
+    results = results.filter(business => (business as any).rating >= filters.rating!);
   }
   
   if (filters.isOpen !== undefined) {
-    results = results.filter(business => business.isOpen === filters.isOpen);
+    results = results.filter(business => (business as any).isOpen === filters.isOpen);
   }
   
   if (filters.maxDistance) {
     // Simple distance filtering (in real app, would use actual coordinates)
     results = results.filter(business => {
-      const distance = parseFloat(business.distance.replace('km', ''));
+      const distance = parseFloat((business as any).distance.replace('km', ''));
       const maxDistance = parseFloat(filters.maxDistance!.replace('km', ''));
       return distance <= maxDistance;
     });
@@ -385,7 +385,7 @@ export function makeCall(phone: string): void {
 
 // Get business by ID
 export function getBusinessById(id: string): Business | undefined {
-  return mockBusinesses.find(business => business.id === id);
+  return mockBusinesses.find(business => (business as any).id === id);
 }
 
 // Get similar businesses
@@ -394,11 +394,11 @@ export function getSimilarBusinesses(businessId: string, limit: number = 3): Bus
   if (!business) return [];
   
   return mockBusinesses
-    .filter(b => b.id !== businessId && b.category === business.category)
+    .filter(b => b.id !== businessId && b.category === (business as any).category)
     .sort((a, b) => {
       // Score based on category match and rating
       let score = 0;
-      if (a.category === business.category) score += 10;
+      if (a.category === (business as any).category) score += 10;
       score += a.rating * 2;
       return score;
     })

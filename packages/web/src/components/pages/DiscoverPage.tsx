@@ -49,8 +49,8 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
 
   const loadCurrentUser = async () => {
     const result = await getCurrentUser();
-    if (result.success) {
-      setCurrentUser(result.user);
+    if ((result as any).success) {
+      setCurrentUser((result as any).user);
     }
   };
 
@@ -276,13 +276,13 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
             <div className="space-y-4 mb-8">
               {businesses.map((business) => (
                 <div 
-                  key={business.id}
+                  key={(business as any).id}
                   className="rounded-xl border overflow-hidden transition-all hover:shadow-lg cursor-pointer"
                   style={{
                     background: darkTheme.background.card,
                     borderColor: darkTheme.background.glass,
                   }}
-                  onClick={() => window.location.href = `/businesses/${business.id}`}
+                  onClick={() => window.location.href = `/businesses/${(business as any).id}`}
                 >
                   <div className="flex">
                     {/* Business Image */}
@@ -290,12 +290,12 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                       <div 
                         className="w-full h-full"
                         style={{ 
-                          background: business.cover_photo_url 
-                            ? `url(${business.cover_photo_url}) center/cover` 
+                          background: (business as any).cover_photo_url 
+                            ? `url(${(business as any).cover_photo_url}) center/cover` 
                             : `linear-gradient(135deg, #A855F7, ${darkTheme.neon.blue})` 
                         }}
                       >
-                        {!business.cover_photo_url && (
+                        {!(business as any).cover_photo_url && (
                           <div className="w-full h-full flex items-center justify-center text-white">
                             <Store size={24} />
                           </div>
@@ -320,12 +320,12 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                           className="font-semibold text-base md:text-lg line-clamp-1"
                           style={{ color: darkTheme.text.primary }}
                         >
-                          {business.name}
+                          {(business as any).name}
                         </h3>
                         <div className="flex items-center gap-1">
                           <Star size={14} className="fill-current text-yellow-400" />
                           <span className="text-sm font-medium" style={{ color: darkTheme.text.primary }}>
-                            {business.rating?.toFixed(1) || '4.5'}
+                            {(business as any).rating?.toFixed(1) || '4.5'}
                           </span>
                         </div>
                       </div>
@@ -351,7 +351,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                         className="text-sm mb-3 line-clamp-2"
                         style={{ color: darkTheme.text.secondary }}
                       >
-                        {business.descriptions?.[0]?.description || business.type}
+                        {(business as any).descriptions?.[0]?.description || (business as any).type}
                       </p>
 
                       {/* Bottom Info */}
@@ -369,7 +369,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                           <div className="flex items-center gap-1">
                             <MapPin size={12} style={{ color: darkTheme.text.muted }} />
                             <span style={{ color: darkTheme.text.muted }}>
-                              {business.distance || '1.2km'}
+                              {(business as any).distance || '1.2km'}
                             </span>
                           </div>
                           

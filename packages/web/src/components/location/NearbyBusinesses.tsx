@@ -173,7 +173,7 @@ export default function NearbyBusinesses() {
 
       if (response.ok) {
         const data = await response.json();
-        setBusinesses(data.businesses || []);
+        setBusinesses((data as any).businesses || []);
       } else {
         // Fallback to mock data if API fails
         const mockBusinesses: LocationBasedBusiness[] = [
@@ -246,7 +246,7 @@ export default function NearbyBusinesses() {
   };
 
   const openNavigation = (business: LocationBasedBusiness) => {
-    const query = `${business.name} ${business.address}`;
+    const query = `${(business as any).name} ${(business as any).address}`;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     
     if (isIOS) {
@@ -324,30 +324,30 @@ export default function NearbyBusinesses() {
   };
 
   const renderBusinessCard = (business: LocationBasedBusiness) => (
-    <div key={business.id} className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+    <div key={(business as any).id} className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-3">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">{business.name}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{(business as any).name}</h3>
           <p className="text-sm text-gray-600 capitalize">
-            {business.categoryId.replace('_', ' ')}
+            {(business as any).categoryId.replace('_', ' ')}
           </p>
         </div>
         <div className="flex items-center space-x-1">
           <Star className="h-4 w-4 text-yellow-400 fill-current" />
-          <span className="text-sm font-medium">{business.rating}</span>
+          <span className="text-sm font-medium">{(business as any).rating}</span>
         </div>
       </div>
 
       <div className="space-y-2 mb-4">
         <div className="flex items-center space-x-2 text-sm text-gray-600">
           <MapPin className="h-4 w-4" />
-          <span>{business.distance}km away</span>
+          <span>{(business as any).distance}km away</span>
         </div>
         <div className="flex items-center space-x-2 text-sm text-gray-600">
           <Clock className="h-4 w-4" />
-          <span>{business.estimatedTime} {preferences.transportMode}</span>
+          <span>{(business as any).estimatedTime} {preferences.transportMode}</span>
         </div>
-        <p className="text-sm text-gray-600">{business.address}</p>
+        <p className="text-sm text-gray-600">{(business as any).address}</p>
       </div>
 
       <div className="flex space-x-2">
@@ -359,9 +359,9 @@ export default function NearbyBusinesses() {
           <span>Directions</span>
         </button>
         
-        {business.phone && (
+        {(business as any).phone && (
           <button
-            onClick={() => makeCall(business.phone)}
+            onClick={() => makeCall((business as any).phone)}
             className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm flex items-center justify-center"
           >
             <Phone className="h-4 w-4" />

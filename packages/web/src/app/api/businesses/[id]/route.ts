@@ -60,22 +60,22 @@ export async function GET(
     const transformedBusiness = {
       id: (business as any).id,
       name: (business as any).name,
-      type: business.description || 'Local Business',
-      category: business.category_id || 'general',
-      rating: business.rating || 0,
-      review_count: business.review_count || 0,
+      type: (business as any).description || 'Local Business',
+      category: (business as any).category_id || 'general',
+      rating: (business as any).rating || 0,
+      review_count: (business as any).review_count || 0,
       distance: '0.5km', // Placeholder
-      price: business.price_range || '$$',
-      tags: business.amenities ? Object.keys(JSON.parse(business.amenities)) : [],
-      highlights: business.amenities ? Object.keys(JSON.parse(business.amenities)).slice(0, 3) : [],
-      aiReason: `Highly rated ${business.name} with ${business.review_count || 0} reviews.`,
-      phone: business.phone || '',
-      address: business.address || '',
+      price: (business as any).price_range || '$$',
+      tags: (business as any).amenities ? Object.keys(JSON.parse((business as any).amenities)) : [],
+      highlights: (business as any).amenities ? Object.keys(JSON.parse((business as any).amenities)).slice(0, 3) : [],
+      aiReason: `Highly rated ${(business as any).name} with ${(business as any).review_count || 0} reviews.`,
+      phone: (business as any).phone || '',
+      address: (business as any).address || '',
       image: getRandomGradient(),
-      isOpen: isBusinessOpen(business.opening_hours),
-      website: business.website || '',
-      logo_url: business.logo_url || '',
-      cover_photo_url: business.cover_photo_url || '',
+      isOpen: isBusinessOpen((business as any).opening_hours),
+      website: (business as any).website || '',
+      logo_url: (business as any).logo_url || '',
+      cover_photo_url: (business as any).cover_photo_url || '',
       latitude: (business as any).latitude,
       longitude: (business as any).longitude,
       external_id: (business as any).external_id,
@@ -89,7 +89,7 @@ export async function GET(
       email: (business as any).email,
       city: (business as any).city,
       country: (business as any).country,
-      postal_code: business.postal_code
+      postal_code: (business as any).postal_code
     };
 
     return NextResponse.json({

@@ -99,7 +99,7 @@ If unable to provide specific recommendations, please return an empty array but 
       // Map business IDs to actual business objects
       const recommendedBusinesses = availableBusinesses ? 
         availableBusinesses.filter(business =>
-          parsedResponse.recommendations.includes(business.id)
+          parsedResponse.recommendations.includes((business as any).id)
         ) : [];
 
       return {
@@ -176,7 +176,7 @@ If unable to provide specific recommendations, please return an empty array but 
     // Check if OpenAI client is available
     if (!this.openai) {
       console.warn('OpenAI API key not configured, using fallback reasoning');
-      return business.aiReason || '这个商家看起来不错，值得一试！';
+      return (business as any).aiReason || '这个商家看起来不错，值得一试！';
     }
 
     try {
@@ -184,10 +184,10 @@ If unable to provide specific recommendations, please return an empty array but 
 基于以下商家信息，生成一个吸引人的推荐理由：
 
 商家信息：
-- 名称: ${business.name}
-- 类型: ${business.type}
-- 描述: ${business.description || '无描述'}
-- 位置: ${business.location || '未知位置'}
+- 名称: ${(business as any).name}
+- 类型: ${(business as any).type}
+- 描述: ${(business as any).description || '无描述'}
+- 位置: ${(business as any).location || '未知位置'}
 ${userQuery ? `用户查询: ${userQuery}` : ''}
 ${userContext ? `用户上下文: ${JSON.stringify(userContext)}` : ''}
 
@@ -202,10 +202,10 @@ ${userContext ? `用户上下文: ${JSON.stringify(userContext)}` : ''}
 
       console.log(`使用模型: ${this.aiModel}`);
 
-      return this.parseAIResponseText(response) || business.aiReason || '这个商家看起来不错，值得一试！';
+      return this.parseAIResponseText(response) || (business as any).aiReason || '这个商家看起来不错，值得一试！';
 
     } catch (error) {
-      return this.handleAIError(error, 'reasoning', business.aiReason || '这个商家看起来不错，值得一试！');
+      return this.handleAIError(error, 'reasoning', (business as any).aiReason || '这个商家看起来不错，值得一试！');
     }
   }
 

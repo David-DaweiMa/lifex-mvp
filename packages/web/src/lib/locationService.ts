@@ -283,7 +283,7 @@ export class LocationService {
       }
 
       const data = await response.json();
-      return data.businesses || [];
+      return (data as any).businesses || [];
     } catch (error) {
       console.error('Failed to get nearby businesses:', error);
       return [];
@@ -318,7 +318,7 @@ export class LocationService {
    * Open navigation to a business
    */
   openNavigation(business: LocationBasedBusiness): void {
-    const query = `${business.name} ${business.address}`;
+    const query = `${(business as any).name} ${(business as any).address}`;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     
     if (isIOS) {
