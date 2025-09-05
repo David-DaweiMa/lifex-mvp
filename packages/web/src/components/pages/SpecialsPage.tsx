@@ -199,6 +199,12 @@ const SpecialsPage: React.FC = () => {
 
   return (
     <div className="p-4 md:p-6 space-y-6" style={{ background: darkTheme.gradients.background }}>
+      {/* Page Description */}
+      <div className="text-center">
+        <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
+          Discover amazing deals from local businesses
+        </p>
+      </div>
 
       {/* Search and Filters */}
       <div className="space-y-4">
