@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { registerUser } from '@/lib/authService';
 import { sendEmailVerification } from '@/lib/emailService';
 import { typedSupabaseAdmin } from '@/lib/supabase';
+import { safeUserProfileQuery } from '@/lib/supabaseHelpers';
 
 // 类别映射 - 从前端service_category到数据库category_id
 const SERVICE_CATEGORY_MAPPING: Record<string, string> = {
@@ -72,12 +73,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check email status
-    const { data: existingProfile, error: existingError } = await typedSupabaseAdmin
-      .from('user_profiles')
-      .select('id, email_verified, created_at')
-      .eq('email', email)
-      .single();
+    // Check email status using safe query helper
+    const { data: existingProfile, error: queryError } = await safeUserProfileQuery(
+      email,
+      'id, email_verified, created_at'
+    );
+
+    if (queryError) {
+      console.error('Error checking existing user:', queryError);
+      return NextResponse.json(
+        { error: 'Error checking user status' },
+        { status: 500 }
+      );
+    }
 
     if (existingProfile?.email_verified) {
       return NextResponse.json(

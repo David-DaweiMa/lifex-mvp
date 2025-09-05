@@ -3,6 +3,12 @@ import { generateConversationalResponse, getAIRecommendations } from '@/lib/ai';
 import { typedSupabase } from '@/lib/supabase';
 import { getAdForChat } from '@/lib/adService';
 import { detectLanguage, SupportedLanguage } from '@/lib/languageDetection';
+import { 
+  safeAnonymousUsageQuery, 
+  safeInsertChatMessage, 
+  safeInsertAnonymousUsage, 
+  safeUpdateAnonymousUsage 
+} from '@/lib/supabaseHelpers';
 import { getAssistantIntroduction, getPersonalityResponse } from '@/lib/assistantPersonality';
 import { checkAssistantLimit, recordAssistantUsage, getNextResetTime } from '@/lib/assistantUsage';
 import { AssistantType } from '@/lib/assistantUsage';
@@ -76,22 +82,20 @@ async function handleAnonymousUser(
       }, { status: 403 });
     }
 
-    // Check anonymous usage limits (10 per day)
+    // Check anonymous usage limits (10 per day) using safe query
     const today = new Date().toISOString().split('T')[0];
-    const { data: usageData, error: usageError } = await typedSupabase
-      .from('anonymous_usage')
-      .select('usage_count')
-      .eq('session_id', sessionId)
-      .eq('quota_type', 'chat')
-      .eq('usage_date', today)
-      .maybeSingle();
+    const { data: usageData, error: usageError } = await safeAnonymousUsageQuery(
+      sessionId,
+      'chat',
+      today
+    );
 
     if (usageError) {
       console.error('Error checking anonymous usage:', usageError);
       // Allow usage if we can't check (fail open)
     }
 
-    const currentUsage = (usageData as { usage_count: number | null } | null)?.usage_count || 0;
+    const currentUsage = usageData?.usage_count || 0;
     const maxUsage = 10;
     
     if (currentUsage >= maxUsage) {
@@ -382,33 +386,27 @@ async function saveConversation(
   assistant: AssistantType
 ) {
   try {
-    // Save user message with type assertion
-    const { error: userMessageError } = await (typedSupabase as any)
-      .from('chat_messages')
-      .insert({
-        user_id: userId,
-        session_id: sessionId || 'default',
-        message_type: 'user' as const,
-        content: userMessage,
-        metadata: { assistant },
-        created_at: new Date().toISOString()
-      });
+    // Save user message using safe helper
+    const { error: userMessageError } = await safeInsertChatMessage({
+      user_id: userId,
+      session_id: sessionId || 'default',
+      message_type: 'user',
+      content: userMessage,
+      metadata: { assistant }
+    });
 
     if (userMessageError) {
       console.error('Error saving user message:', userMessageError);
     }
 
-    // Save AI response with type assertion
-    const { error: aiMessageError } = await (typedSupabase as any)
-      .from('chat_messages')
-      .insert({
-        user_id: userId,
-        session_id: sessionId || 'default',
-        message_type: 'ai' as const,
-        content: aiMessage,
-        metadata: { assistant },
-        created_at: new Date().toISOString()
-      });
+    // Save AI response using safe helper
+    const { error: aiMessageError } = await safeInsertChatMessage({
+      user_id: userId,
+      session_id: sessionId || 'default',
+      message_type: 'ai',
+      content: aiMessage,
+      metadata: { assistant }
+    });
 
     if (aiMessageError) {
       console.error('Error saving AI message:', aiMessageError);
@@ -424,29 +422,21 @@ async function saveConversation(
  */
 async function recordAnonymousUsage(sessionId: string, quotaType: string, date: string) {
   try {
-    // Try to update existing record with type assertion
-    const { data: updateData, error: updateError } = await (typedSupabase as any)
-      .from('anonymous_usage')
-      .update({ 
-        usage_count: (typedSupabase as any).rpc('increment_usage_count'),
-        updated_at: new Date().toISOString()
-      })
-      .eq('session_id', sessionId)
-      .eq('quota_type', quotaType)
-      .eq('usage_date', date);
+    // Try to update existing record using safe helper
+    const { data: updateData, error: updateError } = await safeUpdateAnonymousUsage(
+      sessionId,
+      quotaType,
+      date
+    );
 
     // If update fails (record doesn't exist), create new record
     if (updateError || !updateData) {
-      const { error: insertError } = await (typedSupabase as any)
-        .from('anonymous_usage')
-        .insert({
-          session_id: sessionId,
-          quota_type: quotaType,
-          usage_date: date,
-          usage_count: 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
+      const { error: insertError } = await safeInsertAnonymousUsage({
+        session_id: sessionId,
+        quota_type: quotaType,
+        usage_date: date,
+        usage_count: 1
+      });
       
       if (insertError) {
         console.error('Error creating anonymous usage record:', insertError);
