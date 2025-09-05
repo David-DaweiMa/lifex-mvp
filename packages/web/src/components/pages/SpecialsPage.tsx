@@ -202,7 +202,7 @@ const SpecialsPage: React.FC = () => {
       {/* Page Description */}
       <div className="text-center">
         <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
-          Discover amazing deals from local businesses
+          Grab amazing deals from local businesses
         </p>
       </div>
 
