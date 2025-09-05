@@ -195,7 +195,7 @@ async function handleRegisteredUser(
   assistant: AssistantType
 ) {
   try {
-    // Get user profile with proper error handling
+    // Get user profile with proper error handling and type assertion
     const { data: userProfile, error: userError } = await typedSupabase
       .from('user_profiles')
       .select('subscription_level, location')
@@ -217,9 +217,10 @@ async function handleRegisteredUser(
       );
     }
 
-    // Use explicit variables to avoid TypeScript inference issues
-    const subscriptionLevel = userProfile.subscription_level || 'free';
-    const userLocation = userProfile.location || { city: 'Auckland', country: 'New Zealand' };
+    // Type assertion to fix TypeScript inference issues
+    const profile = userProfile as { subscription_level: string; location: any };
+    const subscriptionLevel = profile.subscription_level || 'free';
+    const userLocation = profile.location || { city: 'Auckland', country: 'New Zealand' };
 
     // Check assistant usage limits
     const usageCheck = await checkAssistantLimit(
