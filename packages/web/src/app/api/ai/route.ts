@@ -176,7 +176,7 @@ async function handleRegisteredUser(
     .from('user_profiles')
     .select('subscription_level, location')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
   if (userError || !userProfile) {
     return NextResponse.json(
@@ -186,10 +186,11 @@ async function handleRegisteredUser(
   }
 
   // Check assistant usage limits
+  const subscriptionLevel = userProfile?.subscription_level || 'free';
   const usageCheck = await checkAssistantLimit(
     userId,
     assistant,
-    userProfile.subscription_level,
+    subscriptionLevel,
     message
   );
 
