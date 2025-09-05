@@ -148,9 +148,9 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
   return (
     <div className="w-full" style={{ background: darkTheme.background.primary }}>
       {/* Page Description */}
-      <div className="px-4 md:px-6 lg:px-8 pt-2 pb-1">
+      <div className="px-4 md:px-6 lg:px-8 pt-1 pb-1">
         <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
-          Discover local gems & amazing businesses
+          "Discover local gems & amazing businesses"
         </p>
       </div>
 
