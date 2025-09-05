@@ -41,7 +41,7 @@ export class WebAuthService extends BaseAuthService {
 
       // 检查邮箱是否已存在
       console.log('检查邮箱是否已存在...');
-      const { data: existingProfile, error: existingError } = await typedSupabaseAdmin
+      const { data: existingProfile, error: existingError } = await (typedSupabaseAdmin as any)
         .from('user_profiles')
         .select('id')
         .eq('email', email)
@@ -97,7 +97,7 @@ export class WebAuthService extends BaseAuthService {
       console.log('Supabase Auth 用户创建成功:', authData.user.id);
 
       // 验证用户创建完整性
-      const profile = await this.waitForUserProfile(authData.user.id, email, userData);
+      const profile = await this.waitForUserProfile(authData.(user as any).id, email, userData);
       if (!profile) {
         return {
           success: false,
@@ -143,7 +143,7 @@ export class WebAuthService extends BaseAuthService {
       }
 
       // 获取用户配置文件
-      const { data: profile, error: profileError } = await typedSupabase
+      const { data: profile, error: profileError } = await (typedSupabase as any)
         .from('user_profiles')
         .select('*')
         .eq('id', data.user.id)
@@ -199,7 +199,7 @@ export class WebAuthService extends BaseAuthService {
       }
 
       // 获取用户配置文件
-      const { data: profile, error: profileError } = await typedSupabase
+      const { data: profile, error: profileError } = await (typedSupabase as any)
         .from('user_profiles')
         .select('*')
         .eq('id', user.id)
@@ -224,7 +224,7 @@ export class WebAuthService extends BaseAuthService {
    */
   async updateUserProfile(userId: string, updates: Partial<UserProfile>): Promise<AuthResult> {
     try {
-      const { data: profile, error } = await typedSupabase
+      const { data: profile, error } = await (typedSupabase as any)
         .from('user_profiles')
         .update(updates)
         .eq('id', userId)
@@ -257,7 +257,7 @@ export class WebAuthService extends BaseAuthService {
       }
 
       // 获取用户配置文件
-      const { data: profile } = await typedSupabase
+      const { data: profile } = await (typedSupabase as any)
         .from('user_profiles')
         .select('*')
         .eq('id', session.user.id)
@@ -360,7 +360,7 @@ export class WebAuthService extends BaseAuthService {
     while (!profile && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const { data: profileData, error: profileError } = await typedSupabaseAdmin
+      const { data: profileData, error: profileError } = await (typedSupabaseAdmin as any)
         .from('user_profiles')
         .select('*')
         .eq('id', userId)
@@ -380,7 +380,7 @@ export class WebAuthService extends BaseAuthService {
       console.warn('触发器没有创建配置文件，尝试手动创建...');
       
       // 手动创建用户配置文件
-      const { data: manualProfile, error: manualError } = await typedSupabaseAdmin
+      const { data: manualProfile, error: manualError } = await (typedSupabaseAdmin as any)
         .from('user_profiles')
         .insert({
           id: userId,

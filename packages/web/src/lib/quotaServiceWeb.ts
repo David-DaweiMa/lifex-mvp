@@ -13,7 +13,7 @@ export class WebQuotaService extends BaseQuotaService {
   async checkUserQuota(userId: string, quotaType: QuotaType): Promise<QuotaResult> {
     try {
       // 获取用户信息
-      const { data: user, error: userError } = await typedSupabase
+      const { data: user, error: userError } = await (typedSupabase as any)
         .from('user_profiles')
         .select('subscription_level')
         .eq('id', userId)
@@ -24,7 +24,7 @@ export class WebQuotaService extends BaseQuotaService {
       }
 
       // 获取配额配置
-      const { data: quota, error: quotaError } = await typedSupabase
+      const { data: quota, error: quotaError } = await (typedSupabase as any)
         .from('user_quotas')
         .select('*')
         .eq('user_id', userId)
@@ -37,7 +37,7 @@ export class WebQuotaService extends BaseQuotaService {
 
       // 如果配额不存在，创建默认配额
       if (!quota) {
-        const defaultQuota = await this.createDefaultQuota(userId, user.subscription_level, quotaType);
+        const defaultQuota = await this.createDefaultQuota(userId, (user as any).subscription_level, quotaType);
         if (!defaultQuota) {
           return this.handleQuotaError(null, '配额初始化');
         }
@@ -68,7 +68,7 @@ export class WebQuotaService extends BaseQuotaService {
   async updateUserQuota(userId: string, quotaType: QuotaType, increment: number = 1): Promise<boolean> {
     try {
       // 临时解决方案：先获取当前配额，然后更新
-      const { data: currentQuota } = await typedSupabase
+      const { data: currentQuota } = await (typedSupabase as any)
         .from('user_quotas')
         .select('current_usage')
         .eq('user_id', userId)
@@ -79,7 +79,7 @@ export class WebQuotaService extends BaseQuotaService {
         return false;
       }
 
-      const { error } = await typedSupabase
+      const { error } = await (typedSupabase as any)
         .from('user_quotas')
         .update({
           current_usage: currentQuota.current_usage + increment,
@@ -134,7 +134,7 @@ export class WebQuotaService extends BaseQuotaService {
       const today = new Date().toISOString().split('T')[0];
 
       // 检查是否已有今日记录
-      const { data: existingRecord } = await typedSupabase
+      const { data: existingRecord } = await (typedSupabase as any)
         .from('usage_statistics')
         .select('*')
         .eq('user_id', userId)
@@ -144,7 +144,7 @@ export class WebQuotaService extends BaseQuotaService {
 
       if (existingRecord) {
         // 更新现有记录
-        const { error } = await typedSupabase
+        const { error } = await (typedSupabase as any)
           .from('usage_statistics')
           .update({
             usage_count: existingRecord.usage_count + count
@@ -154,7 +154,7 @@ export class WebQuotaService extends BaseQuotaService {
         return !error;
       } else {
         // 创建新记录
-        const { error } = await typedSupabase
+        const { error } = await (typedSupabase as any)
           .from('usage_statistics')
           .insert({
             user_id: userId,
@@ -174,7 +174,7 @@ export class WebQuotaService extends BaseQuotaService {
   // 实现抽象方法：执行配额重置
   protected async performQuotaReset(quota: UserQuotaConfig, nextResetDate: string): Promise<boolean> {
     try {
-      const { error } = await typedSupabase
+      const { error } = await (typedSupabase as any)
         .from('user_quotas')
         .update({
           current_usage: 0,
@@ -198,7 +198,7 @@ export class WebQuotaService extends BaseQuotaService {
     resetDate: string
   ): Promise<boolean> {
     try {
-      const { error } = await typedSupabase
+      const { error } = await (typedSupabase as any)
         .from('user_quotas')
         .insert({
           user_id: userId,

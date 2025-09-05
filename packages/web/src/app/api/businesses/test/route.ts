@@ -4,7 +4,7 @@ import { typedSupabase } from '@/lib/supabase';
 export async function GET() {
   try {
     // Simple test query
-    const { data, error } = await typedSupabase
+    const { data, error } = await (typedSupabase as any)
       .from('businesses')
       .select('id, name, rating')
       .limit(3);

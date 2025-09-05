@@ -53,7 +53,7 @@ export async function checkUserQuota(
 ): Promise<QuotaResult> {
   try {
     // 获取用户信息
-    const { data: user, error: userError } = await typedSupabase
+    const { data: user, error: userError } = await (typedSupabase as any)
       .from('user_profiles')
       .select('subscription_level')
       .eq('id', userId)
@@ -71,7 +71,7 @@ export async function checkUserQuota(
     }
 
     // 获取配额配置
-    const { data: quota, error: quotaError } = await typedSupabase
+    const { data: quota, error: quotaError } = await (typedSupabase as any)
       .from('user_quotas')
       .select('*')
       .eq('user_id', userId)
@@ -91,7 +91,7 @@ export async function checkUserQuota(
 
     // 如果配额不存在，创建默认配额
     if (!quota) {
-      const defaultQuota = await createDefaultQuota(userId, user.subscription_level, quotaType);
+      const defaultQuota = await createDefaultQuota(userId, (user as any).subscription_level, quotaType);
       if (!defaultQuota) {
         return {
           canUse: false,
@@ -155,7 +155,7 @@ export async function updateUserQuota(
     //   .eq('quota_type', quotaType);
 
     // 临时解决方案：先获取当前配额，然后更新
-    const { data: currentQuota } = await typedSupabase
+    const { data: currentQuota } = await (typedSupabase as any)
       .from('user_quotas')
       .select('current_usage')
       .eq('user_id', userId)
@@ -166,7 +166,7 @@ export async function updateUserQuota(
       return false;
     }
 
-    const { error } = await typedSupabase
+    const { error } = await (typedSupabase as any)
       .from('user_quotas')
       .update({
         current_usage: currentQuota.current_usage + increment,
@@ -204,7 +204,7 @@ async function createDefaultQuota(
     const quotaConfig = userConfig[quotaType];
     const resetDate = getNextResetDate(quotaType);
 
-    const { data: quota, error } = await typedSupabase
+    const { data: quota, error } = await (typedSupabase as any)
       .from('user_quotas')
       .insert({
         user_id: userId,
@@ -247,7 +247,7 @@ async function checkAndResetQuota(quota: any): Promise<QuotaResult | null> {
     // 需要重置配额
     const newResetDate = getNextResetDate(quota.quota_type);
 
-    const { data: updatedQuota, error } = await typedSupabase
+    const { data: updatedQuota, error } = await (typedSupabase as any)
       .from('user_quotas')
       .update({
         current_usage: 0,
@@ -338,7 +338,7 @@ export async function recordUsage(
     const today = new Date().toISOString().split('T')[0];
 
     // 检查是否已有今日记录
-    const { data: existingRecord } = await typedSupabase
+    const { data: existingRecord } = await (typedSupabase as any)
       .from('usage_statistics')
       .select('*')
       .eq('user_id', userId)
@@ -348,7 +348,7 @@ export async function recordUsage(
 
     if (existingRecord) {
       // 更新现有记录
-      const { error } = await typedSupabase
+      const { error } = await (typedSupabase as any)
         .from('usage_statistics')
         .update({
           usage_count: existingRecord.usage_count + count
@@ -358,7 +358,7 @@ export async function recordUsage(
       return !error;
     } else {
       // 创建新记录
-      const { error } = await typedSupabase
+      const { error } = await (typedSupabase as any)
         .from('usage_statistics')
         .insert({
           user_id: userId,

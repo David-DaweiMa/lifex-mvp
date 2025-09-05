@@ -44,7 +44,7 @@ export default function AuthCallbackContent() {
           // 更新用户验证状态
           const { data: { user } } = await typedSupabase.auth.getUser();
           if (user) {
-            const { error: updateError } = await typedSupabase
+            const { error: updateError } = await (typedSupabase as any)
               .from('user_profiles')
               .update({ email_verified: true })
               .eq('email', user.email);

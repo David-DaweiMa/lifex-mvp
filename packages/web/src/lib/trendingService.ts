@@ -234,7 +234,7 @@ export async function getTrendingHashtags(limit: number = 20): Promise<{
   tags: Array<{ tag: string; count: number; growth: string }>;
 }> {
   try {
-    const { data: posts, error } = await typedSupabase
+    const { data: posts, error } = await (typedSupabase as any)
       .from('trending_posts')
       .select('hashtags, created_at')
       .eq('is_active', true)
@@ -382,7 +382,7 @@ export async function getUserTrendingPosts(
   try {
     const { limit = 20, offset = 0 } = filters;
 
-    const { data: posts, error } = await typedSupabase
+    const { data: posts, error } = await (typedSupabase as any)
       .from('trending_posts')
       .select(`
         id,
@@ -446,7 +446,7 @@ export async function getUserTrendingPosts(
  */
 export async function checkUserLiked(postId: string, userId: string): Promise<boolean> {
   try {
-    const { data, error } = await typedSupabase
+    const { data, error } = await (typedSupabase as any)
       .from('post_likes')
       .select('id')
       .eq('post_id', postId)
@@ -469,7 +469,7 @@ export async function getPostDetails(postId: string): Promise<{
   error?: string;
 }> {
   try {
-    const { data: post, error } = await typedSupabase
+    const { data: post, error } = await (typedSupabase as any)
       .from('trending_posts')
       .select(`
         id,
@@ -538,7 +538,7 @@ export async function deletePost(postId: string): Promise<{
   error?: string;
 }> {
   try {
-    const { error } = await typedSupabase
+    const { error } = await (typedSupabase as any)
       .from('trending_posts')
       .update({ is_active: false })
       .eq('id', postId);
@@ -604,7 +604,7 @@ export async function getRecommendedPosts(
 }> {
   try {
     // 简化的推荐算法：返回最近的热门内容
-    const { data: posts, error } = await typedSupabase
+    const { data: posts, error } = await (typedSupabase as any)
       .from('trending_posts')
       .select(`
         id,

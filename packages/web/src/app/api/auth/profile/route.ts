@@ -34,7 +34,7 @@ export async function PUT(request: NextRequest) {
 
     // Check if username is already taken (if provided)
     if (username) {
-      const { data: existingUser } = await typedSupabase
+      const { data: existingUser } = await (typedSupabase as any)
         .from('user_profiles')
         .select('id')
         .eq('username', username)

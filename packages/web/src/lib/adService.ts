@@ -26,7 +26,7 @@ export async function getAdForChat(request: AdRequest): Promise<AdInfo | null> {
     const keywords = extractKeywords(request.context);
     
     // 获取匹配的广告
-    const { data: ads, error } = await typedSupabase
+    const { data: ads, error } = await (typedSupabase as any)
       .from('advertisements')
       .select(`
         id,
@@ -102,7 +102,7 @@ export async function getAdForChat(request: AdRequest): Promise<AdInfo | null> {
  */
 export async function getAdForTrending(request: AdRequest): Promise<AdInfo | null> {
   try {
-    const { data: ads, error } = await typedSupabase
+    const { data: ads, error } = await (typedSupabase as any)
       .from('advertisements')
       .select(`
         id,
@@ -161,7 +161,7 @@ export async function getAdForSearch(
   try {
     const keywords = extractKeywords(searchQuery);
     
-    const { data: ads, error } = await typedSupabase
+    const { data: ads, error } = await (typedSupabase as any)
       .from('advertisements')
       .select(`
         id,
@@ -288,7 +288,7 @@ function selectBestAd(ads: any[], keywords: string[]): any {
 export async function recordAdClick(adId: string, userId: string): Promise<boolean> {
   try {
     // 记录点击
-    await typedSupabase
+    await (typedSupabase as any)
       .from('ad_impressions')
       .update({
         is_clicked: true,

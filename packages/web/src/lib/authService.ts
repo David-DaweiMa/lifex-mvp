@@ -59,7 +59,7 @@ export async function registerUser(
 
     // 检查邮箱是否已存在
     console.log('检查邮箱是否已存在...');
-    const { data: existingProfile, error: existingError } = await typedSupabaseAdmin
+    const { data: existingProfile, error: existingError } = await (typedSupabaseAdmin as any)
       .from('user_profiles')
       .select('id')
       .eq('email', email)
@@ -139,7 +139,7 @@ export async function registerUser(
     while (!profile && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const { data: profileData, error: profileError } = await typedSupabaseAdmin
+      const { data: profileData, error: profileError } = await (typedSupabaseAdmin as any)
         .from('user_profiles')
         .select('*')
         .eq('id', authData.user.id)
@@ -159,10 +159,10 @@ export async function registerUser(
       console.warn('触发器没有创建配置文件，尝试手动创建...');
       
       // 手动创建用户配置文件
-      const { data: manualProfile, error: manualError } = await typedSupabaseAdmin
+      const { data: manualProfile, error: manualError } = await (typedSupabaseAdmin as any)
         .from('user_profiles')
         .insert({
-          id: authData.user.id,
+          id: authData.(user as any).id,
           email: email,
           username: userData?.username,
           full_name: userData?.full_name,
@@ -189,7 +189,7 @@ export async function registerUser(
     }
 
     // 3. 最终验证：确保用户和配置文件都存在且关联正确
-    const { data: finalCheck, error: finalCheckError } = await typedSupabaseAdmin
+    const { data: finalCheck, error: finalCheckError } = await (typedSupabaseAdmin as any)
       .from('user_profiles')
       .select('*')
       .eq('id', authData.user.id)
@@ -211,7 +211,7 @@ export async function registerUser(
     if (autoConfirmEmail) {
       console.log('自动确认邮箱...');
       const { error: confirmError } = await typedSupabaseAdmin.auth.admin.updateUserById(
-        authData.user.id,
+        authData.(user as any).id,
         { email_confirm: true }
       );
 
@@ -219,12 +219,12 @@ export async function registerUser(
         console.error('自动确认邮箱失败:', confirmError);
       } else {
         // 更新配置文件中的邮箱验证状态
-        await typedSupabaseAdmin
+        await (typedSupabaseAdmin as any)
           .from('user_profiles')
           .update({ email_verified: true })
           .eq('id', authData.user.id);
         
-        profile.email_verified = true;
+        (profile as any).email_verified = true;
         console.log('邮箱自动确认成功');
       }
     }
@@ -233,10 +233,10 @@ export async function registerUser(
     // 邮件发送将在调用方进行，确保用户创建完全成功后再发送
     console.log('=== 用户注册流程完成 ===');
     console.log('返回用户信息:', {
-      id: profile.id,
-      email: profile.email,
-      username: profile.username,
-      subscription_level: profile.subscription_level,
+      id: (profile as any).id,
+      email: (profile as any).email,
+      username: (profile as any).username,
+      subscription_level: (profile as any).subscription_level,
       email_verified: profile.email_verified
     });
 
@@ -301,7 +301,7 @@ export async function loginUser(email: string, password: string): Promise<AuthRe
     }
 
     // 获取用户配置文件
-    const { data: profile, error: profileError } = await typedSupabase
+    const { data: profile, error: profileError } = await (typedSupabase as any)
       .from('user_profiles')
       .select('*')
       .eq('id', authData.user.id)
@@ -378,7 +378,7 @@ export async function getCurrentUser(): Promise<AuthResult> {
     }
 
     // 获取用户配置文件
-    const { data: profile, error: profileError } = await typedSupabase
+    const { data: profile, error: profileError } = await (typedSupabase as any)
       .from('user_profiles')
       .select('*')
       .eq('id', authUser.id)
@@ -413,7 +413,7 @@ export async function updateUserProfile(
   updates: Partial<UserProfile>
 ): Promise<AuthResult> {
   try {
-    const { data: profile, error } = await typedSupabase
+    const { data: profile, error } = await (typedSupabase as any)
       .from('user_profiles')
       .update(updates)
       .eq('id', userId)
@@ -467,7 +467,7 @@ export async function checkSession(): Promise<{ isAuthenticated: boolean; user?:
     }
 
     // 获取用户配置文件
-    const { data: profile } = await typedSupabase
+    const { data: profile } = await (typedSupabase as any)
       .from('user_profiles')
       .select('*')
       .eq('id', session.user.id)

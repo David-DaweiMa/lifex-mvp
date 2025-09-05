@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     const { data: businesses, error } = await query;
     
     // Get count separately
-    const { count } = await typedSupabase
+    const { count } = await (typedSupabase as any)
       .from('businesses')
       .select('*', { count: 'exact', head: true })
       .eq('is_active', true);
@@ -63,8 +63,8 @@ export async function GET(request: NextRequest) {
 
     // Transform data to match frontend expectations
     const transformedBusinesses = businesses?.map(business => ({
-      id: business.id,
-      name: business.name,
+      id: (business as any).id,
+      name: (business as any).name,
       type: business.description || 'Local Business',
       category: business.category_id || 'general',
       rating: business.rating || 0,
@@ -81,9 +81,9 @@ export async function GET(request: NextRequest) {
       website: business.website || '',
       logo_url: business.logo_url || '',
       cover_photo_url: business.cover_photo_url || '',
-      latitude: business.latitude,
-      longitude: business.longitude,
-      external_id: business.external_id,
+      latitude: (business as any).latitude,
+      longitude: (business as any).longitude,
+      external_id: (business as any).external_id,
       google_maps_url: business.google_maps_url
     })) || [];
 
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user profile to check subscription level
-    const { data: userProfile, error: profileError } = await typedSupabase
+    const { data: userProfile, error: profileError } = await (typedSupabase as any)
       .from('user_profiles')
       .select('*')
       .eq('id', userId)
@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the business record
-    const { data: newBusiness, error: createError } = await typedSupabase
+    const { data: newBusiness, error: createError } = await (typedSupabase as any)
       .from('businesses')
       .insert({
         user_id: userId,

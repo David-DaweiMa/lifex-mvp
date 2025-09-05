@@ -85,7 +85,7 @@ export const checkAssistantLimit = async (
     const nextHour = new Date(hourStart.getTime() + 60 * 60 * 1000);
 
     // Count current usage for this hour
-    const { data: usageData, error: usageError } = await typedSupabase
+    const { data: usageData, error: usageError } = await (typedSupabase as any)
       .from('assistant_usage')
       .select('id')
       .eq('user_id', userId)
@@ -166,7 +166,7 @@ export const recordAssistantUsage = async (
   assistantType: AssistantType
 ): Promise<boolean> => {
   try {
-    const { error } = await typedSupabase
+    const { error } = await (typedSupabase as any)
       .from('assistant_usage')
       .insert({
         user_id: userId,

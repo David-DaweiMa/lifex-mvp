@@ -16,7 +16,7 @@ export async function GET(
     }
 
     // 获取商家基本信息
-    const { data: business, error } = await typedSupabase
+    const { data: business, error } = await (typedSupabase as any)
       .from('businesses')
       .select('*')
       .eq('id', businessId)
@@ -31,25 +31,25 @@ export async function GET(
     }
 
     // 获取商家描述
-    const { data: descriptions } = await typedSupabase
+    const { data: descriptions } = await (typedSupabase as any)
       .from('business_descriptions')
       .select('*')
       .eq('business_id', businessId);
 
     // 获取商家菜单
-    const { data: menus } = await typedSupabase
+    const { data: menus } = await (typedSupabase as any)
       .from('business_menus')
       .select('*')
       .eq('business_id', businessId);
 
     // 获取商家照片
-    const { data: photos } = await typedSupabase
+    const { data: photos } = await (typedSupabase as any)
       .from('business_photos')
       .select('*')
       .eq('business_id', businessId);
 
     // 获取商家评价
-    const { data: reviews } = await typedSupabase
+    const { data: reviews } = await (typedSupabase as any)
       .from('business_reviews')
       .select('*')
       .eq('business_id', businessId)
@@ -58,8 +58,8 @@ export async function GET(
 
     // 转换数据格式
     const transformedBusiness = {
-      id: business.id,
-      name: business.name,
+      id: (business as any).id,
+      name: (business as any).name,
       type: business.description || 'Local Business',
       category: business.category_id || 'general',
       rating: business.rating || 0,
@@ -76,19 +76,19 @@ export async function GET(
       website: business.website || '',
       logo_url: business.logo_url || '',
       cover_photo_url: business.cover_photo_url || '',
-      latitude: business.latitude,
-      longitude: business.longitude,
-      external_id: business.external_id,
-      google_maps_url: business.google_maps_url,
+      latitude: (business as any).latitude,
+      longitude: (business as any).longitude,
+      external_id: (business as any).external_id,
+      google_maps_url: (business as any).google_maps_url,
       // 额外信息
       descriptions: descriptions || [],
       menus: menus || [],
       photos: photos || [],
       reviews: reviews || [],
-      opening_hours: business.opening_hours,
-      email: business.email,
-      city: business.city,
-      country: business.country,
+      opening_hours: (business as any).opening_hours,
+      email: (business as any).email,
+      city: (business as any).city,
+      country: (business as any).country,
       postal_code: business.postal_code
     };
 

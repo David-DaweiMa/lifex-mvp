@@ -383,7 +383,7 @@ const TrendingPage: React.FC = () => {
       try {
         const { data: { user: authUser } } = await typedSupabase.auth.getUser();
         if (authUser) {
-          const { data: profile } = await typedSupabase
+          const { data: profile } = await (typedSupabase as any)
             .from('user_profiles')
             .select('*')
             .eq('id', authUser.id)
@@ -391,11 +391,11 @@ const TrendingPage: React.FC = () => {
           
           if (profile) {
             setUser({
-              id: profile.id,
-              username: profile.username,
-              full_name: profile.full_name,
-              avatar_url: profile.avatar_url,
-              user_type: profile.user_type,
+              id: (profile as any).id,
+              username: (profile as any).username,
+              full_name: (profile as any).full_name,
+              avatar_url: (profile as any).avatar_url,
+              user_type: (profile as any).user_type,
             });
           }
         }
@@ -453,7 +453,7 @@ const TrendingPage: React.FC = () => {
     if (!user) return;
 
     try {
-      const { data } = await typedSupabase
+      const { data } = await (typedSupabase as any)
         .from('post_likes')
         .select('post_id')
         .eq('user_id', user.id)
@@ -472,10 +472,10 @@ const TrendingPage: React.FC = () => {
 
     setIsCreatingPost(true);
     try {
-      const { data, error } = await typedSupabase
+      const { data, error } = await (typedSupabase as any)
         .from('trending_posts')
         .insert({
-          author_id: user.id,
+          author_id: (user as any).id,
           content: postData.content,
           images: postData.images || [],
           videos: postData.videos || [],
@@ -491,10 +491,10 @@ const TrendingPage: React.FC = () => {
       // Add to local state
       const newPost: TrendingPost = {
         ...data,
-        username: user.username,
-        full_name: user.full_name,
-        avatar_url: user.avatar_url,
-        user_type: user.user_type,
+        username: (user as any).username,
+        full_name: (user as any).full_name,
+        avatar_url: (user as any).avatar_url,
+        user_type: (user as any).user_type,
       };
       
       setPosts(prev => [newPost, ...prev]);
@@ -533,16 +533,16 @@ const TrendingPage: React.FC = () => {
 
     try {
       if (isCurrentlyLiked) {
-        await typedSupabase
+        await (typedSupabase as any)
           .from('post_likes')
           .delete()
           .eq('user_id', user.id)
           .eq('post_id', postId);
       } else {
-        await typedSupabase
+        await (typedSupabase as any)
           .from('post_likes')
           .insert({
-            user_id: user.id,
+            user_id: (user as any).id,
             post_id: postId,
           });
       }
@@ -575,10 +575,10 @@ const TrendingPage: React.FC = () => {
     
     try {
       // Record share
-      await typedSupabase
+      await (typedSupabase as any)
         .from('post_shares')
         .insert({
-          user_id: user.id,
+          user_id: (user as any).id,
           post_id: postId,
           share_type: 'native',
           platform: 'app',
