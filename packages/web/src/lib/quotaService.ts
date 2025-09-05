@@ -342,8 +342,8 @@ export async function recordUsage(
       .from('usage_statistics')
       .select('*')
       .eq('user_id', userId)
-      .eq('feature_type', featureType)
-      .eq('date', today)
+      .eq('feature_name', featureType)
+      .eq('usage_date', today)
       .single();
 
     if (existingRecord) {
@@ -362,9 +362,9 @@ export async function recordUsage(
         .from('usage_statistics')
         .insert({
           user_id: userId,
-          feature_type: featureType,
+          feature_name: featureType,
           usage_count: count,
-          date: today
+          usage_date: today
         });
 
       return !error;
