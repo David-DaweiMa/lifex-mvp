@@ -161,9 +161,6 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
         <div className="max-w-6xl mx-auto">
           {/* Service Categories */}
           <div className="mb-4">
-            <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
-              Find services
-            </p>
           </div>
 
                      {/* Discovery Tabs - 统一样式 */}
