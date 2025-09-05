@@ -672,10 +672,10 @@ const TrendingPage: React.FC = () => {
 
   return (
     <div className="h-full overflow-y-auto pb-20" style={{ background: darkTheme.background.primary, WebkitOverflowScrolling: 'touch' }}>
-      <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
+      <div className="relative px-4 md:px-6 lg:px-8 pt-4 pb-8 overflow-hidden">
         <div className="relative z-10 max-w-4xl mx-auto">
           {/* Page Description */}
-          <div className="pt-1 pb-1 mb-2">
+          <div className="pb-1 mb-2">
             <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
               "What's trending in your community"
             </p>
