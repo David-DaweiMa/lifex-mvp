@@ -675,7 +675,7 @@ const TrendingPage: React.FC = () => {
       <div className="relative px-4 md:px-6 lg:px-8 pt-6 md:pt-8 pb-8 overflow-hidden">
         <div className="relative z-10 max-w-4xl mx-auto">
           {/* Page Description */}
-          <div className="text-center mb-6">
+          <div className="pt-2 pb-1 mb-4">
             <p className="text-sm md:text-base" style={{ color: darkTheme.text.secondary }}>
               What's trending in your community
             </p>
