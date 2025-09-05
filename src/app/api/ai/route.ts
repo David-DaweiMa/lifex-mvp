@@ -77,15 +77,15 @@ async function handleAnonymousUser(
 
   // Check anonymous usage limits (10 per day)
   const today = new Date().toISOString().split('T')[0];
-  const { data: usageData } = await typedSupabase
+  const { data: usageData, error: usageError } = await typedSupabase
     .from('anonymous_usage')
     .select('usage_count')
     .eq('session_id', sessionId)
     .eq('quota_type', 'chat')
     .eq('usage_date', today)
-    .single();
+    .maybeSingle();
 
-  const currentUsage = usageData?.usage_count || 0;
+  const currentUsage = (usageData as { usage_count: number | null } | null)?.usage_count || 0;
   const maxUsage = 10;
   
   if (currentUsage >= maxUsage) {
