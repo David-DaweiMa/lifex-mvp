@@ -77,15 +77,15 @@ async function handleAnonymousUser(
 
   // Check anonymous usage limits (10 per day)
   const today = new Date().toISOString().split('T')[0];
-  const { data: usageData } = await typedSupabase
+  const { data: usageData, error: usageError } = await typedSupabase
     .from('anonymous_usage')
     .select('usage_count')
     .eq('session_id', sessionId)
-    .eq('feature', 'coly')
+    .eq('quota_type', 'chat')
     .eq('usage_date', today)
-    .single();
+    .maybeSingle();
 
-  const currentUsage = usageData?.usage_count || 0;
+  const currentUsage = (usageData as { usage_count: number | null } | null)?.usage_count || 0;
   const maxUsage = 10;
   
   if (currentUsage >= maxUsage) {
@@ -116,7 +116,7 @@ async function handleAnonymousUser(
   });
 
   // Record usage
-  await recordAnonymousUsage(sessionId, 'coly', today);
+  await recordAnonymousUsage(sessionId, 'chat', today);
 
   return NextResponse.json({
     success: true,
@@ -369,7 +369,7 @@ async function saveConversation(
 /**
  * Record anonymous usage
  */
-async function recordAnonymousUsage(sessionId: string, feature: string, date: string) {
+async function recordAnonymousUsage(sessionId: string, quotaType: string, date: string) {
   try {
     // Try to update existing record
     const { data: updateData, error: updateError } = await typedSupabase
@@ -379,7 +379,7 @@ async function recordAnonymousUsage(sessionId: string, feature: string, date: st
         updated_at: new Date().toISOString()
       })
       .eq('session_id', sessionId)
-      .eq('feature', feature)
+      .eq('quota_type', quotaType)
       .eq('usage_date', date);
 
     // If update fails (record doesn't exist), create new record
@@ -388,7 +388,7 @@ async function recordAnonymousUsage(sessionId: string, feature: string, date: st
         .from('anonymous_usage')
         .insert({
           session_id: sessionId,
-          feature: feature,
+          quota_type: quotaType,
           usage_date: date,
           usage_count: 1,
           created_at: new Date().toISOString(),
