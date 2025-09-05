@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Call the database function to update preferences
-    const { data, error } = await supabase.rpc('update_user_location_preferences', {
+    const { data, error } = await (supabase as any).rpc('update_user_location_preferences', {
       p_user_id: userId,
       p_max_distance_km: maxDistance,
       p_transport_mode: transportMode,

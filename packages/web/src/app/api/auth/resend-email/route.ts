@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 生成新的确认token
-    const { data: newToken, error: tokenError } = await supabase
+    const { data: newToken, error: tokenError } = await (supabase as any)
       .rpc('generate_email_token', {
         user_id: profile.id,
         email: email,

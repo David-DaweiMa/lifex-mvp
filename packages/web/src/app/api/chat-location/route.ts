@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     if (isLocationQuery && userLocation) {
       // Get location-based recommendations
-      const { data: nearbyBusinesses, error } = await supabase.rpc('get_nearby_businesses', {
+      const { data: nearbyBusinesses, error } = await (supabase as any).rpc('get_nearby_businesses', {
         user_lat: userLocation.latitude,
         user_lon: userLocation.longitude,
         radius_km: locationPreferences.maxDistance,
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
 
       // Log the location recommendation
       if (userId !== 'anonymous') {
-        await supabase.rpc('log_location_recommendation', {
+        await (supabase as any).rpc('log_location_recommendation', {
           p_user_id: userId,
           p_session_id: sessionId || 'unknown',
           p_user_location: JSON.stringify(userLocation),

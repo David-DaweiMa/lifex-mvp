@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Call the database function
-    const { data: businesses, error } = await supabase.rpc('get_nearby_businesses', {
+    const { data: businesses, error } = await (supabase as any).rpc('get_nearby_businesses', {
       user_lat: latitude,
       user_lon: longitude,
       radius_km: radiusKm,

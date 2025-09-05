@@ -1,0 +1,10 @@
+[33m119035e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Fix all remaining nested implicit any type errors in 11 files
+[33m0d570a8[m Complete fix for all implicit any type errors across 21 files
+[33mf619f59[m Fix implicit any type error in TrendingPage.tsx map function
+[33mc0ac5cc[m Complete fix for all remaining TypeScript never type issues across 9 files
+[33m25923b7[m Fix syntax errors in authService files caused by bulk fix script
+[33m96ba4d2[m Bulk fix all Supabase TypeScript never type issues across 13 files
+[33m0d10dd9[m Global fix for Supabase TypeScript never type issues: Add type assertions and safe wrappers
+[33m928bb23[m Systematic fix for TypeScript never type issues: Create safe query helpers and update all affected routes
+[33mfa02e90[m Fix Supabase type inference issues: Add type assertions for insert/update operations
+[33mda0da11[m Fix TypeScript type inference issue in handleRegisteredUser function

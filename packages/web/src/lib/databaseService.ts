@@ -57,7 +57,7 @@ export async function createUserProfile(
   userData?: UserProfileData
 ): Promise<{ success: boolean; user?: any; error?: string }> {
   try {
-    const { data, error } = await typedSupabaseAdmin.rpc('create_user_profile', {
+    const { data, error } = await (typedSupabaseAdmin as any).rpc('create_user_profile', {
       user_id: userId,
       user_email: email,
       user_data: userData || {}
@@ -83,7 +83,7 @@ export async function updateUserProfile(
   profileData: UserProfileData
 ): Promise<{ success: boolean; user?: any; error?: string }> {
   try {
-    const { data, error } = await typedSupabase.rpc('update_user_profile', {
+    const { data, error } = await (typedSupabase as any).rpc('update_user_profile', {
       user_id: userId,
       profile_data: profileData
     });
@@ -137,7 +137,7 @@ export async function createBusiness(
   businessData: BusinessData
 ): Promise<{ success: boolean; business?: any; error?: string }> {
   try {
-    const { data, error } = await typedSupabase.rpc('create_business', {
+    const { data, error } = await (typedSupabase as any).rpc('create_business', {
       owner_id: ownerId,
       business_data: businessData
     });
@@ -182,7 +182,7 @@ export async function createTrendingPost(
   postData: TrendingPostData
 ): Promise<{ success: boolean; post?: any; error?: string }> {
   try {
-    const { data, error } = await typedSupabase.rpc('create_trending_post', {
+    const { data, error } = await (typedSupabase as any).rpc('create_trending_post', {
       author_id: authorId,
       post_data: postData
     });
@@ -207,7 +207,7 @@ export async function likePost(
   postId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await typedSupabase.rpc('like_post', {
+    const { error } = await (typedSupabase as any).rpc('like_post', {
       user_id: userId,
       post_id: postId
     });
@@ -234,7 +234,7 @@ export async function sharePost(
   platform: string = 'app'
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await typedSupabase.rpc('share_post', {
+    const { error } = await (typedSupabase as any).rpc('share_post', {
       user_id: userId,
       post_id: postId,
       share_type: shareType,
@@ -274,7 +274,7 @@ export async function createChatMessage(
   messageData: ChatMessageData
 ): Promise<{ success: boolean; message?: any; error?: string }> {
   try {
-    const { data, error } = await typedSupabase.rpc('create_chat_message', {
+    const { data, error } = await (typedSupabase as any).rpc('create_chat_message', {
       user_id: userId,
       session_id: messageData.session_id,
       message_type: messageData.message_type,
@@ -308,7 +308,7 @@ export async function recordAssistantUsage(
   assistantType: 'coly' | 'max'
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await typedSupabase.rpc('record_assistant_usage', {
+    const { error } = await (typedSupabase as any).rpc('record_assistant_usage', {
       user_id: userId,
       assistant_type: assistantType
     });
@@ -338,7 +338,7 @@ export async function recordAnonymousUsage(
   usageDate?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await typedSupabase.rpc('record_anonymous_usage', {
+    const { error } = await (typedSupabase as any).rpc('record_anonymous_usage', {
       session_id: sessionId,
       feature: feature,
       usage_date: usageDate || new Date().toISOString().split('T')[0]
@@ -369,7 +369,7 @@ export async function recordAdClick(
   revenue: number = 0.5
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await typedSupabase.rpc('record_ad_click', {
+    const { error } = await (typedSupabase as any).rpc('record_ad_click', {
       ad_id: adId,
       user_id: userId,
       revenue: revenue
@@ -399,7 +399,7 @@ export async function createBusinessDescription(
   description: string
 ): Promise<{ success: boolean; description?: any; error?: string }> {
   try {
-    const { data, error } = await typedSupabase.rpc('create_business_description', {
+    const { data, error } = await (typedSupabase as any).rpc('create_business_description', {
       business_id: businessId,
       description: description
     });
@@ -424,7 +424,7 @@ export async function createBusinessMenu(
   menuData: any
 ): Promise<{ success: boolean; menu?: any; error?: string }> {
   try {
-    const { data, error } = await typedSupabase.rpc('create_business_menu', {
+    const { data, error } = await (typedSupabase as any).rpc('create_business_menu', {
       business_id: businessId,
       menu_data: menuData
     });
@@ -450,7 +450,7 @@ export async function createBusinessPhoto(
   caption?: string
 ): Promise<{ success: boolean; photo?: any; error?: string }> {
   try {
-    const { data, error } = await typedSupabase.rpc('create_business_photo', {
+    const { data, error } = await (typedSupabase as any).rpc('create_business_photo', {
       business_id: businessId,
       photo_url: photoUrl,
       caption: caption
@@ -478,7 +478,7 @@ export async function createBusinessReview(
   comment?: string
 ): Promise<{ success: boolean; review?: any; error?: string }> {
   try {
-    const { data, error } = await typedSupabase.rpc('create_business_review', {
+    const { data, error } = await (typedSupabase as any).rpc('create_business_review', {
       business_id: businessId,
       user_id: userId,
       rating: rating,
