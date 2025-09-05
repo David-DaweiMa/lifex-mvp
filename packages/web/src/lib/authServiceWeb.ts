@@ -97,7 +97,7 @@ export class WebAuthService extends BaseAuthService {
       console.log('Supabase Auth 用户创建成功:', authData.user.id);
 
       // 验证用户创建完整性
-      const profile = await this.waitForUserProfile(authData.(user as any).id, email, userData);
+      const profile = await this.waitForUserProfile((authData.user as any).id, email, userData);
       if (!profile) {
         return {
           success: false,

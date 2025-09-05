@@ -162,7 +162,7 @@ export async function registerUser(
       const { data: manualProfile, error: manualError } = await (typedSupabaseAdmin as any)
         .from('user_profiles')
         .insert({
-          id: authData.(user as any).id,
+          id: (authData.user as any).id,
           email: email,
           username: userData?.username,
           full_name: userData?.full_name,
@@ -211,7 +211,7 @@ export async function registerUser(
     if (autoConfirmEmail) {
       console.log('自动确认邮箱...');
       const { error: confirmError } = await typedSupabaseAdmin.auth.admin.updateUserById(
-        authData.(user as any).id,
+        (authData.user as any).id,
         { email_confirm: true }
       );
 
