@@ -99,6 +99,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
   };
 
+  // 初始化时立即应用主题样式
+  useEffect(() => {
+    updateThemeStyles(theme);
+  }, []);
+
   // 当主题变化时更新样式
   useEffect(() => {
     updateThemeStyles(theme);
