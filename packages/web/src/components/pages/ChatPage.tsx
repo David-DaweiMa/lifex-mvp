@@ -261,6 +261,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                   onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
                   placeholder="Ask me anything about New Zealand..."
                   className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors"
+                  style={{ backgroundColor: '#1A1625', borderColor: '#8B5CF620', color: '#FFFFFF' }}
                 />
               </div>
               <button 
@@ -288,7 +289,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
               <div className="bg-dark-card border border-dark-glass rounded-2xl p-6 md:p-8 min-h-[180px] md:min-h-[240px] flex flex-col justify-between" style={{ backgroundColor: '#1A1625', borderColor: '#8B5CF620' }}>
                 {/* Top Row - Welcome Message */}
                 <div>
-                  <h1 className="text-sm md:text-base font-semibold text-text-primary">
+                  <h1 className="text-sm md:text-base font-semibold text-text-primary" style={{ color: '#FFFFFF' }}>
                     G'day! What can I help you find today?
                   </h1>
                 </div>
@@ -353,6 +354,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                       onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
                       placeholder="Type your message..."
                       className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors text-base"
+                      style={{ backgroundColor: '#1A1625', borderColor: '#8B5CF620', color: '#FFFFFF' }}
                     />
                   </div>
                   <button 
@@ -421,7 +423,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
            {/* Recent Discoveries - Content only */}
            <div className="mb-8 mt-24 md:mt-32">
              <div className="flex items-center justify-between mb-4">
-               <h2 className="font-semibold text-base md:text-lg text-text-primary">Recent Discoveries</h2>
+               <h2 className="font-semibold text-base md:text-lg text-text-primary" style={{ color: '#FFFFFF' }}>Recent Discoveries</h2>
                <button className="text-sm text-lifex-purple hover:text-lifex-purple/80 transition-colors">
                  See all
                </button>
@@ -436,7 +438,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                    style={{ backgroundColor: '#1A1625', borderColor: '#8B5CF620' }}
                  >
                    <div className="flex-1">
-                     <p className="text-sm text-text-primary">{discovery.text}</p>
+                     <p className="text-sm text-text-primary" style={{ color: '#FFFFFF' }}>{discovery.text}</p>
                    </div>
                  </div>
                ))}
