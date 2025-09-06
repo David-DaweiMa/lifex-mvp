@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
 import { useAuth } from '../../lib/hooks/useAuth';
+import ThemeToggle from '../ui/ThemeToggle';
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();
@@ -268,6 +269,19 @@ const ProfilePage: React.FC = () => {
                   </p>
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Theme Settings */}
+          <div className="mb-6">
+            <div 
+              className="p-4 md:p-6 rounded-xl border"
+              style={{
+                background: darkTheme.background.card,
+                borderColor: darkTheme.background.glass,
+              }}
+            >
+              <ThemeToggle showLabel={true} showSystemOption={true} />
             </div>
           </div>
 

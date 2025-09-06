@@ -5,6 +5,22 @@
 :root {
   --lifex-purple: #a855f7;
   --lifex-dark: #0a0a0a;
+  
+  /* 主题变量 - 默认深色主题 */
+  --theme-bg-primary: #0a0a0a;
+  --theme-bg-secondary: #1A1625;
+  --theme-bg-card: #1A1625;
+  --theme-bg-glass: #8B5CF620;
+  --theme-bg-overlay: #0F0B1ACC;
+  --theme-text-primary: #FFFFFF;
+  --theme-text-secondary: #22C55E;
+  --theme-text-muted: #805AD5;
+  --theme-text-inverse: #0F0B1A;
+  --theme-border: #374151;
+  --theme-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.1);
+  
+  /* 过渡动画 */
+  --theme-transition: all 0.3s ease-in-out;
 }
 
 * {
@@ -21,11 +37,12 @@ body {
 }
 
 body {
-  color: var(--lifex-dark);
-  background: #0a0a0a;  /* 改为纯黑色 */
+  color: var(--theme-text-primary);
+  background: var(--theme-bg-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: var(--theme-transition);
 }
 
 /* 确保基础样式在生产环境中可用 */
@@ -55,11 +72,57 @@ body {
   }
   
   .card {
-    @apply bg-dark-card backdrop-blur-sm border border-dark-glass rounded-xl p-4;
+    background-color: var(--theme-bg-card);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--theme-border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    transition: var(--theme-transition);
   }
   
   .text-gradient {
     @apply bg-gradient-primary bg-clip-text text-transparent;
+  }
+  
+  /* 主题相关工具类 */
+  .theme-bg-primary {
+    background-color: var(--theme-bg-primary);
+    transition: var(--theme-transition);
+  }
+  
+  .theme-bg-secondary {
+    background-color: var(--theme-bg-secondary);
+    transition: var(--theme-transition);
+  }
+  
+  .theme-bg-card {
+    background-color: var(--theme-bg-card);
+    transition: var(--theme-transition);
+  }
+  
+  .theme-text-primary {
+    color: var(--theme-text-primary);
+    transition: var(--theme-transition);
+  }
+  
+  .theme-text-secondary {
+    color: var(--theme-text-secondary);
+    transition: var(--theme-transition);
+  }
+  
+  .theme-text-muted {
+    color: var(--theme-text-muted);
+    transition: var(--theme-transition);
+  }
+  
+  .theme-border {
+    border-color: var(--theme-border);
+    transition: var(--theme-transition);
+  }
+  
+  .theme-shadow {
+    box-shadow: var(--theme-shadow);
+    transition: var(--theme-transition);
   }
 }
 
@@ -96,10 +159,15 @@ body {
 }
 
 /* 确保关键样式在生产环境中可用 */
-.bg-dark-primary { background-color: #0a0a0a; }
-.bg-dark-secondary { background-color: #1a1a1a; }
-.text-text-primary { color: #ffffff; }
-.text-text-secondary { color: #a1a1aa; }
-.text-text-muted { color: #71717a; }
+.bg-dark-primary { background-color: var(--theme-bg-primary); }
+.bg-dark-secondary { background-color: var(--theme-bg-secondary); }
+.text-text-primary { color: var(--theme-text-primary); }
+.text-text-secondary { color: var(--theme-text-secondary); }
+.text-text-muted { color: var(--theme-text-muted); }
 .bg-lifex-purple { background-color: #a855f7; }
 .text-lifex-purple { color: #a855f7; }
+
+/* 主题切换动画 */
+* {
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
