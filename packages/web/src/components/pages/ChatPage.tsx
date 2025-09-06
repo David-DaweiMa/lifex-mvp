@@ -231,6 +231,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                           key={index}
                           onClick={() => onQuickPrompt(question)}
                           className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 bg-dark-card border border-dark-glass text-text-primary hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
+                          style={{ backgroundColor: '#1A1625', borderColor: '#8B5CF620', color: '#FFFFFF' }}
                         >
                           {question}
                         </button>
@@ -284,7 +285,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
         <div className="relative z-10 max-w-4xl mx-auto">
                      {/* Large Chat Dialog with Two-Row Layout */}
                                    <div className="mb-6 md:mb-8">
-              <div className="bg-dark-card border border-dark-glass rounded-2xl p-6 md:p-8 min-h-[180px] md:min-h-[240px] flex flex-col justify-between">
+              <div className="bg-dark-card border border-dark-glass rounded-2xl p-6 md:p-8 min-h-[180px] md:min-h-[240px] flex flex-col justify-between" style={{ backgroundColor: '#1A1625', borderColor: '#8B5CF620' }}>
                 {/* Top Row - Welcome Message */}
                 <div>
                   <h1 className="text-sm md:text-base font-semibold text-text-primary">
@@ -386,7 +387,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                          key={idx}
                          onClick={() => onQuickPrompt(prompt)}
                          className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 whitespace-nowrap flex-shrink-0 bg-dark-card border border-dark-glass text-text-primary hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
-                         style={{ minWidth: 'fit-content' }}
+                         style={{ backgroundColor: '#1A1625', borderColor: '#8B5CF620', color: '#FFFFFF', minWidth: 'fit-content' }}
                        >
                          {prompt}
                        </button>
@@ -432,6 +433,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                  <div 
                    key={idx}
                    className="flex items-center p-3 rounded-xl bg-dark-card border border-dark-glass cursor-pointer hover:bg-dark-secondary transition-colors"
+                   style={{ backgroundColor: '#1A1625', borderColor: '#8B5CF620' }}
                  >
                    <div className="flex-1">
                      <p className="text-sm text-text-primary">{discovery.text}</p>
