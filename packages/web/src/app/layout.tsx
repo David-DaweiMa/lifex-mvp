@@ -21,7 +21,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#7C3AED',
+  themeColor: '#8B5CF6',
 }
 
 export default function RootLayout({
@@ -41,7 +41,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="LifeX" />
-        <meta name="msapplication-TileColor" content="#7C3AED" />
+        <meta name="msapplication-TileColor" content="#8B5CF6" />
         <meta name="msapplication-TileImage" content="/android-chrome-192x192.png" />
       </head>
       <body className="antialiased">
