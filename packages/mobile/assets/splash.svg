@@ -4,7 +4,7 @@
   </defs>
   
   <!-- Background -->
-  <rect width="1024" height="1024" fill="#8B5CF6"/>
+  <rect width="1024" height="1024" fill="#a855f7"/>
   
   <!-- App icon in center -->
   <circle cx="512" cy="400" r="120" fill="rgba(255, 255, 255, 0.2)" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2"/>

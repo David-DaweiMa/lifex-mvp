@@ -169,7 +169,7 @@ const LifeXApp: React.FC = () => {
             <div 
               className="w-8 h-8 md:w-10 md:h-10 rounded-2xl flex items-center justify-center relative overflow-hidden"
               style={{ 
-                background: '#8B5CF6',
+                background: '#a855f7',
                 fontFamily: '"Playfair Display", Georgia, serif'
               }}
             >
