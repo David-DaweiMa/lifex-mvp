@@ -19,6 +19,7 @@
   --theme-border: #374151;
   --theme-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.1);
   
+  
   /* 过渡动画 */
   --theme-transition: all 0.3s ease-in-out;
 }
@@ -37,12 +38,11 @@ body {
 }
 
 body {
-  color: var(--theme-text-primary);
-  background: var(--theme-bg-primary);
+  color: var(--lifex-dark);
+  background: #0a0a0a;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: var(--theme-transition);
 }
 
 /* 确保基础样式在生产环境中可用 */
@@ -87,41 +87,43 @@ body {
   /* 主题相关工具类 */
   .theme-bg-primary {
     background-color: var(--theme-bg-primary);
-    transition: var(--theme-transition);
   }
   
   .theme-bg-secondary {
     background-color: var(--theme-bg-secondary);
-    transition: var(--theme-transition);
   }
   
   .theme-bg-card {
     background-color: var(--theme-bg-card);
-    transition: var(--theme-transition);
   }
   
   .theme-text-primary {
     color: var(--theme-text-primary);
-    transition: var(--theme-transition);
   }
   
   .theme-text-secondary {
     color: var(--theme-text-secondary);
-    transition: var(--theme-transition);
   }
   
   .theme-text-muted {
     color: var(--theme-text-muted);
-    transition: var(--theme-transition);
   }
   
   .theme-border {
     border-color: var(--theme-border);
-    transition: var(--theme-transition);
   }
   
   .theme-shadow {
     box-shadow: var(--theme-shadow);
+  }
+  
+  /* 需要过渡动画的元素添加此类 */
+  .theme-bg-primary.theme-transition,
+  .theme-bg-secondary.theme-transition,
+  .theme-bg-card.theme-transition,
+  .theme-text-primary.theme-transition,
+  .theme-text-secondary.theme-transition,
+  .theme-text-muted.theme-transition {
     transition: var(--theme-transition);
   }
 }
@@ -167,7 +169,7 @@ body {
 .bg-lifex-purple { background-color: #a855f7; }
 .text-lifex-purple { color: #a855f7; }
 
-/* 主题切换动画 */
-* {
+/* 主题切换动画只应用到使用主题变量的元素 */
+.theme-transition {
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }

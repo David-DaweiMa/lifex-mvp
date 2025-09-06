@@ -69,7 +69,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     const root = document.documentElement;
     root.setAttribute('data-theme', currentTheme);
     
-    // 更新CSS变量
+    // 更新CSS变量，但不影响body的基础样式
     if (currentTheme === 'light') {
       root.style.setProperty('--theme-bg-primary', '#FFFFFF');
       root.style.setProperty('--theme-bg-secondary', '#F8F7FF');
@@ -82,6 +82,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       root.style.setProperty('--theme-text-inverse', '#FFFFFF');
       root.style.setProperty('--theme-border', '#E5E7EB');
       root.style.setProperty('--theme-shadow', '0 4px 6px -1px rgba(0, 0, 0, 0.1)');
+      // 浅色主题时可以添加特殊处理
     } else {
       root.style.setProperty('--theme-bg-primary', '#0a0a0a');
       root.style.setProperty('--theme-bg-secondary', '#1A1625');
@@ -94,6 +95,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       root.style.setProperty('--theme-text-inverse', '#0F0B1A');
       root.style.setProperty('--theme-border', '#374151');
       root.style.setProperty('--theme-shadow', '0 4px 6px -1px rgba(139, 92, 246, 0.1)');
+      // 深色主题保持原来的样式
     }
   };
 
