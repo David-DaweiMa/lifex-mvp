@@ -62,3 +62,13 @@ pids/
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Mobile specific
+packages/mobile/android/app/build/
+packages/mobile/ios/build/
+packages/mobile/.expo/
