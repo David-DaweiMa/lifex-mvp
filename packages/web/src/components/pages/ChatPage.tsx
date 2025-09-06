@@ -107,7 +107,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
           </div>
           <div className="flex-1 min-w-0">
             <div className="bg-dark-card-fixed border border-dark-glass-fixed rounded-2xl rounded-tl-md px-3 py-2">
-              <p className="text-sm md:text-base text-text-primary-fixed-fixed">{message.content}</p>
+              <p className="text-sm md:text-base text-text-primary-fixed">{message.content}</p>
             </div>
             
             {message.recommendations && (
@@ -230,7 +230,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                         <button
                           key={index}
                           onClick={() => onQuickPrompt(question)}
-                          className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 bg-dark-card-fixed border border-dark-glass-fixed text-text-primary-fixed-fixed hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
+                          className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 bg-dark-card-fixed border border-dark-glass-fixed text-text-primary-fixed hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
                         >
                           {question}
                         </button>
@@ -385,7 +385,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                        <button
                          key={idx}
                          onClick={() => onQuickPrompt(prompt)}
-                         className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 whitespace-nowrap flex-shrink-0 bg-dark-card-fixed border border-dark-glass-fixed text-text-primary-fixed-fixed hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
+                         className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 whitespace-nowrap flex-shrink-0 bg-dark-card-fixed border border-dark-glass-fixed text-text-primary-fixed hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
                          style={{ minWidth: 'fit-content' }}
                        >
                          {prompt}
@@ -420,7 +420,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
            {/* Recent Discoveries - Content only */}
            <div className="mb-8 mt-24 md:mt-32">
              <div className="flex items-center justify-between mb-4">
-               <h2 className="font-semibold text-base md:text-lg text-text-primary-fixed-fixed">Recent Discoveries</h2>
+               <h2 className="font-semibold text-base md:text-lg text-text-primary-fixed">Recent Discoveries</h2>
                <button className="text-sm text-lifex-purple hover:text-lifex-purple/80 transition-colors">
                  See all
                </button>
