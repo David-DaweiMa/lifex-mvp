@@ -17,6 +17,7 @@
     "clean": "echo 'React Native does not require clean step'",
     "type-check": "tsc --noEmit",
     "generate-icons": "node scripts/generate-icons.js",
+    "generate-android-icons": "node scripts/generate-android-icons.js",
     "preview-icons": "open assets/icon-preview.html"
   },
   "dependencies": {

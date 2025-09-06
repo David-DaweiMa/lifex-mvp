@@ -32,8 +32,16 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
+        <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="LifeX" />
+        <meta name="msapplication-TileColor" content="#8B5CF6" />
+        <meta name="msapplication-TileImage" content="/android-chrome-192x192.png" />
       </head>
       <body className="antialiased">
         <ThemeProvider>
