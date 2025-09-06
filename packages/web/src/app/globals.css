@@ -163,11 +163,15 @@ body {
 /* 确保关键样式在生产环境中可用 */
 .bg-dark-primary { background-color: var(--theme-bg-primary); }
 .bg-dark-secondary { background-color: var(--theme-bg-secondary); }
+.bg-dark-card { background-color: var(--theme-bg-card); }
+.border-dark-glass { border-color: var(--theme-bg-glass); }
 .text-text-primary { color: var(--theme-text-primary); }
 .text-text-secondary { color: var(--theme-text-secondary); }
 .text-text-muted { color: var(--theme-text-muted); }
 .bg-lifex-purple { background-color: #a855f7; }
 .text-lifex-purple { color: #a855f7; }
+.text-lifex-yellow { color: #F59E0B; }
+.text-lifex-green { color: #10B981; }
 
 /* 主题切换动画只应用到使用主题变量的元素 */
 .theme-transition {
