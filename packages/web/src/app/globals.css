@@ -38,11 +38,12 @@ body {
 }
 
 body {
-  color: #ffffff;
-  background: #0a0a0a;
+  color: var(--theme-text-primary);
+  background: var(--theme-bg-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: var(--theme-transition);
 }
 
 /* 确保基础样式在生产环境中可用 */
@@ -161,13 +162,13 @@ body {
 }
 
 /* 确保关键样式在生产环境中可用 */
-.bg-dark-primary { background-color: #0a0a0a; }
-.bg-dark-secondary { background-color: #1A1625; }
-.bg-dark-card { background-color: #1A1625; }
-.border-dark-glass { border-color: #8B5CF620; }
-.text-text-primary { color: #FFFFFF; }
-.text-text-secondary { color: #22C55E; }
-.text-text-muted { color: #805AD5; }
+.bg-dark-primary { background-color: var(--theme-bg-primary); }
+.bg-dark-secondary { background-color: var(--theme-bg-secondary); }
+.bg-dark-card { background-color: var(--theme-bg-card); }
+.border-dark-glass { border-color: var(--theme-bg-glass); }
+.text-text-primary { color: var(--theme-text-primary); }
+.text-text-secondary { color: var(--theme-text-secondary); }
+.text-text-muted { color: var(--theme-text-muted); }
 .bg-lifex-purple { background-color: #a855f7; }
 .text-lifex-purple { color: #a855f7; }
 .text-lifex-yellow { color: #F59E0B; }
