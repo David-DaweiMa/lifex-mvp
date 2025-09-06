@@ -168,9 +168,14 @@ const LifeXApp: React.FC = () => {
           <div className="flex items-center gap-3">
             <div 
               className="w-8 h-8 md:w-10 md:h-10 rounded-2xl flex items-center justify-center relative overflow-hidden"
-              style={{ background: darkTheme.neon.purple }}
+              style={{ 
+                background: 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)',
+                fontFamily: '"Playfair Display", Georgia, serif'
+              }}
             >
-              <span className="text-white text-sm md:text-lg font-bold relative z-10">LX</span>
+              <span className="text-white text-sm md:text-lg font-semibold relative z-10" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
+                L<span className="font-black">X</span>
+              </span>
               <div className="absolute top-1 right-1 md:top-1.5 md:right-1.5 w-1 h-1 bg-white/30 rounded-full" />
               <div className="absolute bottom-1 left-1 md:bottom-1.5 md:left-1.5 w-1 h-1 bg-white/20 rounded-full" />
             </div>
