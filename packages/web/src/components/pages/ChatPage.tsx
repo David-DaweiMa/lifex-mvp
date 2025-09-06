@@ -106,8 +106,8 @@ const ChatPage: React.FC<ChatPageProps> = ({
             <span className="text-white text-sm md:text-lg font-bold">⚡</span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="bg-dark-card border border-dark-glass rounded-2xl rounded-tl-md px-3 py-2">
-              <p className="text-sm md:text-base text-text-primary">{message.content}</p>
+            <div className="bg-dark-card-fixed border border-dark-glass-fixed rounded-2xl rounded-tl-md px-3 py-2">
+              <p className="text-sm md:text-base text-text-primary-fixed-fixed">{message.content}</p>
             </div>
             
             {message.recommendations && (
@@ -115,26 +115,26 @@ const ChatPage: React.FC<ChatPageProps> = ({
                 {message.recommendations.map((rec: any) => (
                   <div 
                     key={rec.id} 
-                    className="bg-dark-card border border-dark-glass rounded-xl overflow-hidden"
+                    className="bg-dark-card-fixed border border-dark-glass-fixed rounded-xl overflow-hidden"
                   >
                     <div className="p-3 md:p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-sm md:text-base mb-1 truncate text-text-primary">{rec.name}</h4>
-                          <p className="text-xs md:text-sm text-text-secondary">{rec.type}</p>
+                          <h4 className="font-bold text-sm md:text-base mb-1 truncate text-text-primary-fixed">{rec.name}</h4>
+                          <p className="text-xs md:text-sm text-text-secondary-fixed">{rec.type}</p>
                         </div>
                         <div className="text-right flex-shrink-0 ml-2">
                           <div className="flex items-center gap-1 mb-1">
                             <Star size={12} className="text-lifex-yellow fill-lifex-yellow" />
-                            <span className="font-medium text-xs md:text-sm text-text-primary">{rec.rating}</span>
-                            <span className="text-xs text-text-muted">({rec.reviews})</span>
+                            <span className="font-medium text-xs md:text-sm text-text-primary-fixed">{rec.rating}</span>
+                            <span className="text-xs text-text-muted-fixed">({rec.reviews})</span>
                           </div>
                           <p className="font-medium text-xs md:text-sm text-lifex-green">{rec.price}</p>
                         </div>
                       </div>
 
                       <div className="bg-lifex-purple/20 border border-lifex-purple/40 rounded-lg p-2.5 mb-3">
-                        <p className="text-xs md:text-sm text-text-primary mb-2">{rec.aiReason}</p>
+                        <p className="text-xs md:text-sm text-text-primary-fixed mb-2">{rec.aiReason}</p>
                         <div className="flex flex-wrap gap-1">
                           {rec.tags.map((tag: any, tagIdx: any) => (
                             <span 
@@ -154,11 +154,11 @@ const ChatPage: React.FC<ChatPageProps> = ({
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <button className="flex items-center gap-1 text-xs md:text-sm text-text-secondary hover:text-lifex-purple transition-colors">
+                          <button className="flex items-center gap-1 text-xs md:text-sm text-text-secondary-fixed hover:text-lifex-purple transition-colors">
                             <Phone size={12} className="md:w-3 md:h-3" />
                             <span>{rec.phone}</span>
                           </button>
-                          <button className="flex items-center gap-1 text-xs md:text-sm text-text-secondary hover:text-lifex-purple transition-colors">
+                          <button className="flex items-center gap-1 text-xs md:text-sm text-text-secondary-fixed hover:text-lifex-purple transition-colors">
                             <MapPin size={12} className="md:w-3 md:h-3" />
                             <span className="truncate">{rec.distance}</span>
                           </button>
@@ -191,8 +191,8 @@ const ChatPage: React.FC<ChatPageProps> = ({
               <ArrowLeft size={20} className="text-lifex-purple" />
             </button>
             <div>
-              <h2 className="font-bold text-base md:text-lg text-text-primary">LifeX AI</h2>
-              <p className="text-xs md:text-sm text-text-secondary">Your AI companion</p>
+              <h2 className="font-bold text-base md:text-lg text-text-primary-fixed">LifeX AI</h2>
+              <p className="text-xs md:text-sm text-text-secondary-fixed">Your AI companion</p>
             </div>
           </div>
         </div>
@@ -206,7 +206,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-lifex-purple">
                   <span className="text-white text-sm md:text-lg font-bold">⚡</span>
                 </div>
-                <div className="bg-dark-card border border-dark-glass rounded-2xl rounded-tl-md px-3 py-2">
+                <div className="bg-dark-card-fixed border border-dark-glass-fixed rounded-2xl rounded-tl-md px-3 py-2">
                   <div className="flex items-center gap-1">
                     <div className="w-2 h-2 bg-lifex-purple rounded-full animate-bounce"></div>
                     <div className="w-2 h-2 bg-lifex-purple rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -224,13 +224,13 @@ const ChatPage: React.FC<ChatPageProps> = ({
                     <span className="text-white text-sm md:text-lg font-bold">💡</span>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm md:text-base text-text-secondary mb-3">You might also want to ask:</p>
+                    <p className="text-sm md:text-base text-text-secondary-fixed mb-3">You might also want to ask:</p>
                     <div className="flex flex-wrap gap-2">
                       {followUpQuestions.map((question: any, index: any) => (
                         <button
                           key={index}
                           onClick={() => onQuickPrompt(question)}
-                          className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 bg-dark-card border border-dark-glass text-text-primary hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
+                          className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 bg-dark-card-fixed border border-dark-glass-fixed text-text-primary-fixed-fixed hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
                         >
                           {question}
                         </button>
@@ -259,7 +259,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
                   placeholder="Ask me anything about New Zealand..."
-                  className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors"
+                  className="w-full px-4 py-3 bg-dark-secondary-fixed border border-dark-glass rounded-xl text-text-primary-fixed placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors"
                 />
               </div>
               <button 
@@ -284,10 +284,10 @@ const ChatPage: React.FC<ChatPageProps> = ({
         <div className="relative z-10 max-w-4xl mx-auto">
                      {/* Large Chat Dialog with Two-Row Layout */}
                                    <div className="mb-6 md:mb-8">
-              <div className="bg-dark-card border border-dark-glass rounded-2xl p-6 md:p-8 min-h-[180px] md:min-h-[240px] flex flex-col justify-between">
+              <div className="bg-dark-card-fixed border border-dark-glass-fixed rounded-2xl p-6 md:p-8 min-h-[180px] md:min-h-[240px] flex flex-col justify-between">
                 {/* Top Row - Welcome Message */}
                 <div>
-                  <h1 className="text-sm md:text-base font-semibold text-text-primary">
+                  <h1 className="text-sm md:text-base font-semibold text-text-primary-fixed">
                     G'day! What can I help you find today?
                   </h1>
                 </div>
@@ -304,7 +304,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                     
                                          {/* Attachment Menu */}
                      {showAttachmentMenu && (
-                       <div className="absolute top-full left-0 mt-2 bg-dark-card border border-dark-glass rounded-xl shadow-lg overflow-hidden z-50">
+                       <div className="absolute top-full left-0 mt-2 bg-dark-card-fixed border border-dark-glass-fixed rounded-xl shadow-lg overflow-hidden z-50">
                          <div className="p-2 space-y-1">
                                                        <button
                               onClick={() => {
@@ -312,10 +312,10 @@ const ChatPage: React.FC<ChatPageProps> = ({
                                 imageInputRef.current?.click();
                                 setShowAttachmentMenu(false);
                               }}
-                              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
+                              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary-fixed transition-colors text-left"
                             >
                               <Image size={16} className="text-lifex-purple" />
-                              <span className="text-sm text-text-primary">Upload from gallery</span>
+                              <span className="text-sm text-text-primary-fixed">Upload from gallery</span>
                             </button>
                             <button
                               onClick={() => {
@@ -324,20 +324,20 @@ const ChatPage: React.FC<ChatPageProps> = ({
                                 setChatInput('Camera functionality coming soon...');
                                 setShowAttachmentMenu(false);
                               }}
-                              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
+                              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary-fixed transition-colors text-left"
                             >
                               <Camera size={16} className="text-lifex-purple" />
-                              <span className="text-sm text-text-primary">Take a photo</span>
+                              <span className="text-sm text-text-primary-fixed">Take a photo</span>
                             </button>
                             <button
                               onClick={() => {
                                 fileInputRef.current?.click();
                                 setShowAttachmentMenu(false);
                               }}
-                              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary transition-colors text-left"
+                              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-dark-secondary-fixed transition-colors text-left"
                             >
                               <FileText size={16} className="text-lifex-purple" />
-                              <span className="text-sm text-text-primary">Upload from files</span>
+                              <span className="text-sm text-text-primary-fixed">Upload from files</span>
                             </button>
                          </div>
                        </div>
@@ -351,7 +351,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                       onChange={(e) => setChatInput(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
                       placeholder="Type your message..."
-                      className="w-full px-4 py-3 bg-dark-secondary border border-dark-glass rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors text-base"
+                      className="w-full px-4 py-3 bg-dark-secondary-fixed border border-dark-glass rounded-xl text-text-primary-fixed placeholder-text-muted focus:outline-none focus:border-lifex-purple transition-colors text-base"
                     />
                   </div>
                   <button 
@@ -385,7 +385,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
                        <button
                          key={idx}
                          onClick={() => onQuickPrompt(prompt)}
-                         className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 whitespace-nowrap flex-shrink-0 bg-dark-card border border-dark-glass text-text-primary hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
+                         className="px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all hover:scale-105 whitespace-nowrap flex-shrink-0 bg-dark-card-fixed border border-dark-glass-fixed text-text-primary-fixed-fixed hover:bg-lifex-purple hover:border-lifex-purple hover:text-white"
                          style={{ minWidth: 'fit-content' }}
                        >
                          {prompt}
@@ -420,7 +420,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
            {/* Recent Discoveries - Content only */}
            <div className="mb-8 mt-24 md:mt-32">
              <div className="flex items-center justify-between mb-4">
-               <h2 className="font-semibold text-base md:text-lg text-text-primary">Recent Discoveries</h2>
+               <h2 className="font-semibold text-base md:text-lg text-text-primary-fixed-fixed">Recent Discoveries</h2>
                <button className="text-sm text-lifex-purple hover:text-lifex-purple/80 transition-colors">
                  See all
                </button>
@@ -431,10 +431,10 @@ const ChatPage: React.FC<ChatPageProps> = ({
                {recentDiscoveries.map((discovery: any, idx: any) => (
                  <div 
                    key={idx}
-                   className="flex items-center p-3 rounded-xl bg-dark-card border border-dark-glass cursor-pointer hover:bg-dark-secondary transition-colors"
+                   className="flex items-center p-3 rounded-xl bg-dark-card-fixed border border-dark-glass-fixed cursor-pointer hover:bg-dark-secondary-fixed transition-colors"
                  >
                    <div className="flex-1">
-                     <p className="text-sm text-text-primary">{discovery.text}</p>
+                     <p className="text-sm text-text-primary-fixed">{discovery.text}</p>
                    </div>
                  </div>
                ))}

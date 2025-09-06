@@ -19,7 +19,6 @@
   --theme-border: #374151;
   --theme-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.1);
   
-  
   /* 过渡动画 */
   --theme-transition: all 0.3s ease-in-out;
 }
@@ -88,43 +87,41 @@ body {
   /* 主题相关工具类 */
   .theme-bg-primary {
     background-color: var(--theme-bg-primary);
+    transition: var(--theme-transition);
   }
   
   .theme-bg-secondary {
     background-color: var(--theme-bg-secondary);
+    transition: var(--theme-transition);
   }
   
   .theme-bg-card {
     background-color: var(--theme-bg-card);
+    transition: var(--theme-transition);
   }
   
   .theme-text-primary {
     color: var(--theme-text-primary);
+    transition: var(--theme-transition);
   }
   
   .theme-text-secondary {
     color: var(--theme-text-secondary);
+    transition: var(--theme-transition);
   }
   
   .theme-text-muted {
     color: var(--theme-text-muted);
+    transition: var(--theme-transition);
   }
   
   .theme-border {
     border-color: var(--theme-border);
+    transition: var(--theme-transition);
   }
   
   .theme-shadow {
     box-shadow: var(--theme-shadow);
-  }
-  
-  /* 需要过渡动画的元素添加此类 */
-  .theme-bg-primary.theme-transition,
-  .theme-bg-secondary.theme-transition,
-  .theme-bg-card.theme-transition,
-  .theme-text-primary.theme-transition,
-  .theme-text-secondary.theme-transition,
-  .theme-text-muted.theme-transition {
     transition: var(--theme-transition);
   }
 }
@@ -164,25 +161,13 @@ body {
 /* 确保关键样式在生产环境中可用 */
 .bg-dark-primary { background-color: var(--theme-bg-primary); }
 .bg-dark-secondary { background-color: var(--theme-bg-secondary); }
-.bg-dark-card { background-color: var(--theme-bg-card); }
-.border-dark-glass { border-color: var(--theme-bg-glass); }
 .text-text-primary { color: var(--theme-text-primary); }
 .text-text-secondary { color: var(--theme-text-secondary); }
 .text-text-muted { color: var(--theme-text-muted); }
 .bg-lifex-purple { background-color: #a855f7; }
 .text-lifex-purple { color: #a855f7; }
-.text-lifex-yellow { color: #F59E0B; }
-.text-lifex-green { color: #10B981; }
 
-/* 深色主题专用类 - 始终使用深色样式 */
-.bg-dark-card-fixed { background-color: #1A1625; }
-.bg-dark-secondary-fixed { background-color: #1A1625; }
-.text-text-primary-fixed { color: #FFFFFF; }
-.text-text-secondary-fixed { color: #22C55E; }
-.text-text-muted-fixed { color: #805AD5; }
-.border-dark-glass-fixed { border-color: #8B5CF620; }
-
-/* 主题切换动画只应用到使用主题变量的元素 */
-.theme-transition {
+/* 主题切换动画 */
+* {
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
