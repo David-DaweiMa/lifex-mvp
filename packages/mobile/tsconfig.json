@@ -4,6 +4,9 @@
   "exclude": ["**/node_modules", "**/Pods"],
   "compilerOptions": {
     "baseUrl": ".",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-native",
     "paths": {
       "@lifex/shared": ["../shared/src"],
       "@lifex/shared/*": ["../shared/src/*"]

@@ -12,6 +12,7 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          {/* @ts-ignore */}
           <ArrowLeft size={20} color="#71717a" />
           <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
@@ -44,6 +45,7 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
+            {/* @ts-ignore */}
             <Users size={24} color="#a855f7" />
             <Text style={styles.sectionTitle}>3. Personal Account Terms</Text>
           </View>
@@ -59,12 +61,14 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
+            {/* @ts-ignore */}
             <Briefcase size={24} color="#a855f7" />
             <Text style={styles.sectionTitle}>4. Business Account Terms</Text>
           </View>
           
           <View style={styles.warningBox}>
             <View style={styles.warningHeader}>
+              {/* @ts-ignore */}
               <Shield size={16} color="#fbbf24" />
               <Text style={styles.warningTitle}>Legal Compliance Requirements</Text>
             </View>

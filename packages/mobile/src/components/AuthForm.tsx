@@ -64,7 +64,7 @@ export default function AuthForm({ onAuthSuccess, onClose }: AuthFormProps) {
 
     setIsLoading(true);
     try {
-      let result;
+      let result: any;
       
       if (isLogin) {
         result = await mobileAuthService.loginUser(email.trim(), password);

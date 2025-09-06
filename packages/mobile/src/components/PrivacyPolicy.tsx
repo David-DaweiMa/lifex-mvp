@@ -12,6 +12,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          {/* @ts-ignore */}
           <ArrowLeft size={20} color="#71717a" />
           <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
@@ -24,6 +25,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
         
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
+            {/* @ts-ignore */}
             <Database size={24} color="#a855f7" />
             <Text style={styles.sectionTitle}>1. Information We Collect</Text>
           </View>
@@ -57,6 +59,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
+            {/* @ts-ignore */}
             <Eye size={24} color="#a855f7" />
             <Text style={styles.sectionTitle}>2. How We Use Your Information</Text>
           </View>
@@ -85,6 +88,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
+            {/* @ts-ignore */}
             <Cookie size={24} color="#a855f7" />
             <Text style={styles.sectionTitle}>4. Cookies and Tracking</Text>
           </View>
@@ -95,6 +99,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
+            {/* @ts-ignore */}
             <Shield size={24} color="#a855f7" />
             <Text style={styles.sectionTitle}>5. Data Security</Text>
           </View>
