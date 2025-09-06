@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">mobile</string>
+    <string name="app_name">LifeX</string>
+    
+    <!-- Permission descriptions -->
+    <string name="permission_location_description">LifeX uses your location to find nearby businesses and provide personalized recommendations based on your area.</string>
+    <string name="permission_camera_description">LifeX needs camera access to allow you to take photos for business reviews and profile pictures.</string>
+    <string name="permission_storage_description">LifeX needs access to your storage to let you select and upload images for business reviews and profile pictures.</string>
+    <string name="permission_microphone_description">LifeX may need microphone access for voice features and video recording capabilities.</string>
 </resources>

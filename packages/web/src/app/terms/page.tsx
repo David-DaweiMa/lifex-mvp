@@ -37,7 +37,7 @@ export default function TermsOfServicePage() {
             Terms of Service
           </h1>
           <p className="text-lg" style={{ color: darkTheme.text.secondary }}>
-            Last updated: August 25, 2025
+            Last updated: December 19, 2024
           </p>
         </div>
 
@@ -143,12 +143,38 @@ export default function TermsOfServicePage() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4" style={{ color: darkTheme.neon.purple }}>
-              7. Contact Information
+              7. App Store Terms
+            </h2>
+            <p style={{ color: darkTheme.text.secondary }} className="mb-4">
+              This app is distributed through the Apple App Store and Google Play Store. By downloading and using this app, you agree to:
+            </p>
+            <ul className="list-disc pl-6 space-y-2" style={{ color: darkTheme.text.secondary }}>
+              <li>Comply with the respective app store terms of service</li>
+              <li>Use the app only on devices you own or control</li>
+              <li>Not attempt to reverse engineer or modify the app</li>
+              <li>Respect intellectual property rights</li>
+            </ul>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4" style={{ color: darkTheme.neon.purple }}>
+              8. Changes to Terms
+            </h2>
+            <p style={{ color: darkTheme.text.secondary }}>
+              We reserve the right to modify these terms at any time. We will notify users of significant changes through the app or via email. Continued use of the service after changes constitutes acceptance of the new terms.
+            </p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4" style={{ color: darkTheme.neon.purple }}>
+              9. Contact Information
             </h2>
             <p style={{ color: darkTheme.text.secondary }}>
               For questions about these Terms of Service, please contact us at:
               <br />
               Email: legal@lifex.co.nz
+              <br />
+              Website: https://www.lifex.co.nz
               <br />
               Address: Auckland, New Zealand
             </p>

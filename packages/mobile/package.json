@@ -1,6 +1,6 @@
 {
   "name": "@lifex/mobile",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -15,7 +15,9 @@
     "build": "echo 'React Native does not require build step'",
     "dev": "react-native start",
     "clean": "echo 'React Native does not require clean step'",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "generate-icons": "node scripts/generate-icons.js",
+    "preview-icons": "open assets/icon-preview.html"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",

@@ -13,6 +13,8 @@ import {
   Platform,
 } from 'react-native';
 import { mobileAuthService } from '../services/authService';
+import PrivacyPolicy from './PrivacyPolicy';
+import TermsOfService from './TermsOfService';
 
 interface UserSettingsProps {
   user: any;
@@ -27,7 +29,9 @@ export default function UserSettings({ user, onUpdate, onClose }: UserSettingsPr
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'legal'>('profile');
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [showTermsOfService, setShowTermsOfService] = useState(false);
 
   const handleUpdateProfile = async () => {
     if (!username.trim()) {
@@ -198,6 +202,46 @@ export default function UserSettings({ user, onUpdate, onClose }: UserSettingsPr
     </View>
   );
 
+  const renderLegalTab = () => (
+    <View style={styles.tabContent}>
+      <Text style={styles.legalTitle}>Legal Information</Text>
+      <Text style={styles.legalDescription}>
+        Please review our legal documents to understand your rights and our responsibilities.
+      </Text>
+      
+      <TouchableOpacity
+        style={styles.legalButton}
+        onPress={() => setShowPrivacyPolicy(true)}
+      >
+        <Text style={styles.legalButtonText}>Privacy Policy</Text>
+        <Text style={styles.legalButtonSubtext}>How we collect and use your data</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.legalButton}
+        onPress={() => setShowTermsOfService(true)}
+      >
+        <Text style={styles.legalButtonText}>Terms of Service</Text>
+        <Text style={styles.legalButtonSubtext}>Rules and guidelines for using LifeX</Text>
+      </TouchableOpacity>
+
+      <View style={styles.contactInfo}>
+        <Text style={styles.contactTitle}>Contact Us</Text>
+        <Text style={styles.contactText}>Email: legal@lifex.co.nz</Text>
+        <Text style={styles.contactText}>Website: https://www.lifex.co.nz</Text>
+        <Text style={styles.contactText}>Address: Auckland, New Zealand</Text>
+      </View>
+    </View>
+  );
+
+  if (showPrivacyPolicy) {
+    return <PrivacyPolicy onBack={() => setShowPrivacyPolicy(false)} />;
+  }
+
+  if (showTermsOfService) {
+    return <TermsOfService onBack={() => setShowTermsOfService(false)} />;
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -231,11 +275,22 @@ export default function UserSettings({ user, onUpdate, onClose }: UserSettingsPr
               修改密码
             </Text>
           </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'legal' && styles.activeTab]}
+            onPress={() => setActiveTab('legal')}
+          >
+            <Text style={[styles.tabText, activeTab === 'legal' && styles.activeTabText]}>
+              Legal
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* 内容区域 */}
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {activeTab === 'profile' ? renderProfileTab() : renderPasswordTab()}
+          {activeTab === 'profile' && renderProfileTab()}
+          {activeTab === 'password' && renderPasswordTab()}
+          {activeTab === 'legal' && renderLegalTab()}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -357,5 +412,52 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: '600',
+  },
+  legalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  legalDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  legalButton: {
+    backgroundColor: '#f8f8f8',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 12,
+  },
+  legalButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  legalButtonSubtext: {
+    fontSize: 14,
+    color: '#666',
+  },
+  contactInfo: {
+    marginTop: 20,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  contactTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  contactText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
   },
 });

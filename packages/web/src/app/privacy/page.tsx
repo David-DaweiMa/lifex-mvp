@@ -37,7 +37,7 @@ export default function PrivacyPolicyPage() {
             Privacy Policy
           </h1>
           <p className="text-lg" style={{ color: darkTheme.text.secondary }}>
-            Last updated: August 25, 2025
+            Last updated: December 19, 2024
           </p>
         </div>
 
@@ -56,8 +56,10 @@ export default function PrivacyPolicyPage() {
             <ul className="list-disc pl-6 space-y-2" style={{ color: darkTheme.text.secondary }}>
               <li>Name, email address, and contact information</li>
               <li>Account preferences and settings</li>
-              <li>Location data (with your permission)</li>
+              <li>Location data (with your permission) - used for location-based recommendations</li>
               <li>Communication history and support interactions</li>
+              <li>Camera access (with your permission) - used for photo capture features</li>
+              <li>Device information and app usage analytics</li>
             </ul>
 
             <h3 className="text-lg font-semibold mb-3 mt-6" style={{ color: darkTheme.text.primary }}>
@@ -149,12 +151,32 @@ export default function PrivacyPolicyPage() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4" style={{ color: darkTheme.neon.purple }}>
-              7. Contact Us
+              7. Children's Privacy
+            </h2>
+            <p style={{ color: darkTheme.text.secondary }}>
+              LifeX is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us immediately.
+            </p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4" style={{ color: darkTheme.neon.purple }}>
+              8. Changes to This Policy
+            </h2>
+            <p style={{ color: darkTheme.text.secondary }}>
+              We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date. You are advised to review this Privacy Policy periodically for any changes.
+            </p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4" style={{ color: darkTheme.neon.purple }}>
+              9. Contact Us
             </h2>
             <p style={{ color: darkTheme.text.secondary }}>
               For privacy-related questions or to exercise your rights, contact us at:
               <br />
               Email: privacy@lifex.co.nz
+              <br />
+              Website: https://www.lifex.co.nz
               <br />
               Address: Auckland, New Zealand
             </p>
