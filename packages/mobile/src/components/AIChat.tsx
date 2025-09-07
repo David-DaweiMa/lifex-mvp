@@ -221,7 +221,7 @@ export default function AIChat() {
             <View style={[styles.messageContainer, styles.aiMessage]}>
               <View style={[styles.messageBubble, styles.aiBubble]}>
                 <View style={styles.typingIndicator}>
-                  <ActivityIndicator size="small" color="#007AFF" />
+                  <ActivityIndicator size="small" color="#a855f7" />
                   <Text style={styles.typingText}>AI正在思考...</Text>
                 </View>
               </View>
@@ -235,8 +235,8 @@ export default function AIChat() {
             style={styles.textInput}
             value={inputText}
             onChangeText={setInputText}
-            placeholder="输入你的问题..."
-            placeholderTextColor="#999"
+            placeholder="Ask me anything about New Zealand..."
+            placeholderTextColor="#888"
             multiline
             maxLength={500}
             onSubmitEditing={handleSendMessage}
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   userBubble: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#a855f7',
     borderBottomRightRadius: 5,
   },
   aiBubble: {
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   },
   typingText: {
     marginLeft: 10,
-    color: '#666',
+    color: '#cccccc',
     fontSize: 14,
     fontStyle: 'italic',
   },
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   sendButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#a855f7',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 20,
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sendButtonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#666',
   },
   sendButtonText: {
     color: 'white',
