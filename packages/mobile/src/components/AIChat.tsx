@@ -147,7 +147,10 @@ export default function AIChat() {
       >
         {/* 头部 */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>AI 对话</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.headerTitle}>LifeX MVP</Text>
+            <Text style={styles.headerDescription}>与AI助手对话，获得智能建议</Text>
+          </View>
           <TouchableOpacity style={styles.clearButton} onPress={clearChat}>
             <Text style={styles.clearButtonText}>清除</Text>
           </TouchableOpacity>
@@ -268,10 +271,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
+  headerLeft: {
+    flex: 1,
+  },
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
     color: '#333',
+  },
+  headerDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
   },
   clearButton: {
     paddingHorizontal: 15,

@@ -96,8 +96,10 @@ export default function CameraFeatures() {
     <View style={styles.container}>
       {/* 头部 */}
       <View style={styles.header}>
-        <Text style={styles.title}>相机功能</Text>
-        <Text style={styles.subtitle}>拍照 • 录像 • 媒体管理</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.title}>LifeX MVP</Text>
+          <Text style={styles.subtitle}>使用AI增强的相机功能</Text>
+        </View>
       </View>
 
       {/* 快速操作 */}
@@ -249,6 +251,9 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+  },
+  headerLeft: {
+    flex: 1,
   },
   title: {
     fontSize: 24,

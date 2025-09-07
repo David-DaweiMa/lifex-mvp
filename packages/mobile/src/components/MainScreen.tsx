@@ -142,9 +142,6 @@ export default function MainScreen() {
         <Text style={styles.welcomeTitle}>
           {currentUser ? `欢迎回来，${currentUser.username || currentUser.email}!` : '欢迎使用 LifeX MVP!'}
         </Text>
-        <Text style={styles.welcomeSubtitle}>
-          智能推荐 • AI助手 • 个性化服务
-        </Text>
       </View>
 
       <View style={styles.statusSection}>

@@ -220,7 +220,10 @@ export default function AIRecommendations() {
     <SafeAreaView style={styles.container}>
       {/* 头部 */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>智能推荐</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerTitle}>LifeX MVP</Text>
+          <Text style={styles.headerDescription}>发现你社区的热门内容</Text>
+        </View>
         <View style={styles.headerActions}>
           <TouchableOpacity 
             style={styles.locationButton} 
@@ -339,10 +342,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
+  headerLeft: {
+    flex: 1,
+  },
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
     color: '#333',
+  },
+  headerDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
   },
   headerActions: {
     flexDirection: 'row',
