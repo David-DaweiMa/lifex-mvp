@@ -37,6 +37,26 @@ export default function MainScreen() {
   const [showLocationPermission, setShowLocationPermission] = useState(false);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
+  // 各页面的介绍文字
+  const getPageDescription = (tab: string) => {
+    switch (tab) {
+      case 'home':
+        return '智能推荐 • AI助手 • 个性化服务';
+      case 'ai-chat':
+        return '与AI助手对话，获得智能建议';
+      case 'recommendations':
+        return '发现你社区的热门内容';
+      case 'profile':
+        return '管理你的个人资料和设置';
+      case 'notifications':
+        return '查看重要通知和更新';
+      case 'camera':
+        return '使用AI增强的相机功能';
+      default:
+        return '智能推荐 • AI助手 • 个性化服务';
+    }
+  };
+
   useEffect(() => {
     checkUserSession();
     checkAIStatus();
@@ -288,7 +308,10 @@ export default function MainScreen() {
       
               {/* 顶部导航栏 */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>LifeX MVP</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.headerTitle}>LifeX MVP</Text>
+            <Text style={styles.headerDescription}>{getPageDescription(activeTab)}</Text>
+          </View>
           <View style={styles.headerActions}>
             <TouchableOpacity
               style={styles.notificationButton}
@@ -414,10 +437,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  headerLeft: {
+    flex: 1,
+  },
   headerTitle: {
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  headerDescription: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 14,
+    marginTop: 2,
   },
   headerActions: {
     flexDirection: 'row',
