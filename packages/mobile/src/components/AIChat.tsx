@@ -260,16 +260,16 @@ export default function AIChat() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#1a1a1a',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#2a2a2a',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#444',
   },
   headerLeft: {
     flex: 1,
@@ -277,44 +277,44 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: '#ffffff',
   },
   headerDescription: {
     fontSize: 14,
-    color: '#666',
+    color: '#cccccc',
     marginTop: 2,
   },
   clearButton: {
     paddingHorizontal: 15,
     paddingVertical: 8,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#444',
     borderRadius: 15,
   },
   clearButtonText: {
-    color: '#666',
+    color: '#cccccc',
     fontSize: 14,
   },
   quickQuestions: {
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#2a2a2a',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#444',
   },
   quickQuestionsTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#ffffff',
     marginBottom: 15,
   },
   quickQuestionButton: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#444',
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 20,
     marginRight: 10,
   },
   quickQuestionText: {
-    color: '#333',
+    color: '#ffffff',
     fontSize: 14,
   },
   messagesContainer: {
@@ -342,11 +342,11 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 5,
   },
   aiBubble: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     borderBottomLeftRadius: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 2,
   },
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     fontSize: 12,
-    color: '#999',
+    color: '#cccccc',
     alignSelf: 'flex-end',
   },
   typingIndicator: {
@@ -379,20 +379,21 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#2a2a2a',
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: '#444',
     alignItems: 'flex-end',
   },
   textInput: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#444',
     borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 16,
     maxHeight: 100,
     marginRight: 10,
+    color: '#ffffff',
   },
   sendButton: {
     backgroundColor: '#007AFF',
