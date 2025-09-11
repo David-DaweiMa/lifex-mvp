@@ -1,0 +1,502 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+// 类型定义
+interface Special {
+  id: string;
+  businessName: string;
+  businessType: string;
+  title: string;
+  description: string;
+  originalPrice: number;
+  discountPrice: number;
+  discountPercent: number;
+  category: string;
+  location: string;
+  distance: string;
+  rating: number;
+  reviewCount: number;
+  image: string;
+  validUntil: string;
+  isVerified: boolean;
+  views: number;
+  claimed: number;
+  maxClaims?: number;
+  tags: string[];
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    console.log('开始生成specials测试数据...');
+
+    // 创建Supabase客户端
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // 生成20条specials测试数据
+    const specialsData: Special[] = [
+      {
+        id: 'special-001',
+        businessName: 'Café Supreme',
+        businessType: 'Coffee & Workspace',
+        title: '50% Off All Coffee Drinks',
+        description: 'Enjoy our premium coffee blends at half price. Perfect for your morning routine!',
+        originalPrice: 8.50,
+        discountPrice: 4.25,
+        discountPercent: 50,
+        category: 'food',
+        location: '118 Ponsonby Road, Auckland',
+        distance: '0.3km',
+        rating: 4.8,
+        reviewCount: 234,
+        image: 'from-amber-400 to-orange-500',
+        validUntil: '2024-02-15',
+        isVerified: true,
+        views: 1250,
+        claimed: 89,
+        maxClaims: 200,
+        tags: ['Coffee', 'Breakfast', 'Workspace']
+      },
+      {
+        id: 'special-002',
+        businessName: 'Sushi Master',
+        businessType: 'Japanese Restaurant',
+        title: 'Buy 2 Get 1 Free Sushi Rolls',
+        description: 'Fresh sushi made daily. Get your third roll free with any two roll purchase.',
+        originalPrice: 15.00,
+        discountPrice: 10.00,
+        discountPercent: 33,
+        category: 'food',
+        location: '45 Queen Street, Auckland',
+        distance: '0.8km',
+        rating: 4.6,
+        reviewCount: 189,
+        image: 'from-red-400 to-pink-500',
+        validUntil: '2024-02-20',
+        isVerified: true,
+        views: 980,
+        claimed: 156,
+        maxClaims: 300,
+        tags: ['Sushi', 'Japanese', 'Lunch']
+      },
+      {
+        id: 'special-003',
+        businessName: 'Fitness First',
+        businessType: 'Gym & Fitness',
+        title: 'Free 7-Day Trial + 20% Off Membership',
+        description: 'Start your fitness journey with a free week trial, then get 20% off your first month.',
+        originalPrice: 89.00,
+        discountPrice: 71.20,
+        discountPercent: 20,
+        category: 'fitness',
+        location: '78 Newmarket Road, Auckland',
+        distance: '1.2km',
+        rating: 4.4,
+        reviewCount: 312,
+        image: 'from-green-400 to-blue-500',
+        validUntil: '2024-02-25',
+        isVerified: true,
+        views: 2100,
+        claimed: 45,
+        maxClaims: 100,
+        tags: ['Fitness', 'Gym', 'Health']
+      },
+      {
+        id: 'special-004',
+        businessName: 'Beauty Salon Pro',
+        businessType: 'Beauty & Wellness',
+        title: '30% Off Haircut & Styling',
+        description: 'Professional haircut and styling service with our experienced stylists.',
+        originalPrice: 65.00,
+        discountPrice: 45.50,
+        discountPercent: 30,
+        category: 'beauty',
+        location: '23 Parnell Road, Auckland',
+        distance: '0.9km',
+        rating: 4.7,
+        reviewCount: 156,
+        image: 'from-purple-400 to-pink-500',
+        validUntil: '2024-02-18',
+        isVerified: true,
+        views: 890,
+        claimed: 23,
+        maxClaims: 50,
+        tags: ['Hair', 'Beauty', 'Styling']
+      },
+      {
+        id: 'special-005',
+        businessName: 'Pizza Palace',
+        businessType: 'Italian Restaurant',
+        title: 'Buy 1 Get 1 Free Pizza',
+        description: 'Authentic Italian pizzas made with fresh ingredients. Get your second pizza free!',
+        originalPrice: 24.00,
+        discountPrice: 12.00,
+        discountPercent: 50,
+        category: 'food',
+        location: '67 Dominion Road, Auckland',
+        distance: '1.5km',
+        rating: 4.5,
+        reviewCount: 278,
+        image: 'from-yellow-400 to-red-500',
+        validUntil: '2024-02-22',
+        isVerified: true,
+        views: 1450,
+        claimed: 78,
+        maxClaims: 150,
+        tags: ['Pizza', 'Italian', 'Dinner']
+      },
+      {
+        id: 'special-006',
+        businessName: 'Yoga Studio Zen',
+        businessType: 'Wellness & Yoga',
+        title: 'First Month 50% Off',
+        description: 'Find your inner peace with our expert yoga instructors. Perfect for beginners!',
+        originalPrice: 120.00,
+        discountPrice: 60.00,
+        discountPercent: 50,
+        category: 'fitness',
+        location: '34 Mount Eden Road, Auckland',
+        distance: '0.7km',
+        rating: 4.9,
+        reviewCount: 145,
+        image: 'from-teal-400 to-green-500',
+        validUntil: '2024-02-28',
+        isVerified: true,
+        views: 680,
+        claimed: 34,
+        maxClaims: 80,
+        tags: ['Yoga', 'Wellness', 'Meditation']
+      },
+      {
+        id: 'special-007',
+        businessName: 'Tech Repair Hub',
+        businessType: 'Electronics Repair',
+        title: '20% Off Phone Repairs',
+        description: 'Professional phone and tablet repairs with warranty. Fast and reliable service.',
+        originalPrice: 80.00,
+        discountPrice: 64.00,
+        discountPercent: 20,
+        category: 'services',
+        location: '89 Symonds Street, Auckland',
+        distance: '1.1km',
+        rating: 4.3,
+        reviewCount: 92,
+        image: 'from-blue-400 to-indigo-500',
+        validUntil: '2024-02-16',
+        isVerified: true,
+        views: 420,
+        claimed: 12,
+        maxClaims: 30,
+        tags: ['Repair', 'Electronics', 'Phone']
+      },
+      {
+        id: 'special-008',
+        businessName: 'Fashion Boutique',
+        businessType: 'Clothing Store',
+        title: '30% Off All Summer Dresses',
+        description: 'Beautiful summer collection with latest fashion trends. Limited time offer!',
+        originalPrice: 95.00,
+        discountPrice: 66.50,
+        discountPercent: 30,
+        category: 'shopping',
+        location: '156 High Street, Auckland',
+        distance: '0.4km',
+        rating: 4.6,
+        reviewCount: 203,
+        image: 'from-pink-400 to-rose-500',
+        validUntil: '2024-02-19',
+        isVerified: true,
+        views: 1100,
+        claimed: 67,
+        maxClaims: 120,
+        tags: ['Fashion', 'Dresses', 'Summer']
+      },
+      {
+        id: 'special-009',
+        businessName: 'Thai Garden',
+        businessType: 'Thai Restaurant',
+        title: 'Free Appetizer with Main Course',
+        description: 'Authentic Thai cuisine with fresh ingredients. Complimentary spring rolls with any main dish.',
+        originalPrice: 18.00,
+        discountPrice: 18.00,
+        discountPercent: 0,
+        category: 'food',
+        location: '201 K Road, Auckland',
+        distance: '0.6km',
+        rating: 4.7,
+        reviewCount: 167,
+        image: 'from-orange-400 to-yellow-500',
+        validUntil: '2024-02-21',
+        isVerified: true,
+        views: 750,
+        claimed: 45,
+        maxClaims: 100,
+        tags: ['Thai', 'Asian', 'Dinner']
+      },
+      {
+        id: 'special-010',
+        businessName: 'Massage Therapy Center',
+        businessType: 'Spa & Wellness',
+        title: '25% Off Deep Tissue Massage',
+        description: 'Relax and rejuvenate with our professional deep tissue massage therapy.',
+        originalPrice: 120.00,
+        discountPrice: 90.00,
+        discountPercent: 25,
+        category: 'beauty',
+        location: '78 Remuera Road, Auckland',
+        distance: '1.8km',
+        rating: 4.8,
+        reviewCount: 134,
+        image: 'from-emerald-400 to-teal-500',
+        validUntil: '2024-02-24',
+        isVerified: true,
+        views: 520,
+        claimed: 28,
+        maxClaims: 60,
+        tags: ['Massage', 'Spa', 'Relaxation']
+      },
+      {
+        id: 'special-011',
+        businessName: 'Burger Joint',
+        businessType: 'American Restaurant',
+        title: 'Combo Meal 40% Off',
+        description: 'Delicious burgers with fries and drink. Perfect for lunch or dinner!',
+        originalPrice: 16.50,
+        discountPrice: 9.90,
+        discountPercent: 40,
+        category: 'food',
+        location: '123 Karangahape Road, Auckland',
+        distance: '0.5km',
+        rating: 4.4,
+        reviewCount: 189,
+        image: 'from-red-500 to-orange-600',
+        validUntil: '2024-02-17',
+        isVerified: true,
+        views: 980,
+        claimed: 56,
+        maxClaims: 120,
+        tags: ['Burger', 'American', 'Fast Food']
+      },
+      {
+        id: 'special-012',
+        businessName: 'CrossFit Gym',
+        businessType: 'Fitness Center',
+        title: 'Free Week Trial + 15% Off',
+        description: 'High-intensity workouts with certified trainers. Try us for a week free!',
+        originalPrice: 95.00,
+        discountPrice: 80.75,
+        discountPercent: 15,
+        category: 'fitness',
+        location: '45 Great South Road, Auckland',
+        distance: '2.1km',
+        rating: 4.5,
+        reviewCount: 223,
+        image: 'from-gray-400 to-slate-500',
+        validUntil: '2024-02-26',
+        isVerified: true,
+        views: 1350,
+        claimed: 89,
+        maxClaims: 200,
+        tags: ['CrossFit', 'HIIT', 'Strength']
+      },
+      {
+        id: 'special-013',
+        businessName: 'Nail Art Studio',
+        businessType: 'Beauty Salon',
+        title: 'Manicure & Pedicure Combo 35% Off',
+        description: 'Professional nail care with beautiful designs. Pamper yourself today!',
+        originalPrice: 75.00,
+        discountPrice: 48.75,
+        discountPercent: 35,
+        category: 'beauty',
+        location: '67 New North Road, Auckland',
+        distance: '1.3km',
+        rating: 4.6,
+        reviewCount: 98,
+        image: 'from-purple-500 to-pink-600',
+        validUntil: '2024-02-23',
+        isVerified: true,
+        views: 450,
+        claimed: 23,
+        maxClaims: 50,
+        tags: ['Nails', 'Manicure', 'Pedicure']
+      },
+      {
+        id: 'special-014',
+        businessName: 'Bookstore Cafe',
+        businessType: 'Cafe & Bookstore',
+        title: 'Coffee + Pastry Combo 25% Off',
+        description: 'Enjoy a perfect reading experience with our coffee and pastry combo.',
+        originalPrice: 12.00,
+        discountPrice: 9.00,
+        discountPercent: 25,
+        category: 'food',
+        location: '234 Ponsonby Road, Auckland',
+        distance: '0.2km',
+        rating: 4.7,
+        reviewCount: 156,
+        image: 'from-amber-500 to-orange-600',
+        validUntil: '2024-02-20',
+        isVerified: true,
+        views: 680,
+        claimed: 34,
+        maxClaims: 80,
+        tags: ['Coffee', 'Books', 'Cafe']
+      },
+      {
+        id: 'special-015',
+        businessName: 'Car Wash Express',
+        businessType: 'Automotive Services',
+        title: 'Premium Wash 30% Off',
+        description: 'Complete car wash service with wax and interior cleaning.',
+        originalPrice: 45.00,
+        discountPrice: 31.50,
+        discountPercent: 30,
+        category: 'services',
+        location: '89 Sandringham Road, Auckland',
+        distance: '1.7km',
+        rating: 4.2,
+        reviewCount: 87,
+        image: 'from-cyan-400 to-blue-500',
+        validUntil: '2024-02-18',
+        isVerified: true,
+        views: 320,
+        claimed: 18,
+        maxClaims: 40,
+        tags: ['Car Wash', 'Automotive', 'Cleaning']
+      },
+      {
+        id: 'special-016',
+        businessName: 'Shoe Store',
+        businessType: 'Footwear Retail',
+        title: 'Buy 2 Get 1 Free Sneakers',
+        description: 'Latest sneaker collection with comfort and style. Mix and match any three pairs!',
+        originalPrice: 180.00,
+        discountPrice: 120.00,
+        discountPercent: 33,
+        category: 'shopping',
+        location: '156 Queen Street, Auckland',
+        distance: '0.9km',
+        rating: 4.4,
+        reviewCount: 145,
+        image: 'from-indigo-400 to-purple-500',
+        validUntil: '2024-02-25',
+        isVerified: true,
+        views: 890,
+        claimed: 45,
+        maxClaims: 100,
+        tags: ['Shoes', 'Sneakers', 'Fashion']
+      },
+      {
+        id: 'special-017',
+        businessName: 'Indian Spice House',
+        businessType: 'Indian Restaurant',
+        title: 'Lunch Buffet 40% Off',
+        description: 'Authentic Indian cuisine with over 20 dishes. All you can eat lunch special!',
+        originalPrice: 25.00,
+        discountPrice: 15.00,
+        discountPercent: 40,
+        category: 'food',
+        location: '78 Dominion Road, Auckland',
+        distance: '1.4km',
+        rating: 4.6,
+        reviewCount: 198,
+        image: 'from-yellow-500 to-orange-600',
+        validUntil: '2024-02-19',
+        isVerified: true,
+        views: 1200,
+        claimed: 78,
+        maxClaims: 150,
+        tags: ['Indian', 'Buffet', 'Lunch']
+      },
+      {
+        id: 'special-018',
+        businessName: 'Pilates Studio',
+        businessType: 'Fitness & Wellness',
+        title: 'First Class Free + 20% Off Package',
+        description: 'Low-impact exercise for strength and flexibility. Perfect for all fitness levels.',
+        originalPrice: 85.00,
+        discountPrice: 68.00,
+        discountPercent: 20,
+        category: 'fitness',
+        location: '34 Parnell Rise, Auckland',
+        distance: '0.8km',
+        rating: 4.8,
+        reviewCount: 112,
+        image: 'from-green-500 to-emerald-600',
+        validUntil: '2024-02-22',
+        isVerified: true,
+        views: 560,
+        claimed: 29,
+        maxClaims: 60,
+        tags: ['Pilates', 'Fitness', 'Wellness']
+      },
+      {
+        id: 'special-019',
+        businessName: 'Hair Color Studio',
+        businessType: 'Hair Salon',
+        title: 'Hair Coloring 25% Off',
+        description: 'Professional hair coloring with premium products. Transform your look today!',
+        originalPrice: 150.00,
+        discountPrice: 112.50,
+        discountPercent: 25,
+        category: 'beauty',
+        location: '201 Newmarket Road, Auckland',
+        distance: '1.6km',
+        rating: 4.7,
+        reviewCount: 89,
+        image: 'from-rose-400 to-pink-500',
+        validUntil: '2024-02-21',
+        isVerified: true,
+        views: 420,
+        claimed: 22,
+        maxClaims: 45,
+        tags: ['Hair Color', 'Styling', 'Beauty']
+      },
+      {
+        id: 'special-020',
+        businessName: 'Laundry Service',
+        businessType: 'Cleaning Services',
+        title: 'Wash & Fold 30% Off',
+        description: 'Professional laundry service with same-day pickup and delivery.',
+        originalPrice: 35.00,
+        discountPrice: 24.50,
+        discountPercent: 30,
+        category: 'services',
+        location: '123 Mount Albert Road, Auckland',
+        distance: '2.3km',
+        rating: 4.3,
+        reviewCount: 76,
+        image: 'from-blue-500 to-indigo-600',
+        validUntil: '2024-02-17',
+        isVerified: true,
+        views: 280,
+        claimed: 15,
+        maxClaims: 35,
+        tags: ['Laundry', 'Cleaning', 'Service']
+      }
+    ];
+
+    // 将数据存储到数据库（这里我们模拟存储，实际项目中需要创建相应的表）
+    console.log(`生成了 ${specialsData.length} 条specials测试数据`);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Specials测试数据生成成功',
+      data: {
+        specials: {
+          count: specialsData.length,
+          data: specialsData
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('生成specials数据时出错:', error);
+    return NextResponse.json(
+      { success: false, message: '生成specials数据失败', error: (error as Error).message },
+      { status: 500 }
+    );
+  }
+}
