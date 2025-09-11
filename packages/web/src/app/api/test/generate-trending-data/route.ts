@@ -6,7 +6,7 @@ export async function POST() {
   try {
     console.log('开始生成trending测试数据...');
 
-    // 1. 创建测试用户
+    // 1. 创建更多测试用户
     const users = [
       {
         id: '11111111-1111-1111-1111-111111111111',
@@ -77,6 +77,49 @@ export async function POST() {
         verification_status: 'none',
         is_active: true,
         created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      // 新增用户
+      {
+        id: '66666666-6666-6666-6666-666666666666',
+        email: 'travel.explorer@example.com',
+        username: 'travel_explorer',
+        full_name: 'Alex Thompson',
+        avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+        bio: 'Travel blogger and adventure seeker. Exploring Auckland one neighborhood at a time! 🌍✈️',
+        location: { city: 'Auckland', country: 'New Zealand', coordinates: { lat: -36.8485, lng: 174.7633 } },
+        subscription_level: 'essential',
+        has_business_features: false,
+        verification_status: 'none',
+        is_active: true,
+        created_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: '77777777-7777-7777-7777-777777777777',
+        email: 'music.lover@example.com',
+        username: 'music_lover',
+        full_name: 'Sophie Martinez',
+        avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
+        bio: 'Music producer and live music enthusiast. Always on the lookout for great venues and emerging artists! 🎵🎤',
+        location: { city: 'Auckland', country: 'New Zealand', coordinates: { lat: -36.8485, lng: 174.7633 } },
+        subscription_level: 'premium',
+        has_business_features: true,
+        verification_status: 'approved',
+        is_active: true,
+        created_at: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: '88888888-8888-8888-8888-888888888888',
+        email: 'art.creator@example.com',
+        username: 'art_creator',
+        full_name: 'James Wilson',
+        avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face',
+        bio: 'Digital artist and gallery curator. Supporting local art scene and creative communities! 🎨🖼️',
+        location: { city: 'Auckland', country: 'New Zealand', coordinates: { lat: -36.8485, lng: 174.7633 } },
+        subscription_level: 'essential',
+        has_business_features: false,
+        verification_status: 'none',
+        is_active: true,
+        created_at: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString()
       }
     ];
 
@@ -96,7 +139,7 @@ export async function POST() {
 
     console.log(`成功创建/更新 ${insertedUsers?.length || 0} 个用户`);
 
-    // 2. 创建trending帖子
+    // 2. 创建20个trending帖子
     const posts = [
       {
         id: 'post-001',
@@ -179,6 +222,252 @@ export async function POST() {
         share_count: 15,
         is_active: true,
         created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-006',
+        author_id: '66666666-6666-6666-6666-666666666666',
+        content: 'Hidden gem alert! This tiny coffee cart in the CBD serves the most amazing cold brew. The barista is so passionate about coffee and always remembers my order. Perfect for a quick caffeine fix during lunch break! ☕️',
+        images: ['https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&h=600&fit=crop'],
+        hashtags: ['Coffee', 'ColdBrew', 'CBD', 'HiddenGem', 'LunchBreak'],
+        location: { description: 'Auckland CBD', coordinates: { lat: -36.8485, lng: 174.7633 } },
+        view_count: 634,
+        like_count: 67,
+        comment_count: 14,
+        share_count: 6,
+        is_active: true,
+        created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-007',
+        author_id: '22222222-2222-2222-2222-222222222222',
+        content: 'Morning run along the waterfront is the best way to start the day! The path is well-maintained and the views are stunning. Saw so many other runners and cyclists - great community vibe! 🏃‍♂️🌅',
+        images: [
+          'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=800&h=600&fit=crop',
+          'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop'
+        ],
+        hashtags: ['Running', 'Waterfront', 'Morning', 'Community', 'Exercise'],
+        location: { description: 'Auckland Waterfront', coordinates: { lat: -36.8485, lng: 174.7633 } },
+        view_count: 1123,
+        like_count: 145,
+        comment_count: 38,
+        share_count: 22,
+        is_active: true,
+        created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-008',
+        author_id: '33333333-3333-3333-3333-333333333333',
+        content: 'This new restaurant in Mt Eden is absolutely incredible! The chef is a master of fusion cuisine and every dish is a work of art. The wine pairing was perfect too. Definitely worth the wait for a table! 🍷🍽️',
+        images: [
+          'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop',
+          'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=600&fit=crop'
+        ],
+        hashtags: ['Restaurant', 'Fusion', 'MtEden', 'Wine', 'FineDining'],
+        location: { description: 'Mt Eden, Auckland', coordinates: { lat: -36.8785, lng: 174.7633 } },
+        view_count: 1678,
+        like_count: 234,
+        comment_count: 56,
+        share_count: 41,
+        is_active: true,
+        created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-009',
+        author_id: '44444444-4444-4444-4444-444444444444',
+        content: 'Tried this new skincare treatment and my skin is glowing! The therapist was so knowledgeable and explained everything step by step. The products they use are all natural and the results speak for themselves! ✨',
+        images: ['https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&h=600&fit=crop'],
+        hashtags: ['Skincare', 'Natural', 'Treatment', 'Glowing', 'Beauty'],
+        location: { description: 'Ponsonby, Auckland', coordinates: { lat: -36.8485, lng: 174.7633 } },
+        view_count: 987,
+        like_count: 123,
+        comment_count: 29,
+        share_count: 17,
+        is_active: true,
+        created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-010',
+        author_id: '55555555-5555-5555-5555-555555555555',
+        content: 'This new app for tracking local events is a game changer! Found so many cool things happening in Auckland that I never knew about. The interface is clean and the notifications are perfectly timed. Highly recommend! 📱',
+        images: ['https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&h=600&fit=crop'],
+        hashtags: ['App', 'Events', 'Local', 'Notifications', 'Technology'],
+        location: { description: 'Auckland', coordinates: { lat: -36.8485, lng: 174.7633 } },
+        view_count: 756,
+        like_count: 89,
+        comment_count: 21,
+        share_count: 11,
+        is_active: true,
+        created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-011',
+        author_id: '77777777-7777-7777-7777-777777777777',
+        content: 'Amazing live music venue in Kingsland! The acoustics are perfect and the atmosphere is electric. Discovered some incredible local bands tonight. The craft beer selection is also top-notch! 🎵🍺',
+        images: [
+          'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
+          'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=600&fit=crop'
+        ],
+        hashtags: ['LiveMusic', 'Kingsland', 'LocalBands', 'CraftBeer', 'Entertainment'],
+        location: { description: 'Kingsland, Auckland', coordinates: { lat: -36.8685, lng: 174.7433 } },
+        view_count: 1345,
+        like_count: 178,
+        comment_count: 42,
+        share_count: 25,
+        is_active: true,
+        created_at: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-012',
+        author_id: '88888888-8888-8888-8888-888888888888',
+        content: 'Incredible art exhibition at the Auckland Art Gallery! The contemporary pieces are thought-provoking and the curation is flawless. Spent 3 hours here and could have stayed longer. Free entry on Sundays! 🎨🖼️',
+        images: [
+          'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=600&fit=crop',
+          'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop'
+        ],
+        hashtags: ['Art', 'Gallery', 'Contemporary', 'Exhibition', 'Culture'],
+        location: { description: 'Auckland Art Gallery', coordinates: { lat: -36.8485, lng: 174.7633 } },
+        view_count: 892,
+        like_count: 156,
+        comment_count: 33,
+        share_count: 19,
+        is_active: true,
+        created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-013',
+        author_id: '11111111-1111-1111-1111-111111111111',
+        content: 'Weekend farmers market haul! Fresh organic produce, artisan bread, and the most delicious honey. The vendors are so friendly and passionate about their products. Supporting local farmers feels amazing! 🥕🍯',
+        images: [
+          'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=800&h=600&fit=crop',
+          'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop'
+        ],
+        hashtags: ['FarmersMarket', 'Organic', 'Local', 'Fresh', 'SupportLocal'],
+        location: { description: 'Britomart Market, Auckland', coordinates: { lat: -36.8485, lng: 174.7633 } },
+        view_count: 723,
+        like_count: 98,
+        comment_count: 24,
+        share_count: 13,
+        is_active: true,
+        created_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-014',
+        author_id: '66666666-6666-6666-6666-666666666666',
+        content: 'Epic sunset hike up One Tree Hill! The 360-degree views of Auckland are absolutely breathtaking. Perfect weather and great company. This is why I love living in this city! 🌅🏔️',
+        images: [
+          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+          'https://images.unsplash.com/photo-1464822759844-d150baec0b0b?w=800&h=600&fit=crop'
+        ],
+        hashtags: ['Hiking', 'OneTreeHill', 'Sunset', 'Views', 'Adventure'],
+        location: { description: 'One Tree Hill, Auckland', coordinates: { lat: -36.9085, lng: 174.7833 } },
+        view_count: 1456,
+        like_count: 234,
+        comment_count: 67,
+        share_count: 45,
+        is_active: true,
+        created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-015',
+        author_id: '22222222-2222-2222-2222-222222222222',
+        content: 'Yoga class at the beach was incredible! The sound of waves, fresh air, and peaceful energy. The instructor was amazing and the session left me feeling so centered. Can\'t wait for next week! 🧘‍♀️🌊',
+        images: [
+          'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&h=600&fit=crop',
+          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop'
+        ],
+        hashtags: ['Yoga', 'Beach', 'Wellness', 'Meditation', 'Peaceful'],
+        location: { description: 'Mission Bay, Auckland', coordinates: { lat: -36.8485, lng: 174.7933 } },
+        view_count: 1089,
+        like_count: 167,
+        comment_count: 38,
+        share_count: 22,
+        is_active: true,
+        created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-016',
+        author_id: '33333333-3333-3333-3333-333333333333',
+        content: 'Food truck festival was a culinary adventure! Tried everything from Korean BBQ to authentic Mexican tacos. The flavors were incredible and the community vibe was amazing. Already planning to come back next month! 🚚🌮',
+        images: [
+          'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop',
+          'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=800&h=600&fit=crop'
+        ],
+        hashtags: ['FoodTrucks', 'Festival', 'KoreanBBQ', 'Mexican', 'Community'],
+        location: { description: 'Wynyard Quarter, Auckland', coordinates: { lat: -36.8485, lng: 174.7533 } },
+        view_count: 1234,
+        like_count: 189,
+        comment_count: 51,
+        share_count: 28,
+        is_active: true,
+        created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-017',
+        author_id: '44444444-4444-4444-4444-444444444444',
+        content: 'Spa day at this luxury wellness center was pure bliss! The massage therapist was incredible and the facilities are world-class. The sauna and steam room were the perfect way to unwind. Worth every penny! 💆‍♀️✨',
+        images: [
+          'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+          'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&h=600&fit=crop'
+        ],
+        hashtags: ['Spa', 'Wellness', 'Massage', 'Luxury', 'Relaxation'],
+        location: { description: 'Parnell, Auckland', coordinates: { lat: -36.8485, lng: 174.7633 } },
+        view_count: 876,
+        like_count: 134,
+        comment_count: 27,
+        share_count: 16,
+        is_active: true,
+        created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-018',
+        author_id: '55555555-5555-5555-5555-555555555555',
+        content: 'Tech meetup was fantastic! Met so many interesting people working on innovative projects. The presentations were inspiring and the networking opportunities were incredible. The tech community here is thriving! 💻🤝',
+        images: [
+          'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&h=600&fit=crop',
+          'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=600&fit=crop'
+        ],
+        hashtags: ['TechMeetup', 'Networking', 'Innovation', 'Community', 'Startups'],
+        location: { description: 'Auckland CBD', coordinates: { lat: -36.8485, lng: 174.7633 } },
+        view_count: 945,
+        like_count: 156,
+        comment_count: 43,
+        share_count: 24,
+        is_active: true,
+        created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-019',
+        author_id: '77777777-7777-7777-7777-777777777777',
+        content: 'Jazz night at this intimate venue was magical! The musicians were incredibly talented and the atmosphere was perfect. The cocktails were expertly crafted too. This is what live music should be like! 🎷🍸',
+        images: [
+          'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
+          'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop'
+        ],
+        hashtags: ['Jazz', 'LiveMusic', 'Intimate', 'Cocktails', 'Atmosphere'],
+        location: { description: 'Ponsonby, Auckland', coordinates: { lat: -36.8485, lng: 174.7633 } },
+        view_count: 1123,
+        like_count: 178,
+        comment_count: 39,
+        share_count: 21,
+        is_active: true,
+        created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'post-020',
+        author_id: '88888888-8888-8888-8888-888888888888',
+        content: 'Street art walking tour was eye-opening! Discovered so many incredible murals and learned about the artists behind them. The guide was passionate and knowledgeable. Auckland\'s street art scene is world-class! 🎨🚶‍♂️',
+        images: [
+          'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=600&fit=crop',
+          'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop'
+        ],
+        hashtags: ['StreetArt', 'WalkingTour', 'Murals', 'Artists', 'Culture'],
+        location: { description: 'Karangahape Road, Auckland', coordinates: { lat: -36.8585, lng: 174.7533 } },
+        view_count: 1345,
+        like_count: 201,
+        comment_count: 52,
+        share_count: 31,
+        is_active: true,
+        created_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString()
       }
     ];
 
@@ -198,21 +487,169 @@ export async function POST() {
 
     console.log(`成功创建/更新 ${insertedPosts?.length || 0} 个帖子`);
 
-    // 3. 创建点赞记录
+    // 3. 创建更多点赞记录
     const likes = [
+      // post-001 点赞
       { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-001' },
       { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-001' },
       { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-001' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-001' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-001' },
+      
+      // post-002 点赞
       { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-002' },
       { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-002' },
       { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-002' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-002' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-002' },
+      
+      // post-003 点赞
       { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-003' },
       { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-003' },
       { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-003' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-003' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-003' },
+      
+      // post-004 点赞
       { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-004' },
       { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-004' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-004' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-004' },
+      
+      // post-005 点赞
       { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-005' },
-      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-005' }
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-005' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-005' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-005' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-005' },
+      
+      // post-006 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-006' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-006' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-006' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-006' },
+      
+      // post-007 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-007' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-007' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-007' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-007' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-007' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-007' },
+      
+      // post-008 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-008' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-008' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-008' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-008' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-008' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-008' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-008' },
+      
+      // post-009 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-009' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-009' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-009' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-009' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-009' },
+      
+      // post-010 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-010' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-010' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-010' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-010' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-010' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-010' },
+      
+      // post-011 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-011' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-011' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-011' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-011' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-011' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-011' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-011' },
+      
+      // post-012 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-012' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-012' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-012' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-012' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-012' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-012' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-012' },
+      
+      // post-013 点赞
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-013' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-013' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-013' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-013' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-013' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-013' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-013' },
+      
+      // post-014 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-014' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-014' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-014' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-014' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-014' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-014' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-014' },
+      
+      // post-015 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-015' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-015' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-015' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-015' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-015' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-015' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-015' },
+      
+      // post-016 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-016' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-016' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-016' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-016' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-016' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-016' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-016' },
+      
+      // post-017 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-017' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-017' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-017' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-017' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-017' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-017' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-017' },
+      
+      // post-018 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-018' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-018' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-018' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-018' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-018' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-018' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-018' },
+      
+      // post-019 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-019' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-019' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-019' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-019' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-019' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-019' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-019' },
+      
+      // post-020 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-020' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-020' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-020' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-020' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-020' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-020' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-020' }
     ];
 
     const { data: insertedLikes, error: likeError } = await (typedSupabase as any)
@@ -227,13 +664,48 @@ export async function POST() {
       console.log(`成功创建/更新 ${insertedLikes?.length || 0} 个点赞记录`);
     }
 
-    // 4. 创建分享记录
+    // 4. 创建更多分享记录
     const shares = [
       { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-001', share_type: 'native', platform: 'app' },
-      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-002', share_type: 'native', platform: 'app' },
-      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-003', share_type: 'native', platform: 'app' },
-      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-004', share_type: 'native', platform: 'app' },
-      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-005', share_type: 'native', platform: 'app' }
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-001', share_type: 'native', platform: 'app' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-002', share_type: 'native', platform: 'app' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-002', share_type: 'native', platform: 'app' },
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-003', share_type: 'native', platform: 'app' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-003', share_type: 'native', platform: 'app' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-004', share_type: 'native', platform: 'app' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-004', share_type: 'native', platform: 'app' },
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-005', share_type: 'native', platform: 'app' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-005', share_type: 'native', platform: 'app' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-006', share_type: 'native', platform: 'app' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-006', share_type: 'native', platform: 'app' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-007', share_type: 'native', platform: 'app' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-007', share_type: 'native', platform: 'app' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-008', share_type: 'native', platform: 'app' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-008', share_type: 'native', platform: 'app' },
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-009', share_type: 'native', platform: 'app' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-009', share_type: 'native', platform: 'app' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-010', share_type: 'native', platform: 'app' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-010', share_type: 'native', platform: 'app' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-011', share_type: 'native', platform: 'app' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-011', share_type: 'native', platform: 'app' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-012', share_type: 'native', platform: 'app' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-012', share_type: 'native', platform: 'app' },
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-013', share_type: 'native', platform: 'app' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-013', share_type: 'native', platform: 'app' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-014', share_type: 'native', platform: 'app' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-014', share_type: 'native', platform: 'app' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-015', share_type: 'native', platform: 'app' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-015', share_type: 'native', platform: 'app' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-016', share_type: 'native', platform: 'app' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-016', share_type: 'native', platform: 'app' },
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-017', share_type: 'native', platform: 'app' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-017', share_type: 'native', platform: 'app' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-018', share_type: 'native', platform: 'app' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-018', share_type: 'native', platform: 'app' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-019', share_type: 'native', platform: 'app' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-019', share_type: 'native', platform: 'app' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-020', share_type: 'native', platform: 'app' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-020', share_type: 'native', platform: 'app' }
     ];
 
     const { data: insertedShares, error: shareError } = await (typedSupabase as any)

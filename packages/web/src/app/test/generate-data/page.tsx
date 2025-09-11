@@ -79,23 +79,23 @@ const GenerateDataPage: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div className="bg-white rounded-lg p-3 border border-purple-100">
                 <Users className="w-5 h-5 text-purple-600 mb-2" />
-                <div className="text-sm font-medium text-gray-900">5个用户</div>
+                <div className="text-sm font-medium text-gray-900">8个用户</div>
                 <div className="text-xs text-gray-500">不同订阅级别</div>
               </div>
               <div className="bg-white rounded-lg p-3 border border-purple-100">
                 <TrendingUp className="w-5 h-5 text-purple-600 mb-2" />
-                <div className="text-sm font-medium text-gray-900">5个帖子</div>
-                <div className="text-xs text-gray-500">不同类型内容</div>
+                <div className="text-sm font-medium text-gray-900">20个帖子</div>
+                <div className="text-xs text-gray-500">丰富内容类型</div>
               </div>
               <div className="bg-white rounded-lg p-3 border border-purple-100">
                 <Heart className="w-5 h-5 text-purple-600 mb-2" />
-                <div className="text-sm font-medium text-gray-900">点赞记录</div>
-                <div className="text-xs text-gray-500">用户互动</div>
+                <div className="text-sm font-medium text-gray-900">150+点赞</div>
+                <div className="text-xs text-gray-500">活跃用户互动</div>
               </div>
               <div className="bg-white rounded-lg p-3 border border-purple-100">
                 <Share2 className="w-5 h-5 text-purple-600 mb-2" />
-                <div className="text-sm font-medium text-gray-900">分享记录</div>
-                <div className="text-xs text-gray-500">社交功能</div>
+                <div className="text-sm font-medium text-gray-900">40+分享</div>
+                <div className="text-xs text-gray-500">社交传播</div>
               </div>
             </div>
 
