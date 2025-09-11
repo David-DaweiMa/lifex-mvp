@@ -10,23 +10,44 @@ export async function POST(request: NextRequest) {
   try {
     console.log('开始生成trending测试数据...');
 
-    // 使用现有的测试用户ID，不创建新用户
-    const existingUserIds = [
-      '11111111-1111-1111-1111-111111111111', // coffee_lover
-      '22222222-2222-2222-2222-222222222222', // fitness_enthusiast
-      '33333333-3333-3333-3333-333333333333', // foodie_explorer
-      '44444444-4444-4444-4444-444444444444', // nature_lover
-      '55555555-5555-5555-5555-555555555555', // tech_geek
-      '66666666-6666-6666-6666-666666666666', // art_enthusiast
-      '77777777-7777-7777-7777-777777777777', // travel_blogger
-      '88888888-8888-8888-8888-888888888888'  // local_explorer
-    ];
+    // 1. 从数据库读取现有的测试用户
+    const { data: existingUsers, error: userError } = await (typedSupabase as any)
+      .from('user_profiles')
+      .select('id, email, username, full_name')
+      .limit(8);
 
-    // 1. 创建20个trending帖子
+    if (userError) {
+      console.error('读取用户失败:', userError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: '读取用户失败', 
+          error: userError.message 
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!existingUsers || existingUsers.length === 0) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: '没有找到现有的测试用户，请先创建测试用户' 
+        },
+        { status: 400 }
+      );
+    }
+
+    console.log(`找到 ${existingUsers.length} 个现有用户`);
+
+    // 获取用户ID列表
+    const userIds = existingUsers.map((user: any) => user.id);
+
+    // 2. 创建20个trending帖子
     const posts = [
       {
         id: '11111111-1111-1111-1111-111111111101',
-        author_id: '11111111-1111-1111-1111-111111111111',
+        author_id: userIds[0],
         content: 'Just discovered this amazing coffee shop in Ponsonby! The owner is Italian and makes incredible hand-drip coffee 🔥 Perfect window seat for people watching, and fast WiFi makes it ideal for work ✨ The flat white here is absolutely divine!',
         images: [
           'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&h=600&fit=crop',
@@ -43,7 +64,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '22222222-2222-2222-2222-222222222201',
-        author_id: '22222222-2222-2222-2222-222222222222',
+        author_id: userIds[1] || userIds[0],
         content: 'After trying 10 gyms, I found the perfect one! FitNZ is amazing - super patient trainers, new equipment, and they\'re especially beginner-friendly 💯 No judgment for first-timers! The personal training sessions have been life-changing. Highly recommend!',
         images: [
           'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
@@ -60,7 +81,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '33333333-3333-3333-3333-333333333301',
-        author_id: '33333333-3333-3333-3333-333333333333',
+        author_id: userIds[2] || userIds[0],
         content: 'OMG the ramen at this hidden gem in Dominion Road is INSANE! 🍜 Rich tonkotsu broth, perfectly cooked noodles, and the chashu is melt-in-your-mouth tender. Worth the 30-minute wait! This place is a must-visit for ramen lovers!',
         images: [
           'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&h=600&fit=crop',
@@ -77,7 +98,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '44444444-4444-4444-4444-444444444401',
-        author_id: '44444444-4444-4444-4444-444444444444',
+        author_id: userIds[3] || userIds[0],
         content: 'Morning walk at Cornwall Park was absolutely magical! 🌅 The sheep were grazing peacefully, and the views of the city skyline were breathtaking. Perfect way to start the day with some fresh air and exercise. Nature therapy at its finest!',
         images: [
           'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
@@ -94,7 +115,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '55555555-5555-5555-5555-555555555501',
-        author_id: '55555555-5555-5555-5555-555555555555',
+        author_id: userIds[4] || userIds[0],
         content: 'Just got my hands on the latest iPhone 15 Pro! The titanium build feels incredible and the camera improvements are mind-blowing 📱 The Action Button is surprisingly useful for quick access to camera and flashlight. Tech enthusiasts, this is worth the upgrade!',
         images: [
           'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&h=600&fit=crop',
@@ -111,7 +132,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '66666666-6666-6666-6666-666666666601',
-        author_id: '66666666-6666-6666-6666-666666666666',
+        author_id: userIds[5] || userIds[0],
         content: 'Incredible art exhibition at the Auckland Art Gallery! The contemporary pieces are thought-provoking and the curation is flawless. Spent 3 hours here and could have stayed longer. Free entry on Sundays! 🎨🖼️',
         images: [
           'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=600&fit=crop',
@@ -128,7 +149,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '77777777-7777-7777-7777-777777777701',
-        author_id: '77777777-7777-7777-7777-777777777777',
+        author_id: userIds[6] || userIds[0],
         content: 'Weekend farmers market haul! Fresh organic produce, artisan bread, and the most delicious honey. The vendors are so friendly and passionate about their products. Supporting local farmers feels amazing! 🥕🍯',
         images: [
           'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=800&h=600&fit=crop',
@@ -145,7 +166,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '88888888-8888-8888-8888-888888888801',
-        author_id: '88888888-8888-8888-8888-888888888888',
+        author_id: userIds[7] || userIds[0],
         content: 'Epic sunset hike up One Tree Hill! The 360-degree views of Auckland are absolutely breathtaking. Perfect weather and great company. This is why I love living in this city! 🌅🏔️',
         images: [
           'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
@@ -162,7 +183,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '11111111-1111-1111-1111-111111111102',
-        author_id: '11111111-1111-1111-1111-111111111111',
+        author_id: userIds[0],
         content: 'Found the best brunch spot in town! The avocado toast is perfectly seasoned and the coffee is roasted in-house. The atmosphere is cozy and the staff are incredibly friendly. Perfect for a lazy Sunday morning! 🥑☕',
         images: [
           'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=800&h=600&fit=crop',
@@ -179,7 +200,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '22222222-2222-2222-2222-222222222202',
-        author_id: '22222222-2222-2222-2222-222222222222',
+        author_id: userIds[1] || userIds[0],
         content: 'Yoga class at the beach was absolutely rejuvenating! The sound of waves, fresh sea breeze, and the peaceful atmosphere made it the perfect workout. My mind and body feel so refreshed. Can\'t wait for next week\'s session! 🧘‍♀️🌊',
         images: [
           'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&h=600&fit=crop',
@@ -196,7 +217,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '33333333-3333-3333-3333-333333333302',
-        author_id: '33333333-3333-3333-3333-333333333333',
+        author_id: userIds[2] || userIds[0],
         content: 'Sushi masterclass at this authentic Japanese restaurant was incredible! Learned the art of perfect rice preparation and fish selection. The chef\'s attention to detail is amazing. Now I can make restaurant-quality sushi at home! 🍣👨‍🍳',
         images: [
           'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800&h=600&fit=crop',
@@ -213,7 +234,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '44444444-4444-4444-4444-444444444402',
-        author_id: '44444444-4444-4444-4444-444444444444',
+        author_id: userIds[3] || userIds[0],
         content: 'Botanical Gardens are in full bloom! The rose garden is absolutely stunning with hundreds of varieties. Perfect place for a peaceful walk and some photography. The colors are so vibrant this season! 🌹📸',
         images: [
           'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=600&fit=crop',
@@ -230,7 +251,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '55555555-5555-5555-5555-555555555502',
-        author_id: '55555555-5555-5555-5555-555555555555',
+        author_id: userIds[4] || userIds[0],
         content: 'New gaming setup is complete! The RTX 4090 is absolutely insane for 4K gaming. Ray tracing in Cyberpunk 2077 looks photorealistic. Finally achieved my dream gaming rig! 🎮💻',
         images: [
           'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=600&fit=crop',
@@ -247,7 +268,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '66666666-6666-6666-6666-666666666602',
-        author_id: '66666666-6666-6666-6666-666666666666',
+        author_id: userIds[5] || userIds[0],
         content: 'Street art walking tour in the CBD was amazing! The murals are so creative and tell the story of our city. The guide was knowledgeable and passionate. Auckland\'s art scene is thriving! 🎨🏙️',
         images: [
           'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=600&fit=crop',
@@ -264,7 +285,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '77777777-7777-7777-7777-777777777702',
-        author_id: '77777777-7777-7777-7777-777777777777',
+        author_id: userIds[6] || userIds[0],
         content: 'Wine tasting at Waiheke Island was perfect! The Pinot Noir from this boutique vineyard is exceptional. The views of the harbor are breathtaking. Perfect day trip from the city! 🍷🏝️',
         images: [
           'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=800&h=600&fit=crop',
@@ -281,7 +302,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '88888888-8888-8888-8888-888888888802',
-        author_id: '88888888-8888-8888-8888-888888888888',
+        author_id: userIds[7] || userIds[0],
         content: 'Skydiving over the city was absolutely incredible! The adrenaline rush and the views were unforgettable. The instructors were professional and made me feel safe. Bucket list item checked off! 🪂🏙️',
         images: [
           'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
@@ -298,7 +319,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '11111111-1111-1111-1111-111111111103',
-        author_id: '11111111-1111-1111-1111-111111111111',
+        author_id: userIds[0],
         content: 'Book club meeting at the local library was wonderful! We discussed "The Seven Husbands of Evelyn Hugo" and the conversation was so engaging. Great way to meet like-minded people and discover new books! 📚💭',
         images: [
           'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=600&fit=crop',
@@ -315,7 +336,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '22222222-2222-2222-2222-222222222203',
-        author_id: '22222222-2222-2222-2222-222222222222',
+        author_id: userIds[1] || userIds[0],
         content: 'Rock climbing at the indoor gym was challenging but fun! The routes are well-designed and the staff are super helpful. Great workout for both body and mind. Can\'t wait to try outdoor climbing next! 🧗‍♀️💪',
         images: [
           'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=800&h=600&fit=crop',
@@ -332,7 +353,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '33333333-3333-3333-3333-333333333303',
-        author_id: '33333333-3333-3333-3333-333333333333',
+        author_id: userIds[2] || userIds[0],
         content: 'Food truck festival was a culinary adventure! Tried Korean BBQ tacos, authentic Thai curry, and the best gelato in town. The variety and quality were impressive. Food truck culture is thriving here! 🚚🍽️',
         images: [
           'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&h=600&fit=crop',
@@ -349,7 +370,7 @@ export async function POST(request: NextRequest) {
       },
       {
         id: '44444444-4444-4444-4444-444444444403',
-        author_id: '44444444-4444-4444-4444-444444444444',
+        author_id: userIds[3] || userIds[0],
         content: 'Beach cleanup volunteer event was so rewarding! Collected 50+ bags of rubbish and met amazing people who care about our environment. Every small action makes a difference. Let\'s keep our beaches clean! 🏖️♻️',
         images: [
           'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
@@ -387,39 +408,36 @@ export async function POST(request: NextRequest) {
 
     // 3. 创建点赞记录
     const likes = [
-      // post-001 点赞
-      { user_id: '22222222-2222-2222-2222-222222222222', post_id: '11111111-1111-1111-1111-111111111101' },
-      { user_id: '33333333-3333-3333-3333-333333333333', post_id: '11111111-1111-1111-1111-111111111101' },
-      { user_id: '44444444-4444-4444-4444-444444444444', post_id: '11111111-1111-1111-1111-111111111101' },
-      { user_id: '66666666-6666-6666-6666-666666666666', post_id: '11111111-1111-1111-1111-111111111101' },
-      { user_id: '77777777-7777-7777-7777-777777777777', post_id: '11111111-1111-1111-1111-111111111101' },
+      // 使用动态用户ID创建点赞记录
+      { user_id: userIds[1] || userIds[0], post_id: '11111111-1111-1111-1111-111111111101' },
+      { user_id: userIds[2] || userIds[0], post_id: '11111111-1111-1111-1111-111111111101' },
+      { user_id: userIds[3] || userIds[0], post_id: '11111111-1111-1111-1111-111111111101' },
+      { user_id: userIds[4] || userIds[0], post_id: '11111111-1111-1111-1111-111111111101' },
+      { user_id: userIds[5] || userIds[0], post_id: '11111111-1111-1111-1111-111111111101' },
       
-      // post-002 点赞
-      { user_id: '11111111-1111-1111-1111-111111111111', post_id: '22222222-2222-2222-2222-222222222201' },
-      { user_id: '33333333-3333-3333-3333-333333333333', post_id: '22222222-2222-2222-2222-222222222201' },
-      { user_id: '55555555-5555-5555-5555-555555555555', post_id: '22222222-2222-2222-2222-222222222201' },
-      { user_id: '66666666-6666-6666-6666-666666666666', post_id: '22222222-2222-2222-2222-222222222201' },
-      { user_id: '88888888-8888-8888-8888-888888888888', post_id: '22222222-2222-2222-2222-222222222201' },
+      { user_id: userIds[0], post_id: '22222222-2222-2222-2222-222222222201' },
+      { user_id: userIds[2] || userIds[0], post_id: '22222222-2222-2222-2222-222222222201' },
+      { user_id: userIds[3] || userIds[0], post_id: '22222222-2222-2222-2222-222222222201' },
+      { user_id: userIds[4] || userIds[0], post_id: '22222222-2222-2222-2222-222222222201' },
+      { user_id: userIds[5] || userIds[0], post_id: '22222222-2222-2222-2222-222222222201' },
       
-      // post-003 点赞
-      { user_id: '11111111-1111-1111-1111-111111111111', post_id: '33333333-3333-3333-3333-333333333301' },
-      { user_id: '22222222-2222-2222-2222-222222222222', post_id: '33333333-3333-3333-3333-333333333301' },
-      { user_id: '44444444-4444-4444-4444-444444444444', post_id: '33333333-3333-3333-3333-333333333301' },
-      { user_id: '55555555-5555-5555-5555-555555555555', post_id: '33333333-3333-3333-3333-333333333301' },
-      { user_id: '77777777-7777-7777-7777-777777777777', post_id: '33333333-3333-3333-3333-333333333301' },
+      { user_id: userIds[0], post_id: '33333333-3333-3333-3333-333333333301' },
+      { user_id: userIds[1] || userIds[0], post_id: '33333333-3333-3333-3333-333333333301' },
+      { user_id: userIds[3] || userIds[0], post_id: '33333333-3333-3333-3333-333333333301' },
+      { user_id: userIds[4] || userIds[0], post_id: '33333333-3333-3333-3333-333333333301' },
+      { user_id: userIds[5] || userIds[0], post_id: '33333333-3333-3333-3333-333333333301' },
       
-      // post-004 点赞
-      { user_id: '11111111-1111-1111-1111-111111111111', post_id: '44444444-4444-4444-4444-444444444401' },
-      { user_id: '33333333-3333-3333-3333-333333333333', post_id: '44444444-4444-4444-4444-444444444401' },
-      { user_id: '55555555-5555-5555-5555-555555555555', post_id: '44444444-4444-4444-4444-444444444401' },
-      { user_id: '66666666-6666-6666-6666-666666666666', post_id: '44444444-4444-4444-4444-444444444401' },
+      { user_id: userIds[0], post_id: '44444444-4444-4444-4444-444444444401' },
+      { user_id: userIds[1] || userIds[0], post_id: '44444444-4444-4444-4444-444444444401' },
+      { user_id: userIds[2] || userIds[0], post_id: '44444444-4444-4444-4444-444444444401' },
+      { user_id: userIds[4] || userIds[0], post_id: '44444444-4444-4444-4444-444444444401' },
+      { user_id: userIds[5] || userIds[0], post_id: '44444444-4444-4444-4444-444444444401' },
       
-      // post-005 点赞
-      { user_id: '22222222-2222-2222-2222-222222222222', post_id: '55555555-5555-5555-5555-555555555501' },
-      { user_id: '44444444-4444-4444-4444-444444444444', post_id: '55555555-5555-5555-5555-555555555501' },
-      { user_id: '66666666-6666-6666-6666-666666666666', post_id: '55555555-5555-5555-5555-555555555501' },
-      { user_id: '77777777-7777-7777-7777-777777777777', post_id: '55555555-5555-5555-5555-555555555501' },
-      { user_id: '88888888-8888-8888-8888-888888888888', post_id: '55555555-5555-5555-5555-555555555501' }
+      { user_id: userIds[1] || userIds[0], post_id: '55555555-5555-5555-5555-555555555501' },
+      { user_id: userIds[2] || userIds[0], post_id: '55555555-5555-5555-5555-555555555501' },
+      { user_id: userIds[3] || userIds[0], post_id: '55555555-5555-5555-5555-555555555501' },
+      { user_id: userIds[5] || userIds[0], post_id: '55555555-5555-5555-5555-555555555501' },
+      { user_id: userIds[6] || userIds[0], post_id: '55555555-5555-5555-5555-555555555501' }
     ];
 
     const { data: insertedLikes, error: likeError } = await (typedSupabase as any)
@@ -436,16 +454,16 @@ export async function POST(request: NextRequest) {
 
     // 4. 创建分享记录
     const shares = [
-      { user_id: '22222222-2222-2222-2222-222222222222', post_id: '11111111-1111-1111-1111-111111111101', share_type: 'native', platform: 'app' },
-      { user_id: '33333333-3333-3333-3333-333333333333', post_id: '11111111-1111-1111-1111-111111111101', share_type: 'native', platform: 'app' },
-      { user_id: '44444444-4444-4444-4444-444444444444', post_id: '22222222-2222-2222-2222-222222222201', share_type: 'native', platform: 'app' },
-      { user_id: '55555555-5555-5555-5555-555555555555', post_id: '22222222-2222-2222-2222-222222222201', share_type: 'native', platform: 'app' },
-      { user_id: '11111111-1111-1111-1111-111111111111', post_id: '33333333-3333-3333-3333-333333333301', share_type: 'native', platform: 'app' },
-      { user_id: '66666666-6666-6666-6666-666666666666', post_id: '33333333-3333-3333-3333-333333333301', share_type: 'native', platform: 'app' },
-      { user_id: '77777777-7777-7777-7777-777777777777', post_id: '44444444-4444-4444-4444-444444444401', share_type: 'native', platform: 'app' },
-      { user_id: '88888888-8888-8888-8888-888888888888', post_id: '44444444-4444-4444-4444-444444444401', share_type: 'native', platform: 'app' },
-      { user_id: '11111111-1111-1111-1111-111111111111', post_id: '55555555-5555-5555-5555-555555555501', share_type: 'native', platform: 'app' },
-      { user_id: '22222222-2222-2222-2222-222222222222', post_id: '55555555-5555-5555-5555-555555555501', share_type: 'native', platform: 'app' }
+      { user_id: userIds[1] || userIds[0], post_id: '11111111-1111-1111-1111-111111111101', share_type: 'native', platform: 'app' },
+      { user_id: userIds[2] || userIds[0], post_id: '11111111-1111-1111-1111-111111111101', share_type: 'native', platform: 'app' },
+      { user_id: userIds[3] || userIds[0], post_id: '22222222-2222-2222-2222-222222222201', share_type: 'native', platform: 'app' },
+      { user_id: userIds[4] || userIds[0], post_id: '22222222-2222-2222-2222-222222222201', share_type: 'native', platform: 'app' },
+      { user_id: userIds[0], post_id: '33333333-3333-3333-3333-333333333301', share_type: 'native', platform: 'app' },
+      { user_id: userIds[5] || userIds[0], post_id: '33333333-3333-3333-3333-333333333301', share_type: 'native', platform: 'app' },
+      { user_id: userIds[6] || userIds[0], post_id: '44444444-4444-4444-4444-444444444401', share_type: 'native', platform: 'app' },
+      { user_id: userIds[7] || userIds[0], post_id: '44444444-4444-4444-4444-444444444401', share_type: 'native', platform: 'app' },
+      { user_id: userIds[0], post_id: '55555555-5555-5555-5555-555555555501', share_type: 'native', platform: 'app' },
+      { user_id: userIds[1] || userIds[0], post_id: '55555555-5555-5555-5555-555555555501', share_type: 'native', platform: 'app' }
     ];
 
     const { data: insertedShares, error: shareError } = await (typedSupabase as any)
