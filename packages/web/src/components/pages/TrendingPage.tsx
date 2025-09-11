@@ -21,7 +21,7 @@ import {
   Share2
 } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
-import { trendingData } from '../../lib/mockData';
+// import { trendingData } from '../../lib/mockData'; // 移除硬编码数据
 import { typedSupabase } from '../../lib/supabase';
 import FloatingButton from '../ui/FloatingButton';
 
@@ -794,57 +794,7 @@ const TrendingPage: React.FC = () => {
           <div className="grid grid-cols-2 gap-3 md:gap-4">
             {/* Left column */}
             <div className="space-y-3 md:space-y-4">
-              {/* Hot trends - Left column */}
-              {trendingData.filter((_: any, index: any) => index % 2 === 0).map((trend: any, idx: any) => (
-                <div 
-                  key={trend.id}
-                  className="p-4 md:p-5 rounded-xl border cursor-pointer transition-all hover:scale-[1.02]"
-                  style={{
-                    background: darkTheme.background.card,
-                    borderColor: darkTheme.background.glass,
-                  }}
-                >
-                  <div className="flex items-start gap-3 md:gap-4">
-                    <div 
-                      className="w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{ background: `${trend.color}20`, border: `1px solid ${trend.color}40` }}
-                    >
-                      <trend.icon size={20} className="md:w-6 md:h-6" style={{ color: trend.color }} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-semibold text-sm md:text-base pr-2" style={{ color: darkTheme.text.primary }}>
-                          {trend.title}
-                        </h4>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <TrendingUp size={12} className="md:w-4 md:h-4" style={{ color: darkTheme.neon.green }} />
-                          <span className="text-xs md:text-sm font-medium" style={{ color: darkTheme.neon.green }}>
-                            {trend.growth}
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-xs md:text-sm mb-2" style={{ color: darkTheme.text.secondary }}>
-                        {trend.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span 
-                          className="px-2 md:px-3 py-1 rounded-full text-xs font-medium"
-                          style={{
-                            background: `${trend.color}20`,
-                            color: trend.color,
-                            border: `1px solid ${trend.color}40`
-                          }}
-                        >
-                          {trend.category}
-                        </span>
-                        <span className="text-xs" style={{ color: darkTheme.text.muted }}>
-                          #{idx * 2 + 1} trending
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              {/* 移除硬编码的trending数据，只显示用户帖子 */}
 
               {/* User posts - Left column */}
               {posts.filter((_: any, index: any) => index % 2 === 0).map((post) => (
@@ -1000,57 +950,7 @@ const TrendingPage: React.FC = () => {
 
             {/* Right column */}
             <div className="space-y-3 md:space-y-4">
-              {/* Hot trends - Right column */}
-              {trendingData.filter((_: any, index: any) => index % 2 === 1).map((trend: any, idx: any) => (
-                <div 
-                  key={trend.id}
-                  className="p-4 md:p-5 rounded-xl border cursor-pointer transition-all hover:scale-[1.02]"
-                  style={{
-                    background: darkTheme.background.card,
-                    borderColor: darkTheme.background.glass,
-                  }}
-                >
-                  <div className="flex items-start gap-3 md:gap-4">
-                    <div 
-                      className="w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{ background: `${trend.color}20`, border: `1px solid ${trend.color}40` }}
-                    >
-                      <trend.icon size={20} className="md:w-6 md:h-6" style={{ color: trend.color }} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-semibold text-sm md:text-base pr-2" style={{ color: darkTheme.text.primary }}>
-                          {trend.title}
-                        </h4>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <TrendingUp size={12} className="md:w-4 md:h-4" style={{ color: darkTheme.neon.green }} />
-                          <span className="text-xs md:text-sm font-medium" style={{ color: darkTheme.neon.green }}>
-                            {trend.growth}
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-xs md:text-sm mb-2" style={{ color: darkTheme.text.secondary }}>
-                        {trend.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span 
-                          className="px-2 md:px-3 py-1 rounded-full text-xs font-medium"
-                          style={{
-                            background: `${trend.color}20`,
-                            color: trend.color,
-                            border: `1px solid ${trend.color}40`
-                          }}
-                        >
-                          {trend.category}
-                        </span>
-                        <span className="text-xs" style={{ color: darkTheme.text.muted }}>
-                          #{idx * 2 + 2} trending
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              {/* 移除硬编码的trending数据，只显示用户帖子 */}
 
               {/* User posts - Right column */}
               {posts.filter((_: any, index: any) => index % 2 === 1).map((post) => (
