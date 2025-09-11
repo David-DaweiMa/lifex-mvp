@@ -61,8 +61,8 @@ const GenerateDataPage: React.FC = () => {
           <div className="flex items-center gap-3 mb-6">
             <Database className="w-8 h-8 text-purple-600" />
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">生成Trending测试数据</h1>
-              <p className="text-gray-600">为APP Store截图生成真实的Trending页面测试数据</p>
+              <h1 className="text-2xl font-bold text-gray-900">读取Trending数据</h1>
+              <p className="text-gray-600">从数据库中读取现有的Trending页面数据</p>
             </div>
           </div>
 
@@ -74,28 +74,28 @@ const GenerateDataPage: React.FC = () => {
             </div>
             
             <p className="text-gray-600 mb-4">
-              生成trending帖子、点赞、评论和分享记录，用于展示trending页面的功能。
+              从数据库中读取现有的trending帖子、点赞、评论和分享记录，用于展示trending页面的功能。
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div className="bg-white rounded-lg p-3 border border-purple-100">
                 <TrendingUp className="w-5 h-5 text-purple-600 mb-2" />
-                <div className="text-sm font-medium text-gray-900">20个帖子</div>
+                <div className="text-sm font-medium text-gray-900">{result?.data?.posts?.count || 0}个帖子</div>
                 <div className="text-xs text-gray-500">丰富内容类型</div>
               </div>
               <div className="bg-white rounded-lg p-3 border border-purple-100">
                 <Heart className="w-5 h-5 text-purple-600 mb-2" />
-                <div className="text-sm font-medium text-gray-900">150+点赞</div>
+                <div className="text-sm font-medium text-gray-900">{result?.data?.likes?.count || 0}个点赞</div>
                 <div className="text-xs text-gray-500">活跃用户互动</div>
               </div>
               <div className="bg-white rounded-lg p-3 border border-purple-100">
                 <MessageCircle className="w-5 h-5 text-purple-600 mb-2" />
-                <div className="text-sm font-medium text-gray-900">80+评论</div>
+                <div className="text-sm font-medium text-gray-900">{result?.data?.comments?.count || 0}个评论</div>
                 <div className="text-xs text-gray-500">用户讨论</div>
               </div>
               <div className="bg-white rounded-lg p-3 border border-purple-100">
                 <Share2 className="w-5 h-5 text-purple-600 mb-2" />
-                <div className="text-sm font-medium text-gray-900">40+分享</div>
+                <div className="text-sm font-medium text-gray-900">{result?.data?.shares?.count || 0}个分享</div>
                 <div className="text-xs text-gray-500">社交传播</div>
               </div>
             </div>
@@ -112,10 +112,10 @@ const GenerateDataPage: React.FC = () => {
               {isGenerating ? (
                 <>
                   <Loader2 className="w-4 h-4 inline mr-2 animate-spin" />
-                  正在生成数据...
+                  正在读取数据...
                 </>
               ) : (
-                '生成Trending数据'
+                '读取Trending数据'
               )}
             </button>
           </div>
