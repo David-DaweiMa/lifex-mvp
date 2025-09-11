@@ -1,4 +1,4 @@
-// 生成Trending测试数据的API端点
+// 生成Trending测试数据的API端点 - 专注于trending内容数据
 import { NextResponse } from 'next/server';
 import { typedSupabase } from '@/lib/supabase';
 
@@ -6,140 +6,19 @@ export async function POST() {
   try {
     console.log('开始生成trending测试数据...');
 
-    // 1. 创建更多测试用户
-    const users = [
-      {
-        id: '11111111-1111-1111-1111-111111111111',
-        email: 'coffee.lover@example.com',
-        username: 'coffee_lover',
-        full_name: 'Sarah Chen',
-        avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-        bio: 'Coffee enthusiast and Auckland local. Love discovering new cafes and sharing hidden gems! ☕️',
-        location: { city: 'Auckland', country: 'New Zealand', coordinates: { lat: -36.8485, lng: 174.7633 } },
-        subscription_level: 'essential',
-        has_business_features: false,
-        verification_status: 'none',
-        is_active: true,
-        created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: '22222222-2222-2222-2222-222222222222',
-        email: 'fitness.guru@example.com',
-        username: 'fitness_guru',
-        full_name: 'Mike Johnson',
-        avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-        bio: 'Personal trainer and fitness enthusiast. Helping people achieve their health goals! 💪',
-        location: { city: 'Auckland', country: 'New Zealand', coordinates: { lat: -36.8485, lng: 174.7633 } },
-        subscription_level: 'premium',
-        has_business_features: true,
-        verification_status: 'approved',
-        is_active: true,
-        created_at: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: '33333333-3333-3333-3333-333333333333',
-        email: 'food.blogger@example.com',
-        username: 'food_blogger',
-        full_name: 'Emma Wilson',
-        avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-        bio: 'Food blogger and restaurant reviewer. Always on the hunt for the best eats in Auckland! 🍽️',
-        location: { city: 'Auckland', country: 'New Zealand', coordinates: { lat: -36.8485, lng: 174.7633 } },
-        subscription_level: 'premium',
-        has_business_features: true,
-        verification_status: 'approved',
-        is_active: true,
-        created_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: '44444444-4444-4444-4444-444444444444',
-        email: 'beauty.expert@example.com',
-        username: 'beauty_expert',
-        full_name: 'Lisa Park',
-        avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
-        bio: 'Beauty therapist and skincare specialist. Sharing tips for healthy, glowing skin! ✨',
-        location: { city: 'Auckland', country: 'New Zealand', coordinates: { lat: -36.8485, lng: 174.7633 } },
-        subscription_level: 'essential',
-        has_business_features: false,
-        verification_status: 'none',
-        is_active: true,
-        created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: '55555555-5555-5555-5555-555555555555',
-        email: 'tech.enthusiast@example.com',
-        username: 'tech_enthusiast',
-        full_name: 'David Kim',
-        avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-        bio: 'Tech enthusiast and early adopter. Love exploring new technologies and smart home solutions! 🤖',
-        location: { city: 'Auckland', country: 'New Zealand', coordinates: { lat: -36.8485, lng: 174.7633 } },
-        subscription_level: 'free',
-        has_business_features: false,
-        verification_status: 'none',
-        is_active: true,
-        created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
-      },
-      // 新增用户
-      {
-        id: '66666666-6666-6666-6666-666666666666',
-        email: 'travel.explorer@example.com',
-        username: 'travel_explorer',
-        full_name: 'Alex Thompson',
-        avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
-        bio: 'Travel blogger and adventure seeker. Exploring Auckland one neighborhood at a time! 🌍✈️',
-        location: { city: 'Auckland', country: 'New Zealand', coordinates: { lat: -36.8485, lng: 174.7633 } },
-        subscription_level: 'essential',
-        has_business_features: false,
-        verification_status: 'none',
-        is_active: true,
-        created_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: '77777777-7777-7777-7777-777777777777',
-        email: 'music.lover@example.com',
-        username: 'music_lover',
-        full_name: 'Sophie Martinez',
-        avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
-        bio: 'Music producer and live music enthusiast. Always on the lookout for great venues and emerging artists! 🎵🎤',
-        location: { city: 'Auckland', country: 'New Zealand', coordinates: { lat: -36.8485, lng: 174.7633 } },
-        subscription_level: 'premium',
-        has_business_features: true,
-        verification_status: 'approved',
-        is_active: true,
-        created_at: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: '88888888-8888-8888-8888-888888888888',
-        email: 'art.creator@example.com',
-        username: 'art_creator',
-        full_name: 'James Wilson',
-        avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face',
-        bio: 'Digital artist and gallery curator. Supporting local art scene and creative communities! 🎨🖼️',
-        location: { city: 'Auckland', country: 'New Zealand', coordinates: { lat: -36.8485, lng: 174.7633 } },
-        subscription_level: 'essential',
-        has_business_features: false,
-        verification_status: 'none',
-        is_active: true,
-        created_at: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString()
-      }
+    // 使用现有的测试用户ID，不创建新用户
+    const existingUserIds = [
+      '11111111-1111-1111-1111-111111111111', // coffee_lover
+      '22222222-2222-2222-2222-222222222222', // fitness_guru
+      '33333333-3333-3333-3333-333333333333', // food_blogger
+      '44444444-4444-4444-4444-444444444444', // beauty_expert
+      '55555555-5555-5555-5555-555555555555', // tech_enthusiast
+      '66666666-6666-6666-6666-666666666666', // travel_explorer
+      '77777777-7777-7777-7777-777777777777', // music_lover
+      '88888888-8888-8888-8888-888888888888'  // art_creator
     ];
 
-    // 插入用户数据
-    const { data: insertedUsers, error: userError } = await (typedSupabase as any)
-      .from('user_profiles')
-      .upsert(users, { onConflict: 'id' })
-      .select();
-
-    if (userError) {
-      console.error('用户创建失败:', userError);
-      return NextResponse.json(
-        { success: false, error: '用户创建失败', details: userError.message },
-        { status: 500 }
-      );
-    }
-
-    console.log(`成功创建/更新 ${insertedUsers?.length || 0} 个用户`);
-
-    // 2. 创建20个trending帖子
+    // 1. 创建20个trending帖子
     const posts = [
       {
         id: 'post-001',
@@ -721,11 +600,6 @@ export async function POST() {
     }
 
     // 5. 获取统计信息
-    const { count: userCount } = await (typedSupabase as any)
-      .from('user_profiles')
-      .select('*', { count: 'exact', head: true })
-      .in('id', users.map(u => u.id));
-
     const { count: postCount } = await (typedSupabase as any)
       .from('trending_posts')
       .select('*', { count: 'exact', head: true })
@@ -739,16 +613,17 @@ export async function POST() {
       .from('post_shares')
       .select('*', { count: 'exact', head: true });
 
+    // 获取评论统计
+    const { count: commentCount } = await (typedSupabase as any)
+      .from('post_comments')
+      .select('*', { count: 'exact', head: true });
+
     console.log('Trending测试数据生成完成！');
 
     return NextResponse.json({
       success: true,
       message: 'Trending测试数据生成成功',
       data: {
-        users: {
-          created: userCount || 0,
-          data: insertedUsers
-        },
         posts: {
           created: postCount || 0,
           data: insertedPosts
@@ -756,6 +631,10 @@ export async function POST() {
         likes: {
           created: likeCount || 0,
           data: insertedLikes
+        },
+        comments: {
+          created: commentCount || 0,
+          data: []
         },
         shares: {
           created: shareCount || 0,
