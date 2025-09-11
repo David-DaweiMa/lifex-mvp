@@ -23,8 +23,7 @@ export async function GET(request: NextRequest) {
           id,
           name,
           description,
-          logo_url,
-          category
+          logo_url
         )
       `)
       .eq('is_active', true)
@@ -51,7 +50,7 @@ export async function GET(request: NextRequest) {
     const formattedSpecials = specials?.map(special => ({
       id: special.id,
       businessName: special.businesses?.name || 'Unknown Business',
-      businessType: special.businesses?.category || 'Business',
+      businessType: 'Business', // 默认值，因为businesses表没有category字段
       title: special.title,
       description: special.description,
       originalPrice: special.original_price,
