@@ -809,7 +809,7 @@ const TrendingPage: React.FC = () => {
                   <div className="p-4">
                     <div className="flex items-center gap-3 mb-3">
                       <div 
-                        className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center"
+                        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
                         style={{ 
                           background: post.avatar_url 
                             ? undefined 
@@ -839,17 +839,20 @@ const TrendingPage: React.FC = () => {
                     </div>
                     
                     <p className="text-sm mb-3 leading-relaxed" style={{ color: darkTheme.text.secondary }}>
-                      {post.content}
+                      {post.content.length > 120 
+                        ? `${post.content.substring(0, 120)}...` 
+                        : post.content
+                      }
                     </p>
 
-                    {/* Images */}
+                    {/* Images - Instagram style: 图片占主要空间 */}
                     {post.images && post.images.length > 0 && (
                       <div className="mb-3 rounded-lg overflow-hidden">
                         {post.images.length === 1 ? (
                           <img 
                             src={post.images[0]} 
                             alt="Post content" 
-                            className="w-full h-48 object-cover"
+                            className="w-full h-64 object-cover"
                           />
                         ) : (
                           <div className="grid grid-cols-2 gap-1">
@@ -874,10 +877,10 @@ const TrendingPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Hashtags */}
+                    {/* Hashtags - Instagram style: 只显示前2个 */}
                     {post.hashtags && post.hashtags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-3">
-                        {post.hashtags.slice(0, 3).map((tag) => (
+                        {post.hashtags.slice(0, 2).map((tag) => (
                           <span 
                             key={tag}
                             className="px-2 py-1 rounded-full text-xs"
@@ -889,9 +892,9 @@ const TrendingPage: React.FC = () => {
                             #{tag}
                           </span>
                         ))}
-                        {post.hashtags.length > 3 && (
+                        {post.hashtags.length > 2 && (
                           <span className="text-xs" style={{ color: darkTheme.text.muted }}>
-                            +{post.hashtags.length - 3} more
+                            +{post.hashtags.length - 2}
                           </span>
                         )}
                       </div>
@@ -965,7 +968,7 @@ const TrendingPage: React.FC = () => {
                   <div className="p-4">
                     <div className="flex items-center gap-3 mb-3">
                       <div 
-                        className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center"
+                        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
                         style={{ 
                           background: post.avatar_url 
                             ? undefined 
@@ -995,17 +998,20 @@ const TrendingPage: React.FC = () => {
                     </div>
                     
                     <p className="text-sm mb-3 leading-relaxed" style={{ color: darkTheme.text.secondary }}>
-                      {post.content}
+                      {post.content.length > 120 
+                        ? `${post.content.substring(0, 120)}...` 
+                        : post.content
+                      }
                     </p>
 
-                    {/* Images */}
+                    {/* Images - Instagram style: 图片占主要空间 */}
                     {post.images && post.images.length > 0 && (
                       <div className="mb-3 rounded-lg overflow-hidden">
                         {post.images.length === 1 ? (
                           <img 
                             src={post.images[0]} 
                             alt="Post content" 
-                            className="w-full h-48 object-cover"
+                            className="w-full h-64 object-cover"
                           />
                         ) : (
                           <div className="grid grid-cols-2 gap-1">
@@ -1030,10 +1036,10 @@ const TrendingPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Hashtags */}
+                    {/* Hashtags - Instagram style: 只显示前2个 */}
                     {post.hashtags && post.hashtags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-3">
-                        {post.hashtags.slice(0, 3).map((tag) => (
+                        {post.hashtags.slice(0, 2).map((tag) => (
                           <span 
                             key={tag}
                             className="px-2 py-1 rounded-full text-xs"
@@ -1045,9 +1051,9 @@ const TrendingPage: React.FC = () => {
                             #{tag}
                           </span>
                         ))}
-                        {post.hashtags.length > 3 && (
+                        {post.hashtags.length > 2 && (
                           <span className="text-xs" style={{ color: darkTheme.text.muted }}>
-                            +{post.hashtags.length - 3} more
+                            +{post.hashtags.length - 2}
                           </span>
                         )}
                       </div>
