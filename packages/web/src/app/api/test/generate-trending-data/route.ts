@@ -366,9 +366,80 @@ export async function POST() {
 
     console.log(`成功创建/更新 ${insertedPosts?.length || 0} 个帖子`);
 
-    // 3. 跳过点赞和分享记录创建，因为相关表可能不存在
-    // 这些数据已经在trending_posts表中包含了统计信息
-    console.log('跳过点赞和分享记录创建，使用帖子中的统计信息');
+    // 3. 创建点赞记录
+    const likes = [
+      // post-001 点赞
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-001' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-001' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-001' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-001' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-001' },
+      
+      // post-002 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-002' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-002' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-002' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-002' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-002' },
+      
+      // post-003 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-003' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-003' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-003' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-003' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-003' },
+      
+      // post-004 点赞
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-004' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-004' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-004' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-004' },
+      
+      // post-005 点赞
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-005' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-005' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-005' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-005' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-005' }
+    ];
+
+    const { data: insertedLikes, error: likeError } = await (typedSupabase as any)
+      .from('post_likes')
+      .upsert(likes, { onConflict: 'user_id,post_id' })
+      .select();
+
+    if (likeError) {
+      console.error('点赞记录创建失败:', likeError);
+      // 不返回错误，因为点赞记录不是必需的
+    } else {
+      console.log(`成功创建/更新 ${insertedLikes?.length || 0} 个点赞记录`);
+    }
+
+    // 4. 创建分享记录
+    const shares = [
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-001', share_type: 'native', platform: 'app' },
+      { user_id: '33333333-3333-3333-3333-333333333333', post_id: 'post-001', share_type: 'native', platform: 'app' },
+      { user_id: '44444444-4444-4444-4444-444444444444', post_id: 'post-002', share_type: 'native', platform: 'app' },
+      { user_id: '55555555-5555-5555-5555-555555555555', post_id: 'post-002', share_type: 'native', platform: 'app' },
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-003', share_type: 'native', platform: 'app' },
+      { user_id: '66666666-6666-6666-6666-666666666666', post_id: 'post-003', share_type: 'native', platform: 'app' },
+      { user_id: '77777777-7777-7777-7777-777777777777', post_id: 'post-004', share_type: 'native', platform: 'app' },
+      { user_id: '88888888-8888-8888-8888-888888888888', post_id: 'post-004', share_type: 'native', platform: 'app' },
+      { user_id: '11111111-1111-1111-1111-111111111111', post_id: 'post-005', share_type: 'native', platform: 'app' },
+      { user_id: '22222222-2222-2222-2222-222222222222', post_id: 'post-005', share_type: 'native', platform: 'app' }
+    ];
+
+    const { data: insertedShares, error: shareError } = await (typedSupabase as any)
+      .from('post_shares')
+      .upsert(shares, { onConflict: 'user_id,post_id,share_type' })
+      .select();
+
+    if (shareError) {
+      console.error('分享记录创建失败:', shareError);
+      // 不返回错误，因为分享记录不是必需的
+    } else {
+      console.log(`成功创建/更新 ${insertedShares?.length || 0} 个分享记录`);
+    }
 
     // 5. 获取统计信息
     const { count: postCount } = await (typedSupabase as any)
@@ -376,10 +447,16 @@ export async function POST() {
       .select('*', { count: 'exact', head: true })
       .in('id', posts.map(p => p.id));
 
-    // 计算总的点赞、评论、分享数（从帖子数据中获取）
-    const totalLikes = posts.reduce((sum, post) => sum + (post.like_count || 0), 0);
+    const { count: likeCount } = await (typedSupabase as any)
+      .from('post_likes')
+      .select('*', { count: 'exact', head: true });
+
+    const { count: shareCount } = await (typedSupabase as any)
+      .from('post_shares')
+      .select('*', { count: 'exact', head: true });
+
+    // 计算总的评论数（从帖子数据中获取，因为post_comments表可能不存在）
     const totalComments = posts.reduce((sum, post) => sum + (post.comment_count || 0), 0);
-    const totalShares = posts.reduce((sum, post) => sum + (post.share_count || 0), 0);
 
     console.log('Trending测试数据生成完成！');
 
@@ -392,16 +469,16 @@ export async function POST() {
           data: insertedPosts
         },
         likes: {
-          created: totalLikes,
-          data: []
+          created: likeCount || 0,
+          data: insertedLikes
         },
         comments: {
           created: totalComments,
           data: []
         },
         shares: {
-          created: totalShares,
-          data: []
+          created: shareCount || 0,
+          data: insertedShares
         }
       }
     });
