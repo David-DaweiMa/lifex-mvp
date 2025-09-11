@@ -877,21 +877,24 @@ const TrendingPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Hashtags - 单独一行 */}
+                    {/* Hashtags - 单独一行，显示前两个 */}
                     {post.hashtags && post.hashtags.length > 0 && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <span 
-                          className="px-2 py-1 rounded-full text-xs"
-                          style={{
-                            background: `${darkTheme.neon.purple}15`,
-                            color: darkTheme.neon.purple
-                          }}
-                        >
-                          #{post.hashtags[0]}
-                        </span>
-                        {post.hashtags.length > 1 && (
+                      <div className="flex items-center gap-1 mb-2">
+                        {post.hashtags.slice(0, 2).map((tag) => (
+                          <span 
+                            key={tag}
+                            className="px-1.5 py-0.5 rounded-full text-xs"
+                            style={{
+                              background: `${darkTheme.neon.purple}15`,
+                              color: darkTheme.neon.purple
+                            }}
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                        {post.hashtags.length > 2 && (
                           <span className="text-xs" style={{ color: darkTheme.text.muted }}>
-                            +{post.hashtags.length - 1}
+                            +{post.hashtags.length - 2}
                           </span>
                         )}
                       </div>
@@ -1033,21 +1036,24 @@ const TrendingPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Hashtags - 单独一行 */}
+                    {/* Hashtags - 单独一行，显示前两个 */}
                     {post.hashtags && post.hashtags.length > 0 && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <span 
-                          className="px-2 py-1 rounded-full text-xs"
-                          style={{
-                            background: `${darkTheme.neon.purple}15`,
-                            color: darkTheme.neon.purple
-                          }}
-                        >
-                          #{post.hashtags[0]}
-                        </span>
-                        {post.hashtags.length > 1 && (
+                      <div className="flex items-center gap-1 mb-2">
+                        {post.hashtags.slice(0, 2).map((tag) => (
+                          <span 
+                            key={tag}
+                            className="px-1.5 py-0.5 rounded-full text-xs"
+                            style={{
+                              background: `${darkTheme.neon.purple}15`,
+                              color: darkTheme.neon.purple
+                            }}
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                        {post.hashtags.length > 2 && (
                           <span className="text-xs" style={{ color: darkTheme.text.muted }}>
-                            +{post.hashtags.length - 1}
+                            +{post.hashtags.length - 2}
                           </span>
                         )}
                       </div>
