@@ -1,0 +1,140 @@
+-- 简单的测试数据生成脚本（使用随机UUID，避免冲突）
+-- 请在Supabase SQL编辑器中运行
+
+-- 1. 直接创建新的测试用户（使用随机UUID）
+INSERT INTO user_profiles (
+  id,
+  email,
+  username,
+  full_name,
+  user_type,
+  email_verified,
+  is_active,
+  business_name,
+  subscription_level,
+  has_business_features,
+  verification_status,
+  avatar_url,
+  location,
+  phone,
+  website
+) VALUES 
+(
+  gen_random_uuid(),
+  'test.user1@lifex.com',
+  'testuser1',
+  'Test User 1',
+  'free_business',
+  true,
+  true,
+  'Test Business 1',
+  'free',
+  false,
+  'none',
+  'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+  '{"city": "Auckland", "country": "New Zealand", "coordinates": {"lat": -36.8485, "lng": 174.7633}}',
+  '09-123-4567',
+  'https://testbusiness1.com'
+),
+(
+  gen_random_uuid(),
+  'test.user2@lifex.com',
+  'testuser2',
+  'Test User 2',
+  'free_business',
+  true,
+  true,
+  'Test Business 2',
+  'free',
+  false,
+  'none',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+  '{"city": "Auckland", "country": "New Zealand", "coordinates": {"lat": -36.8585, "lng": 174.7533}}',
+  '09-234-5678',
+  'https://testbusiness2.com'
+),
+(
+  gen_random_uuid(),
+  'test.user3@lifex.com',
+  'testuser3',
+  'Test User 3',
+  'free_business',
+  true,
+  true,
+  'Test Business 3',
+  'free',
+  false,
+  'none',
+  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+  '{"city": "Auckland", "country": "New Zealand", "coordinates": {"lat": -36.8385, "lng": 174.7733}}',
+  '09-345-6789',
+  'https://testbusiness3.com'
+),
+(
+  gen_random_uuid(),
+  'test.user4@lifex.com',
+  'testuser4',
+  'Test User 4',
+  'free_business',
+  true,
+  true,
+  'Test Business 4',
+  'free',
+  false,
+  'none',
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
+  '{"city": "Auckland", "country": "New Zealand", "coordinates": {"lat": -36.8485, "lng": 174.7633}}',
+  '09-456-7890',
+  'https://testbusiness4.com'
+),
+(
+  gen_random_uuid(),
+  'test.user5@lifex.com',
+  'testuser5',
+  'Test User 5',
+  'free_business',
+  true,
+  true,
+  'Test Business 5',
+  'free',
+  false,
+  'none',
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+  '{"city": "Auckland", "country": "New Zealand", "coordinates": {"lat": -36.8785, "lng": 174.7633}}',
+  '09-567-8901',
+  'https://testbusiness5.com'
+);
+
+-- 2. 验证新创建的测试用户
+SELECT 
+  id,
+  email,
+  username,
+  full_name,
+  business_name,
+  avatar_url,
+  phone,
+  website,
+  location,
+  created_at
+FROM user_profiles 
+WHERE email LIKE 'test.user%@lifex.com'
+ORDER BY created_at DESC
+LIMIT 5;
+
+-- 3. 显示创建结果统计
+SELECT 
+  COUNT(*) as total_test_users,
+  'New test users created successfully' as message
+FROM user_profiles 
+WHERE email LIKE 'test.user%@lifex.com';
+
+-- 4. 显示最新的测试用户ID（用于后续测试）
+SELECT 
+  id,
+  email,
+  username
+FROM user_profiles 
+WHERE email LIKE 'test.user%@lifex.com'
+ORDER BY created_at DESC
+LIMIT 5;
