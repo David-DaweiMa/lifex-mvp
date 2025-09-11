@@ -839,8 +839,8 @@ const TrendingPage: React.FC = () => {
                     </div>
                     
                     <p className="text-sm mb-3 leading-relaxed" style={{ color: darkTheme.text.secondary }}>
-                      {post.content.length > 120 
-                        ? `${post.content.substring(0, 120)}...` 
+                      {post.content.length > 80 
+                        ? `${post.content.substring(0, 80)}...` 
                         : post.content
                       }
                     </p>
@@ -877,38 +877,35 @@ const TrendingPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Hashtags - Instagram style: 只显示前2个 */}
+                    {/* Hashtags - 单独一行 */}
                     {post.hashtags && post.hashtags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {post.hashtags.slice(0, 2).map((tag) => (
-                          <span 
-                            key={tag}
-                            className="px-2 py-1 rounded-full text-xs"
-                            style={{
-                              background: `${darkTheme.neon.purple}15`,
-                              color: darkTheme.neon.purple
-                            }}
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                        {post.hashtags.length > 2 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span 
+                          className="px-2 py-1 rounded-full text-xs"
+                          style={{
+                            background: `${darkTheme.neon.purple}15`,
+                            color: darkTheme.neon.purple
+                          }}
+                        >
+                          #{post.hashtags[0]}
+                        </span>
+                        {post.hashtags.length > 1 && (
                           <span className="text-xs" style={{ color: darkTheme.text.muted }}>
-                            +{post.hashtags.length - 2}
+                            +{post.hashtags.length - 1}
                           </span>
                         )}
                       </div>
                     )}
 
-                    {/* Actions */}
+                    {/* Actions - 单独一行 */}
                     <div className="flex items-center justify-between pt-2">
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <button
                           onClick={() => handleLikeClick(post.id)}
                           className="flex items-center gap-1 transition-colors"
                         >
                           <Heart 
-                            size={16} 
+                            size={14} 
                             className={likedPosts.has(post.id) ? 'fill-current' : ''}
                             style={{ 
                               color: likedPosts.has(post.id) 
@@ -925,7 +922,7 @@ const TrendingPage: React.FC = () => {
                         </button>
 
                         <button className="flex items-center gap-1 transition-colors">
-                          <MessageCircle size={16} style={{ color: darkTheme.text.muted }} />
+                          <MessageCircle size={14} style={{ color: darkTheme.text.muted }} />
                           <span className="text-xs" style={{ color: darkTheme.text.muted }}>
                             {post.comment_count}
                           </span>
@@ -935,7 +932,7 @@ const TrendingPage: React.FC = () => {
                           onClick={() => handleShareClick(post.id)}
                           className="flex items-center gap-1 transition-colors"
                         >
-                          <Share2 size={16} style={{ color: darkTheme.text.muted }} />
+                          <Share2 size={14} style={{ color: darkTheme.text.muted }} />
                           <span className="text-xs" style={{ color: darkTheme.text.muted }}>
                             {post.share_count}
                           </span>
@@ -943,7 +940,7 @@ const TrendingPage: React.FC = () => {
                       </div>
 
                       <span className="text-xs" style={{ color: darkTheme.text.muted }}>
-                        {post.view_count} views
+                        {post.view_count}
                       </span>
                     </div>
                   </div>
@@ -998,8 +995,8 @@ const TrendingPage: React.FC = () => {
                     </div>
                     
                     <p className="text-sm mb-3 leading-relaxed" style={{ color: darkTheme.text.secondary }}>
-                      {post.content.length > 120 
-                        ? `${post.content.substring(0, 120)}...` 
+                      {post.content.length > 80 
+                        ? `${post.content.substring(0, 80)}...` 
                         : post.content
                       }
                     </p>
@@ -1036,38 +1033,35 @@ const TrendingPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Hashtags - Instagram style: 只显示前2个 */}
+                    {/* Hashtags - 单独一行 */}
                     {post.hashtags && post.hashtags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {post.hashtags.slice(0, 2).map((tag) => (
-                          <span 
-                            key={tag}
-                            className="px-2 py-1 rounded-full text-xs"
-                            style={{
-                              background: `${darkTheme.neon.purple}15`,
-                              color: darkTheme.neon.purple
-                            }}
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                        {post.hashtags.length > 2 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span 
+                          className="px-2 py-1 rounded-full text-xs"
+                          style={{
+                            background: `${darkTheme.neon.purple}15`,
+                            color: darkTheme.neon.purple
+                          }}
+                        >
+                          #{post.hashtags[0]}
+                        </span>
+                        {post.hashtags.length > 1 && (
                           <span className="text-xs" style={{ color: darkTheme.text.muted }}>
-                            +{post.hashtags.length - 2}
+                            +{post.hashtags.length - 1}
                           </span>
                         )}
                       </div>
                     )}
 
-                    {/* Actions */}
+                    {/* Actions - 单独一行 */}
                     <div className="flex items-center justify-between pt-2">
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <button
                           onClick={() => handleLikeClick(post.id)}
                           className="flex items-center gap-1 transition-colors"
                         >
                           <Heart 
-                            size={16} 
+                            size={14} 
                             className={likedPosts.has(post.id) ? 'fill-current' : ''}
                             style={{ 
                               color: likedPosts.has(post.id) 
@@ -1084,7 +1078,7 @@ const TrendingPage: React.FC = () => {
                         </button>
 
                         <button className="flex items-center gap-1 transition-colors">
-                          <MessageCircle size={16} style={{ color: darkTheme.text.muted }} />
+                          <MessageCircle size={14} style={{ color: darkTheme.text.muted }} />
                           <span className="text-xs" style={{ color: darkTheme.text.muted }}>
                             {post.comment_count}
                           </span>
@@ -1094,7 +1088,7 @@ const TrendingPage: React.FC = () => {
                           onClick={() => handleShareClick(post.id)}
                           className="flex items-center gap-1 transition-colors"
                         >
-                          <Share2 size={16} style={{ color: darkTheme.text.muted }} />
+                          <Share2 size={14} style={{ color: darkTheme.text.muted }} />
                           <span className="text-xs" style={{ color: darkTheme.text.muted }}>
                             {post.share_count}
                           </span>
@@ -1102,7 +1096,7 @@ const TrendingPage: React.FC = () => {
                       </div>
 
                       <span className="text-xs" style={{ color: darkTheme.text.muted }}>
-                        {post.view_count} views
+                        {post.view_count}
                       </span>
                     </div>
                   </div>
