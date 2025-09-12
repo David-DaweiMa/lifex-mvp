@@ -42,8 +42,8 @@ export async function GET(request: NextRequest) {
       query = query.order('created_at', { ascending: false });
     }
 
-    // Apply pagination
-    query = query.range(offset, offset + limit - 1);
+    // Apply pagination - use limit and offset for REST API
+    query = query.limit(limit).offset(offset);
 
     const { data: businesses, error } = await query;
     
