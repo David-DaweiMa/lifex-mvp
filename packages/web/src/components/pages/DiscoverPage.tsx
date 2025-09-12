@@ -64,7 +64,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
         limit: 20,
         category: selectedServiceCategory === 'all' ? undefined : selectedServiceCategory,
         search: searchQuery || undefined,
-        sortBy: 'rating',
+        sortBy: 'created_at',
         sortOrder: 'desc'
       };
 
