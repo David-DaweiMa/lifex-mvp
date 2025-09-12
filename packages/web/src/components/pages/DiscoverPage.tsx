@@ -298,20 +298,27 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                         }}
                       >
                         {/* 尝试显示图片，如果失败则显示渐变背景 */}
-                        {(business as any).cover_photo_url && (
+                        {(business as any).cover_photo_url ? (
                           <img
                             src={(business as any).cover_photo_url}
                             alt={(business as any).name}
                             className="w-full h-full object-cover absolute inset-0"
                             onError={(e) => {
-                              // 图片加载失败时隐藏图片，显示渐变背景
+                              // 图片加载失败时隐藏图片，显示渐变背景和图标
                               e.currentTarget.style.display = 'none';
+                              const iconDiv = e.currentTarget.nextElementSibling as HTMLElement;
+                              if (iconDiv) {
+                                iconDiv.style.display = 'flex';
+                              }
                             }}
                           />
-                        )}
+                        ) : null}
                         
                         {/* 默认图标 - 当没有图片或图片加载失败时显示 */}
-                        <div className="w-full h-full flex items-center justify-center text-white">
+                        <div 
+                          className="w-full h-full flex items-center justify-center text-white"
+                          style={{ display: (business as any).cover_photo_url ? 'none' : 'flex' }}
+                        >
                           <Store size={24} />
                         </div>
                       </div>
