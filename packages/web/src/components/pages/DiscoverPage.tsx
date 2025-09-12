@@ -21,14 +21,34 @@ const discoveryTabs = [
 
 // 获取可靠的图片URL
 const getReliableImageUrl = (originalUrl: string, businessName: string): string => {
-  // 如果是Picsum Photos的URL，转换为Dummy Image
+  // 如果是Picsum Photos的URL，转换为Unsplash图片
   if (originalUrl && originalUrl.includes('picsum.photos')) {
-    // 使用商家名称生成一个简单的占位图片
-    const colors = ['8B5CF6', '10B981', '059669', 'DC2626', 'DB2777', '7C3AED', '0891B2', 'EA580C'];
-    const colorIndex = businessName.length % colors.length;
-    const color = colors[colorIndex];
-    const shortName = businessName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
-    return `https://dummyimage.com/400x300/${color}/FFFFFF&text=${shortName}`;
+    // 根据商家名称选择对应的Unsplash图片
+    const imageMap: { [key: string]: string } = {
+      'Café Luna': 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop&crop=center',
+      'Sakura Sushi': 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400&h=300&fit=crop&crop=center',
+      'Green Thumb Garden Center': 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop&crop=center',
+      'FitLife Gym': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&crop=center',
+      'Bella Vista Boutique': 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center',
+      'TechHub Electronics': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop&crop=center',
+      'Ocean Breeze Spa': 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&h=300&fit=crop&crop=center',
+      'Golden Dragon Restaurant': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop&crop=center',
+      'Bookworm\'s Paradise': 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop&crop=center',
+      'Artisan Bakery': 'https://images.unsplash.com/photo-1555507036-ab1a403d5a2a?w=400&h=300&fit=crop&crop=center',
+      'Urban Yoga Studio': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop&crop=center',
+      'Vintage Vinyl Records': 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop&crop=center',
+      'Fresh Market Grocer': 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop&crop=center',
+      'Craft Beer Co.': 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop&crop=center',
+      'Pet Paradise': 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=300&fit=crop&crop=center',
+      'Sunset Cinema': 'https://images.unsplash.com/photo-1489599808000-0b4a5b5b5b5b?w=400&h=300&fit=crop&crop=center',
+      'Adventure Gear Co.': 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=300&fit=crop&crop=center',
+      'Sweet Dreams Desserts': 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop&crop=center',
+      'Zen Garden Center': 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop&crop=center',
+      'Digital Art Gallery': 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop&crop=center'
+    };
+    
+    // 查找匹配的图片，如果没有找到则使用默认图片
+    return imageMap[businessName] || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop&crop=center';
   }
   return originalUrl;
 };
