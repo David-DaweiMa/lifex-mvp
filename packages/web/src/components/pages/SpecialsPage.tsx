@@ -204,134 +204,127 @@ const SpecialsPage: React.FC = () => {
       </div>
 
       {/* Specials Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {filteredSpecials.map((special: any) => (
           <div
             key={special.id}
-            className="rounded-xl overflow-hidden border"
+            className="rounded-lg overflow-hidden border"
             style={{ 
               background: darkTheme.background.card,
               borderColor: darkTheme.background.glass
             }}
           >
             {/* Special Image */}
-            <div className={`h-32 bg-gradient-to-r ${special.image} relative`}>
-              <div className="absolute top-3 left-3">
+            <div className={`h-20 bg-gradient-to-r ${special.image} relative`}>
+              <div className="absolute top-2 left-2">
                 <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/50 text-white text-xs font-medium">
-                  <Tag size={12} />
+                  <Tag size={10} />
                   {special.discountPercent}% OFF
                 </div>
               </div>
-              <div className="absolute top-3 right-3">
+              <div className="absolute top-2 right-2">
                 {special.isVerified && (
-                  <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
                     <span className="text-white text-xs">✓</span>
                   </div>
                 )}
               </div>
-              <div className="absolute bottom-3 left-3 right-3">
+              <div className="absolute bottom-2 left-2 right-2">
                 <div className="flex items-center justify-between text-white text-xs">
                   <div className="flex items-center gap-1">
-                    <MapPin size={12} />
+                    <MapPin size={10} />
                     <span>{special.distance}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Clock size={12} />
-                    <span>{getDaysUntilExpiry(special.validUntil)} days left</span>
+                    <Clock size={10} />
+                    <span>{getDaysUntilExpiry(special.validUntil)}d</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Special Content */}
-            <div className="p-4 space-y-3">
-              {/* Business Info */}
+            <div className="p-3 space-y-2">
+              {/* Business Info & Rating */}
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-semibold text-sm" style={{ color: darkTheme.text.primary }}>
                     {special.businessName}
                   </h3>
-                  <p className="text-xs" style={{ color: darkTheme.text.secondary }}>
-                    {special.businessType}
-                  </p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Star size={12} className="text-yellow-400 fill-current" />
+                  <Star size={10} className="text-yellow-400 fill-current" />
                   <span className="text-xs" style={{ color: darkTheme.text.secondary }}>
-                    {special.rating} ({special.reviewCount})
+                    {special.rating}
                   </span>
                 </div>
               </div>
 
               {/* Special Title */}
-              <h4 className="font-bold text-base" style={{ color: darkTheme.text.primary }}>
+              <h4 className="font-bold text-sm leading-tight" style={{ color: darkTheme.text.primary }}>
                 {special.title}
               </h4>
 
-              {/* Description */}
-              <p className="text-sm" style={{ color: darkTheme.text.secondary }}>
+              {/* Description - 限制为2行 */}
+              <p 
+                className="text-xs leading-tight" 
+                style={{ 
+                  color: darkTheme.text.secondary,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden'
+                }}
+              >
                 {special.description}
               </p>
 
-              {/* Price */}
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold" style={{ color: darkTheme.neon.green }}>
-                  {formatPrice(special.discountPrice)}
-                </span>
-                <span className="text-sm line-through" style={{ color: darkTheme.text.secondary }}>
-                  {formatPrice(special.originalPrice)}
-                </span>
-                <span className="text-xs px-2 py-1 rounded-full" style={{ 
-                  background: darkTheme.neon.green + '20',
-                  color: darkTheme.neon.green
-                }}>
-                  Save {formatPrice(special.originalPrice - special.discountPrice)}
-                </span>
-              </div>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-1">
-                {special.tags.map((tag: any, index: number) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 rounded-full text-xs"
-                    style={{ 
-                      background: darkTheme.background.glass,
-                      color: darkTheme.text.secondary
-                    }}
-                  >
-                    {tag}
+              {/* Price & Tags in one row */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-base font-bold" style={{ color: darkTheme.neon.green }}>
+                    {formatPrice(special.discountPrice)}
                   </span>
-                ))}
+                  <span className="text-xs line-through" style={{ color: darkTheme.text.secondary }}>
+                    {formatPrice(special.originalPrice)}
+                  </span>
+                </div>
+                <div className="flex gap-1">
+                  {special.tags.slice(0, 2).map((tag: any, index: number) => (
+                    <span
+                      key={index}
+                      className="px-1.5 py-0.5 rounded text-xs"
+                      style={{ 
+                        background: darkTheme.background.glass,
+                        color: darkTheme.text.secondary
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
 
-              {/* Stats */}
-              <div className="flex items-center justify-between text-xs" style={{ color: darkTheme.text.secondary }}>
-                <div className="flex items-center gap-3">
+              {/* Stats & Claim Button in one row */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs" style={{ color: darkTheme.text.secondary }}>
                   <div className="flex items-center gap-1">
-                    <Eye size={12} />
-                    <span>{special.views} views</span>
+                    <Eye size={10} />
+                    <span>{special.views}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Users size={12} />
-                    <span>{special.claimed} claimed</span>
+                    <Users size={10} />
+                    <span>{special.claimed}</span>
                   </div>
                 </div>
-                {special.maxClaims && (
-                  <div className="text-xs">
-                    {special.maxClaims - special.claimed} left
-                  </div>
-                )}
+                <button
+                  onClick={() => handleClaimSpecial(special.id)}
+                  className="px-4 py-2 rounded-lg font-medium text-white text-sm transition-all hover:opacity-90"
+                  style={{ background: darkTheme.neon.purple }}
+                >
+                  Claim
+                </button>
               </div>
-
-              {/* Claim Button */}
-              <button
-                onClick={() => handleClaimSpecial(special.id)}
-                className="w-full py-3 rounded-xl font-semibold text-white transition-all hover:opacity-90"
-                style={{ background: darkTheme.neon.purple }}
-              >
-                Claim This Deal
-              </button>
             </div>
           </div>
         ))}
@@ -354,3 +347,4 @@ const SpecialsPage: React.FC = () => {
 };
 
 export default SpecialsPage;
+
