@@ -100,3 +100,5 @@ quickCheck().catch(error => {
   console.error('❌ 检查失败:', error.message);
   process.exit(1);
 });
+
+

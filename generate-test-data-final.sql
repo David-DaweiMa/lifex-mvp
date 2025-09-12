@@ -139,3 +139,4 @@ SELECT
 FROM user_profiles 
 WHERE email LIKE 'test.user%@lifex.com'
 ORDER BY email;
+

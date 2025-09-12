@@ -326,3 +326,4 @@ SELECT
   (SELECT COUNT(*) FROM trending_posts WHERE id LIKE 'post-%') as posts_created,
   (SELECT COUNT(*) FROM post_likes) as likes_created,
   (SELECT COUNT(*) FROM post_shares) as shares_created;
+

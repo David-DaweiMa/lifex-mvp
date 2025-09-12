@@ -112,3 +112,4 @@ SELECT
   COUNT(CASE WHEN category = 'shopping' THEN 1 END) as shopping_count,
   COUNT(CASE WHEN category = 'services' THEN 1 END) as services_count
 FROM public.specials;
+

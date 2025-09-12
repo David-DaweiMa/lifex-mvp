@@ -478,16 +478,120 @@ export async function POST(request: NextRequest) {
       }
     ];
 
-    // 将数据存储到数据库（这里我们模拟存储，实际项目中需要创建相应的表）
-    console.log(`生成了 ${specialsData.length} 条specials测试数据`);
+    // 将数据存储到数据库
+    console.log(`开始存储 ${specialsData.length} 条specials测试数据到数据库...`);
+
+    // 首先检查是否有商家数据，如果没有则创建一些测试商家
+    const { data: existingBusinesses, error: businessError } = await supabase
+      .from('businesses')
+      .select('id')
+      .limit(1);
+
+    if (businessError) {
+      console.error('查询商家数据时出错:', businessError);
+      console.error('错误详情:', JSON.stringify(businessError, null, 2));
+      
+      // 如果查询失败，返回错误信息
+      return NextResponse.json({
+        success: false,
+        message: '查询商家数据失败',
+        error: businessError.message,
+        details: businessError
+      }, { status: 500 });
+    }
+
+    let businessId;
+    if (!existingBusinesses || existingBusinesses.length === 0) {
+      // 创建测试商家
+      const { data: newBusiness, error: createBusinessError } = await supabase
+        .from('businesses')
+        .insert({
+          name: 'Test Business',
+          description: 'Test business for specials data',
+          category: 'food',
+          is_verified: true,
+          is_active: true
+        })
+        .select('id')
+        .single();
+
+      if (createBusinessError) {
+        console.error('创建测试商家时出错:', createBusinessError);
+        console.error('错误详情:', JSON.stringify(createBusinessError, null, 2));
+        return NextResponse.json(
+          { success: false, message: '创建测试商家失败', error: createBusinessError.message, details: createBusinessError },
+          { status: 500 }
+        );
+      }
+      businessId = newBusiness.id;
+    } else {
+      businessId = existingBusinesses[0].id;
+    }
+
+    // 转换数据格式以匹配数据库表结构
+    const dbSpecialsData = specialsData.map(special => ({
+      business_id: businessId,
+      title: special.title,
+      description: special.description,
+      original_price: special.originalPrice,
+      discount_price: special.discountPrice,
+      discount_percent: special.discountPercent,
+      category: special.category,
+      location: special.location,
+      distance: special.distance,
+      rating: special.rating,
+      review_count: special.reviewCount,
+      image_url: `https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000000000)}`,
+      valid_from: new Date().toISOString().split('T')[0],
+      valid_until: special.validUntil, // 确保这是 YYYY-MM-DD 格式
+      is_verified: special.isVerified,
+      is_active: true,
+      views: special.views,
+      claimed: special.claimed,
+      max_claims: special.maxClaims,
+      tags: special.tags
+    }));
+
+    console.log('准备插入的数据格式:', JSON.stringify(dbSpecialsData[0], null, 2));
+
+    // 批量插入specials数据
+    console.log('开始插入数据到数据库...');
+    const { data: insertedSpecials, error: insertError } = await supabase
+      .from('specials')
+      .insert(dbSpecialsData)
+      .select('id, title, category');
+
+    if (insertError) {
+      console.error('插入specials数据时出错:', insertError);
+      console.error('错误详情:', JSON.stringify(insertError, null, 2));
+      
+      // 如果插入失败，返回错误信息
+      return NextResponse.json({
+        success: false,
+        message: '数据库插入失败',
+        error: insertError.message,
+        details: insertError
+      }, { status: 500 });
+    }
+
+    console.log('数据库插入成功:', insertedSpecials?.length, '条数据');
+    console.log('插入的数据:', insertedSpecials);
+
+    console.log(`成功存储 ${insertedSpecials?.length || 0} 条specials数据到数据库`);
 
     return NextResponse.json({
       success: true,
-      message: 'Specials测试数据生成成功',
+      message: 'Specials测试数据生成并存储成功',
       data: {
         specials: {
-          count: specialsData.length,
-          data: specialsData
+          count: insertedSpecials?.length || 0,
+          data: insertedSpecials || [],
+          originalData: specialsData,
+          debug: {
+            insertedCount: insertedSpecials?.length || 0,
+            originalCount: specialsData.length,
+            businessId: businessId
+          }
         }
       }
     });

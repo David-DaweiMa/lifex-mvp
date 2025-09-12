@@ -62,3 +62,4 @@ FROM information_schema.table_constraints AS tc
 WHERE tc.table_name = 'user_profiles'
   AND tc.table_schema = 'public'
   AND tc.constraint_type = 'FOREIGN KEY';
+

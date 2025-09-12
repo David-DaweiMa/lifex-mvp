@@ -209,3 +209,5 @@ node database-inspector.js --schema
 ❌ 表不存在或无法访问
 ```
 **解决**: 检查数据库权限和表是否存在
+
+

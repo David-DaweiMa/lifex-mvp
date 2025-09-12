@@ -52,3 +52,4 @@ SELECT
   'Test users in database' as status
 FROM user_profiles 
 WHERE email LIKE 'test.user%@lifex.com';
+

@@ -1,8 +1,8 @@
 // 简单的数据库检查脚本 - 使用Supabase REST API
 const https = require('https');
 
-// 从环境变量获取配置
-require('dotenv').config();
+// 从环境变量获取配置 - 支持 .env.local
+require('dotenv').config({ path: '.env.local' });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

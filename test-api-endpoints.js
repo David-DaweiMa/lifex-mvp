@@ -132,3 +132,4 @@ console.log('💡 使用方法:');
 console.log('  - testMigration.runMigrationTests() - 运行所有测试');
 console.log('  - testMigration.testDatabaseConnection() - 测试数据库连接');
 console.log('  - testMigration.runAllTests() - 测试所有API端点');
+

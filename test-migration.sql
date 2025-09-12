@@ -151,3 +151,4 @@ SELECT
   'Migration Test Summary' as test_type,
   'All tests completed successfully' as result,
   NOW() as test_time;
+

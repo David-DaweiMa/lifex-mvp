@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { typedSupabase } from '@/lib/supabase';
+import { typedSupabaseAdmin } from '@/lib/supabase';
 import { checkProductQuota } from '@/lib/productQuota';
 import { checkBusinessPermissions } from '@/lib/businessPermissions';
 
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit;
 
     // Build query
-    let query = typedSupabase
+    let query = typedSupabaseAdmin
       .from('businesses')
       .select('*')
       .eq('is_active', true);
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     const { data: businesses, error } = await query;
     
     // Get count separately
-    const { count } = await (typedSupabase as any)
+    const { count } = await (typedSupabaseAdmin as any)
       .from('businesses')
       .select('*', { count: 'exact', head: true })
       .eq('is_active', true);
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       type: (business as any).description || 'Local Business',
       category: (business as any).category_id || 'general',
       rating: (business as any).rating || 0,
-      reviews: (business as any).review_count || 0,
+      review_count: (business as any).review_count || 0,
       distance: '0.5km', // Placeholder - would need location calculation
       price: (business as any).price_range || '$$',
       tags: (business as any).amenities ? Object.keys(JSON.parse((business as any).amenities)) : [],
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user profile to check subscription level
-    const { data: userProfile, error: profileError } = await (typedSupabase as any)
+    const { data: userProfile, error: profileError } = await (typedSupabaseAdmin as any)
       .from('user_profiles')
       .select('*')
       .eq('id', userId)
@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the business record
-    const { data: newBusiness, error: createError } = await (typedSupabase as any)
+    const { data: newBusiness, error: createError } = await (typedSupabaseAdmin as any)
       .from('businesses')
       .insert({
         user_id: userId,

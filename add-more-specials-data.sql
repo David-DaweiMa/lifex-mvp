@@ -2,13 +2,13 @@
 -- 首先检查现有的businesses数据，如果没有则创建
 
 -- 确保有足够的商家数据
-INSERT INTO public.businesses (id, name, description, logo_url, is_verified, is_active, created_at, updated_at)
+INSERT INTO public.businesses (id, name, description, logo_url, category, is_verified, is_active, created_at, updated_at)
 VALUES 
-  (gen_random_uuid(), 'Auckland Central Mall', 'Premium shopping destination in the heart of Auckland', 'https://images.unsplash.com/photo-1555529902-1c05a6d66d17', true, true, NOW(), NOW()),
-  (gen_random_uuid(), 'Sky Tower Restaurant', 'Fine dining with panoramic city views', 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4', true, true, NOW(), NOW()),
-  (gen_random_uuid(), 'Viaduct Harbour Spa', 'Luxury wellness and relaxation center', 'https://images.unsplash.com/photo-1540555700478-4be289fbecef', true, true, NOW(), NOW()),
-  (gen_random_uuid(), 'Britomart Fitness', 'Modern gym with state-of-the-art equipment', 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b', true, true, NOW(), NOW()),
-  (gen_random_uuid(), 'Wynyard Quarter Cafe', 'Artisan coffee and fresh pastries', 'https://images.unsplash.com/photo-1509042239860-f550ce710b93', true, true, NOW(), NOW())
+  (gen_random_uuid(), 'Auckland Central Mall', 'Premium shopping destination in the heart of Auckland', 'https://images.unsplash.com/photo-1555529902-1c05a6d66d17', 'shopping', true, true, NOW(), NOW()),
+  (gen_random_uuid(), 'Sky Tower Restaurant', 'Fine dining with panoramic city views', 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4', 'food', true, true, NOW(), NOW()),
+  (gen_random_uuid(), 'Viaduct Harbour Spa', 'Luxury wellness and relaxation center', 'https://images.unsplash.com/photo-1540555700478-4be289fbecef', 'beauty', true, true, NOW(), NOW()),
+  (gen_random_uuid(), 'Britomart Fitness', 'Modern gym with state-of-the-art equipment', 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b', 'fitness', true, true, NOW(), NOW()),
+  (gen_random_uuid(), 'Wynyard Quarter Cafe', 'Artisan coffee and fresh pastries', 'https://images.unsplash.com/photo-1509042239860-f550ce710b93', 'food', true, true, NOW(), NOW())
 ON CONFLICT (name) DO NOTHING;
 
 -- 获取现有的business_id用于关联

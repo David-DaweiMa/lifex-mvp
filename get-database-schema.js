@@ -138,3 +138,5 @@ getDatabaseSchema().then(() => {
   console.error('❌ 脚本执行失败:', error.message);
   process.exit(1);
 });
+
+
