@@ -33,11 +33,12 @@ export async function GET(request: NextRequest) {
 
     // Apply sorting
     if (sortBy === 'rating') {
-      query = query.order('rating', { ascending: sortOrder === 'asc' });
+      // 对于评分排序，让null值排在最后
+      query = query.order('rating', { ascending: sortOrder === 'asc', nullsFirst: false });
     } else if (sortBy === 'name') {
       query = query.order('name', { ascending: sortOrder === 'asc' });
     } else if (sortBy === 'review_count') {
-      query = query.order('review_count', { ascending: sortOrder === 'asc' });
+      query = query.order('review_count', { ascending: sortOrder === 'asc', nullsFirst: false });
     } else {
       query = query.order('created_at', { ascending: false });
     }
