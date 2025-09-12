@@ -292,18 +292,28 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                     {/* Business Image */}
                     <div className="relative w-24 h-24 md:w-32 md:h-32 flex-shrink-0">
                       <div 
-                        className="w-full h-full"
+                        className="w-full h-full relative overflow-hidden"
                         style={{ 
-                          background: (business as any).cover_photo_url 
-                            ? `url(${(business as any).cover_photo_url}) center/cover` 
-                            : `linear-gradient(135deg, #A855F7, ${darkTheme.neon.blue})` 
+                          background: `linear-gradient(135deg, #A855F7, ${darkTheme.neon.blue})` 
                         }}
                       >
-                        {!(business as any).cover_photo_url && (
-                          <div className="w-full h-full flex items-center justify-center text-white">
-                            <Store size={24} />
-                          </div>
+                        {/* 尝试显示图片，如果失败则显示渐变背景 */}
+                        {(business as any).cover_photo_url && (
+                          <img
+                            src={(business as any).cover_photo_url}
+                            alt={(business as any).name}
+                            className="w-full h-full object-cover absolute inset-0"
+                            onError={(e) => {
+                              // 图片加载失败时隐藏图片，显示渐变背景
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
                         )}
+                        
+                        {/* 默认图标 - 当没有图片或图片加载失败时显示 */}
+                        <div className="w-full h-full flex items-center justify-center text-white">
+                          <Store size={24} />
+                        </div>
                       </div>
                       
                       {/* Heart Button */}
