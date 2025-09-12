@@ -222,7 +222,6 @@ export default function AIRecommendations() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={styles.headerTitle}>LifeX MVP</Text>
-          <Text style={styles.headerDescription}>What's trending in your community</Text>
         </View>
         <View style={styles.headerActions}>
           <TouchableOpacity 
