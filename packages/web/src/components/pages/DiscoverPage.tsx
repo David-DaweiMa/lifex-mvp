@@ -19,6 +19,20 @@ const discoveryTabs = [
   { id: 'nearby', label: 'Nearby', icon: MapPin }
 ];
 
+// 获取可靠的图片URL
+const getReliableImageUrl = (originalUrl: string, businessName: string): string => {
+  // 如果是Picsum Photos的URL，转换为Dummy Image
+  if (originalUrl && originalUrl.includes('picsum.photos')) {
+    // 使用商家名称生成一个简单的占位图片
+    const colors = ['8B5CF6', '10B981', '059669', 'DC2626', 'DB2777', '7C3AED', '0891B2', 'EA580C'];
+    const colorIndex = businessName.length % colors.length;
+    const color = colors[colorIndex];
+    const shortName = businessName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
+    return `https://dummyimage.com/400x300/${color}/FFFFFF&text=${shortName}`;
+  }
+  return originalUrl;
+};
+
 const DiscoverPage: React.FC<DiscoverPageProps> = ({
   selectedServiceCategory,
   setSelectedServiceCategory
@@ -300,7 +314,7 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                         {/* 尝试显示图片，如果失败则显示渐变背景 */}
                         {(business as any).cover_photo_url ? (
                           <img
-                            src={(business as any).cover_photo_url}
+                            src={getReliableImageUrl((business as any).cover_photo_url, (business as any).name)}
                             alt={(business as any).name}
                             className="w-full h-full object-cover absolute inset-0 z-10"
                             crossOrigin="anonymous"
