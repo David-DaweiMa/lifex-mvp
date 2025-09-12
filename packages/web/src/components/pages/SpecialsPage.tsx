@@ -35,97 +35,28 @@ const SpecialsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('distance');
 
-  // Mock data for specials
-  const mockSpecials: Special[] = [
-    {
-      id: '1',
-      businessName: 'Café Supreme',
-      businessType: 'Coffee & Workspace',
-      title: '50% Off All Coffee Drinks',
-      description: 'Enjoy our premium coffee blends at half price. Perfect for your morning routine!',
-      originalPrice: 8.50,
-      discountPrice: 4.25,
-      discountPercent: 50,
-      category: 'food',
-      location: '118 Ponsonby Road, Auckland',
-      distance: '0.3km',
-      rating: 4.8,
-      reviewCount: 234,
-      image: 'from-amber-400 to-orange-500',
-      validUntil: '2024-01-15',
-      isVerified: true,
-      views: 1250,
-      claimed: 89,
-      maxClaims: 200,
-      tags: ['Coffee', 'Breakfast', 'Workspace']
-    },
-    {
-      id: '2',
-      businessName: 'Sushi Master',
-      businessType: 'Japanese Restaurant',
-      title: 'Buy 2 Get 1 Free Sushi Rolls',
-      description: 'Fresh sushi made daily. Get your third roll free with any two roll purchase.',
-      originalPrice: 15.00,
-      discountPrice: 10.00,
-      discountPercent: 33,
-      category: 'food',
-      location: '45 Queen Street, Auckland',
-      distance: '0.8km',
-      rating: 4.6,
-      reviewCount: 189,
-      image: 'from-red-400 to-pink-500',
-      validUntil: '2024-01-20',
-      isVerified: true,
-      views: 980,
-      claimed: 156,
-      maxClaims: 300,
-      tags: ['Sushi', 'Japanese', 'Lunch']
-    },
-    {
-      id: '3',
-      businessName: 'Fitness First',
-      businessType: 'Gym & Fitness',
-      title: 'Free 7-Day Trial + 20% Off Membership',
-      description: 'Start your fitness journey with a free week trial, then get 20% off your first month.',
-      originalPrice: 89.00,
-      discountPrice: 71.20,
-      discountPercent: 20,
-      category: 'fitness',
-      location: '78 Newmarket Road, Auckland',
-      distance: '1.2km',
-      rating: 4.4,
-      reviewCount: 312,
-      image: 'from-green-400 to-blue-500',
-      validUntil: '2024-01-25',
-      isVerified: true,
-      views: 2100,
-      claimed: 45,
-      maxClaims: 100,
-      tags: ['Fitness', 'Gym', 'Health']
-    },
-    {
-      id: '4',
-      businessName: 'Beauty Salon Pro',
-      businessType: 'Beauty & Wellness',
-      title: '30% Off Haircut & Styling',
-      description: 'Professional haircut and styling service with our experienced stylists.',
-      originalPrice: 65.00,
-      discountPrice: 45.50,
-      discountPercent: 30,
-      category: 'beauty',
-      location: '23 Parnell Road, Auckland',
-      distance: '0.9km',
-      rating: 4.7,
-      reviewCount: 156,
-      image: 'from-purple-400 to-pink-500',
-      validUntil: '2024-01-18',
-      isVerified: true,
-      views: 890,
-      claimed: 23,
-      maxClaims: 50,
-      tags: ['Hair', 'Beauty', 'Styling']
+  // 从数据库获取specials数据
+  const fetchSpecials = async () => {
+    try {
+      const response = await fetch('/api/specials');
+      const data = await response.json();
+      
+      if (data.success) {
+        setSpecials(data.data.specials);
+        setFilteredSpecials(data.data.specials);
+      } else {
+        console.error('获取specials数据失败:', data.message);
+        // 如果API失败，使用空数组
+        setSpecials([]);
+        setFilteredSpecials([]);
+      }
+    } catch (error) {
+      console.error('获取specials数据时出错:', error);
+      // 如果请求失败，使用空数组
+      setSpecials([]);
+      setFilteredSpecials([]);
     }
-  ];
+  };
 
   const categories = [
     { id: 'all', name: 'All', icon: '🎯' },
@@ -137,8 +68,7 @@ const SpecialsPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    setSpecials(mockSpecials);
-    setFilteredSpecials(mockSpecials);
+    fetchSpecials();
   }, []);
 
   useEffect(() => {
