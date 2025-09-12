@@ -45,7 +45,7 @@ export default function MainScreen() {
       case 'ai-chat':
         return '与AI助手对话，获得智能建议';
       case 'recommendations':
-        return 'What\'s trending in your community';
+        return '';
       case 'profile':
         return '管理你的个人资料和设置';
       case 'notifications':
