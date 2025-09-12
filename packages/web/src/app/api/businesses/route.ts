@@ -42,8 +42,8 @@ export async function GET(request: NextRequest) {
       query = query.order('created_at', { ascending: false });
     }
 
-    // Apply pagination - use limit and offset for REST API
-    query = query.limit(limit).offset(offset);
+    // Apply pagination - use range for Supabase client
+    query = (query as any).range(offset, offset + limit - 1);
 
     const { data: businesses, error } = await query;
     
