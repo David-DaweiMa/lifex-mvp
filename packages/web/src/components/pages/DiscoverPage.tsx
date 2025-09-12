@@ -303,8 +303,10 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                             src={(business as any).cover_photo_url}
                             alt={(business as any).name}
                             className="w-full h-full object-cover absolute inset-0 z-10"
+                            crossOrigin="anonymous"
                             onError={(e) => {
                               console.log('图片加载失败:', (business as any).cover_photo_url);
+                              console.log('错误详情:', e);
                               // 图片加载失败时隐藏图片，显示渐变背景和图标
                               e.currentTarget.style.display = 'none';
                               const iconDiv = e.currentTarget.nextElementSibling as HTMLElement;
@@ -319,6 +321,9 @@ const DiscoverPage: React.FC<DiscoverPageProps> = ({
                               if (iconDiv) {
                                 iconDiv.style.display = 'none';
                               }
+                            }}
+                            onLoadStart={() => {
+                              console.log('开始加载图片:', (business as any).cover_photo_url);
                             }}
                           />
                         ) : null}
