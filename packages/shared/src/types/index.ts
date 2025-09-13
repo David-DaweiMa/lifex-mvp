@@ -58,8 +58,8 @@ export interface ChatMessage {
   assistantType: 'coly' | 'max';
 }
 
-// Quota types
-export interface QuotaConfig {
+// Legacy Quota types (deprecated - use QuotaConfig from quotaConfig service)
+export interface LegacyQuotaConfig {
   free: {
     aiChat: { enabled: false };
     products: { limit: 100 };
@@ -156,4 +156,98 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     total: number;
     totalPages: number;
   };
+}
+
+// Web-specific types (from web package)
+export interface Message {
+  type: 'user' | 'assistant';
+  content: string;
+  assistant?: string;
+  recommendations?: Business[];
+}
+
+export interface Booking {
+  id: number;
+  service: string;
+  provider: string;
+  date: string;
+  time: string;
+  status: 'confirmed' | 'pending' | 'cancelled';
+  category: string;
+  price: string;
+  reminder: boolean;
+}
+
+export interface TrendingData {
+  id: number;
+  title: string;
+  category: string;
+  growth: string;
+  description: string;
+  icon: any;
+  color: string;
+  trend: string;
+}
+
+export interface DiscoverContent {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  author: string;
+  likes: string;
+  image: string;
+  tags: string[];
+  readTime: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  icon: any;
+  color: string;
+}
+
+export type ViewType = 'chat' | 'trending' | 'discover' | 'specials' | 'subscription' | 'profile' | 'membership';
+
+// Enhanced Business interface (merging both definitions)
+export interface BusinessExtended extends Business {
+  // Additional fields from web package
+  type: string;
+  distance: string;
+  price: string;
+  image: string;
+  highlights: string[];
+  isOpen: boolean;
+  aiReason: string;
+  waitTime?: string;
+  confidence?: number;
+  website?: string;
+  logo_url?: string;
+  cover_photo_url?: string;
+  external_id?: string;
+  google_maps_url?: string;
+  descriptions?: any[];
+  menus?: any[];
+  photos?: any[];
+  reviews?: any[];
+  opening_hours?: string;
+  email?: string;
+  city?: string;
+  country?: string;
+  postal_code?: string;
+}
+
+// Enhanced TrendingPost interface (merging both definitions)
+export interface TrendingPostExtended extends TrendingPost {
+  // Additional fields from web package
+  author: {
+    name: string;
+    avatar: string;
+    verified: boolean;
+  };
+  comments: number;
+  shares: number;
+  location: string;
+  timeAgo: string;
 }
