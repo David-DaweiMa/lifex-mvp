@@ -163,7 +163,7 @@ export interface Message {
   type: 'user' | 'assistant';
   content: string;
   assistant?: string;
-  recommendations?: Business[];
+  recommendations?: BusinessExtended[];
 }
 
 export interface Booking {

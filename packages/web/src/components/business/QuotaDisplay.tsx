@@ -16,7 +16,7 @@ import {
   Zap
 } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { QUOTA_CONFIG } from '@/lib/quotaConfig';
+import { QUOTA_CONFIG } from '@lifex/shared';
 
 interface QuotaData {
   products: {

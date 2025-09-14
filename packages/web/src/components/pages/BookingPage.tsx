@@ -2,7 +2,7 @@
 import React from 'react';
 import { Calendar, Clock, MessageCircle, Plus, BarChart3 } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
-import { Booking } from '../../lib/types';
+import { Booking } from '@lifex/shared';
 
 interface BookingPageProps {
   bookings: Booking[];

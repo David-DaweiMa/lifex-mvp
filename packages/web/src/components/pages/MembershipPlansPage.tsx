@@ -16,7 +16,7 @@ import {
   Building
 } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
-import { QUOTA_CONFIG } from '../../lib/quotaConfig';
+import { QUOTA_CONFIG } from '@lifex/shared';
 
 interface MembershipPlansPageProps {
   onNavigateBack: () => void;

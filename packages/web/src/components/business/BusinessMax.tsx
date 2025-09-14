@@ -18,7 +18,7 @@ import {
   Zap
 } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
-import { Message } from '../../lib/types';
+import { Message } from '@lifex/shared';
 import { useAuth } from '../../lib/hooks/useAuth';
 import { checkAssistantPermission, getAssistantIcon, getAssistantColor, getAssistantDescription } from '../../lib/assistantPermissions';
 import { AssistantType } from '../../lib/assistantPermissions';

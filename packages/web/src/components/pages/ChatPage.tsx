@@ -1,7 +1,7 @@
 // src/components/pages/ChatPage.tsx
 import React, { useRef, useEffect, useState } from 'react';
 import { Send, Plus, Mic, ArrowLeft, Star, Phone, MapPin, Sparkles, Camera, Image, FileText } from 'lucide-react';
-import { Message, Business } from '../../lib/types';
+import { Message, BusinessExtended as Business } from '@lifex/shared';
 import { quickPrompts, recentDiscoveries } from '../../lib/mockData';
 
 interface ChatPageProps {

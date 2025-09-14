@@ -2,16 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateConversationalResponse, getAIRecommendations } from '@/lib/ai';
 import { typedSupabase } from '@/lib/supabase';
 import { getAdForChat } from '@/lib/adService';
-import { detectLanguage, SupportedLanguage } from '@/lib/languageDetection';
+import { 
+  detectLanguage, 
+  SupportedLanguage,
+  getAssistantIntroduction, 
+  getPersonalityResponse,
+  checkAssistantLimit,
+  getNextResetTime,
+  AssistantType
+} from '@lifex/shared';
 import { 
   safeAnonymousUsageQuery, 
   safeInsertChatMessage, 
   safeInsertAnonymousUsage, 
   safeUpdateAnonymousUsage 
 } from '@/lib/supabaseHelpers';
-import { getAssistantIntroduction, getPersonalityResponse } from '@/lib/assistantPersonality';
-import { checkAssistantLimit, recordAssistantUsage, getNextResetTime } from '@/lib/assistantUsage';
-import { AssistantType } from '@/lib/assistantUsage';
+import { recordAssistantUsage } from '@/lib/assistantUsage';
 
 export async function POST(request: NextRequest) {
   try {

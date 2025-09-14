@@ -19,7 +19,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { darkTheme } from '../../lib/theme';
-import { Message } from '../../lib/types';
+import { Message } from '@lifex/shared';
 import { useAuth } from '../../lib/hooks/useAuth';
 import { getAssistantIcon, getAssistantColor } from '../../lib/assistantPermissions';
 

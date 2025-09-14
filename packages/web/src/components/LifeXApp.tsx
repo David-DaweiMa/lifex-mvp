@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, MessageCircle, Zap, Camera, Crown, User, Heart, Tag } from 'lucide-react';
 import { darkTheme } from '../lib/theme';
-import { ViewType, Message, Booking } from '../lib/types';
+import { ViewType, Message, Booking } from '@lifex/shared';
 import { mockBookings } from '../lib/mockData';
 import { chatService, ChatServiceResponse } from '../lib/chatService';
 import { useAuth } from '../lib/hooks/useAuth';

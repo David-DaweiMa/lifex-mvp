@@ -10,6 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@lifex/shared": "file:../shared",
     "@supabase/supabase-js": "^2.55.0",
     "critters": "^0.0.25",
     "dotenv": "^17.2.1",

@@ -1,4 +1,4 @@
-import { Message, Business } from './types';
+import { Message, BusinessExtended as Business } from '@lifex/shared';
 import { extractUserPreferences } from './ai';
 
 export interface ChatServiceResponse {
