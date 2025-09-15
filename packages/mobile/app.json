@@ -28,15 +28,7 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-camera",
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "此应用需要访问您的位置以提供基于位置的推荐服务。"
-        }
-      ]
-    ]
+    "plugins": []
   },
   "name": "mobile",
   "displayName": "LifeX MVP"

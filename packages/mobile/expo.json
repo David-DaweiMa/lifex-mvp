@@ -3,7 +3,6 @@
     "name": "LifeX",
     "slug": "lifex-mvp",
     "version": "1.0.0",
-    "buildNumber": "1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -20,7 +19,6 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "co.nz.lifex.app",
-      "buildNumber": "1",
       "appStoreUrl": "https://apps.apple.com/app/lifex/id[APP_ID]",
       "config": {
         "usesNonExemptEncryption": false
@@ -55,37 +53,7 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "LifeX needs camera access to allow you to take photos for business reviews and profile pictures.",
-          "microphonePermission": "LifeX may need microphone access for voice features and video recording capabilities."
-        }
-      ],
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "LifeX uses your location to find nearby businesses and provide personalized recommendations based on your area."
-        }
-      ],
-      [
-        "expo-media-library",
-        {
-          "photosPermission": "LifeX needs access to your photo library to let you select and upload images for business reviews and profile pictures.",
-          "savePhotosPermission": "LifeX needs permission to save photos to your device.",
-          "isAccessMediaLocationEnabled": true
-        }
-      ],
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/notification-icon.png",
-          "color": "#a855f7",
-          "defaultChannel": "default"
-        }
-      ]
-    ],
+    "plugins": [],
     "extra": {
       "eas": {
         "projectId": "your-project-id-here"
