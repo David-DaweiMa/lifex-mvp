@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MessageCircle, Zap, Camera, Tag, Heart, Bell, User } from 'lucide-react-native';
 import { darkTheme } from '../lib/theme';
+import { useAuth } from '../contexts/AuthContext';
 import ChatScreen from './ChatScreen';
 import TrendingScreen from './TrendingScreen';
 import DiscoverScreen from './DiscoverScreen';
@@ -19,12 +20,14 @@ import ColyScreen from './ColyScreen';
 import ProfileScreen from './ProfileScreen';
 import BusinessDetailScreen from './BusinessDetailScreen';
 import AuthScreen from './AuthScreen';
+import BookingScreen from './BookingScreen';
+import MembershipPlansScreen from './MembershipPlansScreen';
 
 const { width } = Dimensions.get('window');
 
 export default function MainScreen() {
-  const [currentView, setCurrentView] = useState<'chat' | 'trending' | 'discover' | 'specials' | 'subscription' | 'profile' | 'business' | 'auth'>('chat');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentView, setCurrentView] = useState<'chat' | 'trending' | 'discover' | 'specials' | 'subscription' | 'profile' | 'business' | 'auth' | 'booking' | 'membership'>('chat');
+  const { user, isAuthenticated } = useAuth();
 
   const renderHeader = () => (
     <View style={styles.header}>
@@ -70,11 +73,15 @@ export default function MainScreen() {
       case 'subscription':
         return <ColyScreen />;
       case 'profile':
-        return <ProfileScreen />;
+        return <ProfileScreen onNavigate={setCurrentView} />;
       case 'business':
         return <BusinessDetailScreen />;
       case 'auth':
         return <AuthScreen />;
+      case 'booking':
+        return <BookingScreen />;
+      case 'membership':
+        return <MembershipPlansScreen onNavigateBack={() => setCurrentView('profile')} />;
       default:
         return <ChatScreen />;
     }

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Send, Bot, User, Loader } from 'lucide-react-native';
 import { darkTheme } from '../lib/theme';
+import { chatService, Message } from '../lib/chatService';
+import { useAuth } from '../contexts/AuthContext';
 
 const { width } = Dimensions.get('window');
 
@@ -21,6 +23,8 @@ interface Message {
   text: string;
   isUser: boolean;
   timestamp: Date;
+  recommendations?: any[];
+  followUpQuestions?: string[];
 }
 
 export default function ChatScreen() {
@@ -35,6 +39,7 @@ export default function ChatScreen() {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
+  const { user } = useAuth();
 
   const handleSendMessage = async () => {
     if (!inputText.trim() || isLoading) return;
@@ -47,20 +52,36 @@ export default function ChatScreen() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const messageText = inputText.trim();
     setInputText('');
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // 调用真实的AI服务
+      const response = await chatService.sendMessage(messageText, user?.id);
+      
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I'd be happy to help you find that! Let me search for the best options in your area. Could you tell me more about what you're specifically looking for?",
+        text: response.message,
+        isUser: false,
+        timestamp: new Date(),
+        recommendations: response.recommendations,
+        followUpQuestions: response.followUpQuestions,
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
         isUser: false,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const renderMessage = (message: Message) => (

@@ -6,120 +6,102 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Alert,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react-native';
+import { Mail, Lock, User, ArrowLeft } from 'lucide-react-native';
 import { darkTheme } from '../lib/theme';
+import { useAuth } from '../contexts/AuthContext';
 
-interface AuthFormData {
-  email: string;
-  password: string;
-  confirmPassword?: string;
-  fullName?: string;
+interface AuthScreenProps {
+  onBack?: () => void;
 }
 
-export default function AuthScreen() {
+export default function AuthScreen({ onBack }: AuthScreenProps) {
   const [isLogin, setIsLogin] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formData, setFormData] = useState<AuthFormData>({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    fullName: '',
-  });
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleInputChange = (field: keyof AuthFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const validateForm = () => {
-    if (!formData.email || !formData.password) {
-      Alert.alert('Error', 'Please fill in all required fields');
-      return false;
-    }
-
-    if (!isLogin) {
-      if (!formData.fullName || !formData.confirmPassword) {
-        Alert.alert('Error', 'Please fill in all required fields');
-        return false;
-      }
-
-      if (formData.password !== formData.confirmPassword) {
-        Alert.alert('Error', 'Passwords do not match');
-        return false;
-      }
-
-      if (formData.password.length < 6) {
-        Alert.alert('Error', 'Password must be at least 6 characters');
-        return false;
-      }
-    }
-
-    return true;
-  };
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login, register } = useAuth();
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Error', 'Please fill in all required fields');
+      return;
+    }
 
-    setIsLoading(true);
-    
+    if (!isLogin && !fullName.trim()) {
+      Alert.alert('Error', 'Please enter your full name');
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      // TODO: Implement actual authentication
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      let result;
       if (isLogin) {
-        Alert.alert('Success', 'Login successful!');
-        // TODO: Navigate to main app
+        result = await login(email.trim(), password);
       } else {
-        Alert.alert('Success', 'Account created successfully!');
-        setIsLogin(true);
-        setFormData({ email: '', password: '', confirmPassword: '', fullName: '' });
+        result = await register(email.trim(), password, {
+          full_name: fullName.trim(),
+          username: username.trim() || undefined,
+        });
+      }
+
+      if (result.success) {
+        Alert.alert(
+          'Success',
+          isLogin ? 'Welcome back!' : 'Account created successfully!',
+          [{ text: 'OK' }]
+        );
+        // 认证成功，MainScreen会自动更新状态
+      } else {
+        Alert.alert('Error', result.error || 'Authentication failed');
       }
     } catch (error) {
-      Alert.alert('Error', 'Authentication failed. Please try again.');
+      console.error('Auth error:', error);
+      Alert.alert('Error', 'Something went wrong. Please try again.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
-
-  const toggleAuthMode = () => {
-    setIsLogin(!isLogin);
-    setFormData({ email: '', password: '', confirmPassword: '', fullName: '' });
   };
 
   const renderHeader = () => (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.backButton}>
-        <ArrowLeft size={24} color={darkTheme.text.primary} />
-      </TouchableOpacity>
-      <Text style={styles.headerTitle}>
-        {isLogin ? 'Welcome Back' : 'Create Account'}
-      </Text>
-      <Text style={styles.headerSubtitle}>
-        {isLogin 
-          ? 'Sign in to continue your journey' 
-          : 'Join LifeX to discover amazing places'
-        }
-      </Text>
+      {onBack && (
+        <TouchableOpacity style={styles.backButton} onPress={onBack}>
+          <ArrowLeft size={24} color={darkTheme.text.primary} />
+        </TouchableOpacity>
+      )}
+      <View style={styles.headerContent}>
+        <Text style={styles.headerTitle}>
+          {isLogin ? 'Welcome Back' : 'Create Account'}
+        </Text>
+        <Text style={styles.headerSubtitle}>
+          {isLogin 
+            ? 'Sign in to continue your journey' 
+            : 'Join LifeX to discover amazing places'
+          }
+        </Text>
+      </View>
     </View>
   );
 
   const renderForm = () => (
     <View style={styles.form}>
       {!isLogin && (
-        <View style={styles.inputContainer}>
+        <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Full Name</Text>
-          <View style={styles.inputWrapper}>
-            <User size={20} color={darkTheme.text.muted} />
+          <View style={styles.inputContainer}>
+            <User size={20} color={darkTheme.text.muted} style={styles.inputIcon} />
             <TextInput
               style={styles.textInput}
-              value={formData.fullName}
-              onChangeText={(value) => handleInputChange('fullName', value)}
+              value={fullName}
+              onChangeText={setFullName}
               placeholder="Enter your full name"
               placeholderTextColor={darkTheme.text.muted}
               autoCapitalize="words"
@@ -128,115 +110,78 @@ export default function AuthScreen() {
         </View>
       )}
 
-      <View style={styles.inputContainer}>
+      {!isLogin && (
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>Username (Optional)</Text>
+          <View style={styles.inputContainer}>
+            <User size={20} color={darkTheme.text.muted} style={styles.inputIcon} />
+            <TextInput
+              style={styles.textInput}
+              value={username}
+              onChangeText={setUsername}
+              placeholder="Choose a username"
+              placeholderTextColor={darkTheme.text.muted}
+              autoCapitalize="none"
+            />
+          </View>
+        </View>
+      )}
+
+      <View style={styles.inputGroup}>
         <Text style={styles.inputLabel}>Email</Text>
-        <View style={styles.inputWrapper}>
-          <Mail size={20} color={darkTheme.text.muted} />
+        <View style={styles.inputContainer}>
+          <Mail size={20} color={darkTheme.text.muted} style={styles.inputIcon} />
           <TextInput
             style={styles.textInput}
-            value={formData.email}
-            onChangeText={(value) => handleInputChange('email', value)}
+            value={email}
+            onChangeText={setEmail}
             placeholder="Enter your email"
             placeholderTextColor={darkTheme.text.muted}
             keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        </View>
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.inputLabel}>Password</Text>
+        <View style={styles.inputContainer}>
+          <Lock size={20} color={darkTheme.text.muted} style={styles.inputIcon} />
+          <TextInput
+            style={styles.textInput}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Enter your password"
+            placeholderTextColor={darkTheme.text.muted}
+            secureTextEntry
             autoCapitalize="none"
           />
         </View>
       </View>
 
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>Password</Text>
-        <View style={styles.inputWrapper}>
-          <Lock size={20} color={darkTheme.text.muted} />
-          <TextInput
-            style={styles.textInput}
-            value={formData.password}
-            onChangeText={(value) => handleInputChange('password', value)}
-            placeholder="Enter your password"
-            placeholderTextColor={darkTheme.text.muted}
-            secureTextEntry={!showPassword}
-          />
-          <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.eyeButton}
-          >
-            {showPassword ? (
-              <EyeOff size={20} color={darkTheme.text.muted} />
-            ) : (
-              <Eye size={20} color={darkTheme.text.muted} />
-            )}
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {!isLogin && (
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Confirm Password</Text>
-          <View style={styles.inputWrapper}>
-            <Lock size={20} color={darkTheme.text.muted} />
-            <TextInput
-              style={styles.textInput}
-              value={formData.confirmPassword}
-              onChangeText={(value) => handleInputChange('confirmPassword', value)}
-              placeholder="Confirm your password"
-              placeholderTextColor={darkTheme.text.muted}
-              secureTextEntry={!showConfirmPassword}
-            />
-            <TouchableOpacity
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              style={styles.eyeButton}
-            >
-              {showConfirmPassword ? (
-                <EyeOff size={20} color={darkTheme.text.muted} />
-              ) : (
-                <Eye size={20} color={darkTheme.text.muted} />
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-    </View>
-  );
-
-  const renderSubmitButton = () => (
-    <TouchableOpacity
-      style={[styles.submitButton, isLoading && styles.submitButtonDisabled]}
-      onPress={handleSubmit}
-      disabled={isLoading}
-    >
-      <Text style={styles.submitButtonText}>
-        {isLoading 
-          ? (isLogin ? 'Signing In...' : 'Creating Account...') 
-          : (isLogin ? 'Sign In' : 'Create Account')
-        }
-      </Text>
-    </TouchableOpacity>
-  );
-
-  const renderAuthToggle = () => (
-    <View style={styles.authToggle}>
-      <Text style={styles.authToggleText}>
-        {isLogin ? "Don't have an account? " : "Already have an account? "}
-      </Text>
-      <TouchableOpacity onPress={toggleAuthMode}>
-        <Text style={styles.authToggleLink}>
-          {isLogin ? 'Sign Up' : 'Sign In'}
+      <TouchableOpacity
+        style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+        onPress={handleSubmit}
+        disabled={loading}
+      >
+        <Text style={styles.submitButtonText}>
+          {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
         </Text>
       </TouchableOpacity>
     </View>
   );
 
-  const renderSocialAuth = () => (
-    <View style={styles.socialAuth}>
-      <Text style={styles.socialAuthText}>Or continue with</Text>
-      <View style={styles.socialButtons}>
-        <TouchableOpacity style={styles.socialButton}>
-          <Text style={styles.socialButtonText}>Google</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton}>
-          <Text style={styles.socialButtonText}>Apple</Text>
-        </TouchableOpacity>
-      </View>
+  const renderFooter = () => (
+    <View style={styles.footer}>
+      <Text style={styles.footerText}>
+        {isLogin ? "Don't have an account? " : "Already have an account? "}
+      </Text>
+      <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
+        <Text style={styles.footerLink}>
+          {isLogin ? 'Sign Up' : 'Sign In'}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -246,12 +191,14 @@ export default function AuthScreen() {
         style={styles.keyboardAvoidingView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           {renderHeader()}
           {renderForm()}
-          {renderSubmitButton()}
-          {renderAuthToggle()}
-          {renderSocialAuth()}
+          {renderFooter()}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -269,17 +216,24 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+  },
   header: {
-    padding: 16,
-    paddingTop: 32,
+    marginBottom: 40,
   },
   backButton: {
+    alignSelf: 'flex-start',
+    marginBottom: 20,
     padding: 8,
-    borderRadius: 8,
-    marginBottom: 16,
+  },
+  headerContent: {
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: darkTheme.text.primary,
     marginBottom: 8,
@@ -287,96 +241,66 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     color: darkTheme.text.secondary,
-    lineHeight: 24,
+    textAlign: 'center',
   },
   form: {
-    padding: 16,
-    gap: 20,
+    flex: 1,
   },
-  inputContainer: {
-    gap: 8,
+  inputGroup: {
+    marginBottom: 20,
   },
   inputLabel: {
     fontSize: 16,
     fontWeight: '600',
     color: darkTheme.text.primary,
+    marginBottom: 8,
   },
-  inputWrapper: {
+  inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: darkTheme.background.card,
+    backgroundColor: darkTheme.background.secondary,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: darkTheme.background.glass,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    gap: 12,
+  },
+  inputIcon: {
+    marginRight: 12,
   },
   textInput: {
     flex: 1,
-    fontSize: 16,
     color: darkTheme.text.primary,
-  },
-  eyeButton: {
-    padding: 4,
+    fontSize: 16,
   },
   submitButton: {
     backgroundColor: darkTheme.neon.purple,
-    paddingVertical: 16,
     borderRadius: 12,
+    paddingVertical: 16,
     alignItems: 'center',
-    marginHorizontal: 16,
-    marginTop: 8,
+    marginTop: 20,
   },
   submitButtonDisabled: {
-    opacity: 0.6,
+    backgroundColor: darkTheme.background.glass,
   },
   submitButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
     color: darkTheme.text.primary,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
-  authToggle: {
+  footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
+    marginTop: 30,
   },
-  authToggleText: {
+  footerText: {
     fontSize: 16,
     color: darkTheme.text.secondary,
   },
-  authToggleLink: {
+  footerLink: {
     fontSize: 16,
-    fontWeight: '600',
     color: darkTheme.neon.purple,
-  },
-  socialAuth: {
-    padding: 16,
-    paddingTop: 0,
-  },
-  socialAuthText: {
-    fontSize: 14,
-    color: darkTheme.text.muted,
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  socialButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  socialButton: {
-    flex: 1,
-    backgroundColor: darkTheme.background.card,
-    paddingVertical: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: darkTheme.background.glass,
-    alignItems: 'center',
-  },
-  socialButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: darkTheme.text.primary,
+    fontWeight: '600',
   },
 });

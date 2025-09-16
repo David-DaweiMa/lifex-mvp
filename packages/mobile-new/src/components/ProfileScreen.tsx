@@ -23,11 +23,18 @@ import {
   Edit3,
   Camera,
   Mail,
-  Phone
+  Phone,
+  Crown,
+  CreditCard
 } from 'lucide-react-native';
 import { darkTheme } from '../lib/theme';
+import { useAuth } from '../contexts/AuthContext';
 
 const { width } = Dimensions.get('window');
+
+interface ProfileScreenProps {
+  onNavigate?: (view: string) => void;
+}
 
 interface UserProfile {
   id: string;
@@ -55,23 +62,34 @@ const mockUserProfile: UserProfile = {
   location: 'Auckland, New Zealand',
 };
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ onNavigate }: ProfileScreenProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const { logout } = useAuth();
 
   const handleEditProfile = () => {
     setIsEditing(true);
-    // TODO: Implement profile editing
+    // 可以在这里添加编辑表单或导航到编辑页面
+    Alert.alert(
+      'Edit Profile',
+      'Profile editing feature will be implemented in the next version.',
+      [{ text: 'OK' }]
+    );
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     Alert.alert(
       'Logout',
       'Are you sure you want to logout?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', style: 'destructive', onPress: () => {
-          // TODO: Implement logout
-          console.log('Logout pressed');
+        { text: 'Logout', style: 'destructive', onPress: async () => {
+          try {
+            await logout();
+            // 登出成功，MainScreen会自动处理状态变化
+          } catch (error) {
+            console.error('Logout error:', error);
+            Alert.alert('Error', 'Failed to logout. Please try again.');
+          }
         }},
       ]
     );
@@ -149,6 +167,33 @@ export default function ProfileScreen() {
 
   const renderMenuSection = () => (
     <View style={styles.section}>
+      <Text style={styles.sectionTitle}>My Services</Text>
+      
+      <TouchableOpacity 
+        style={styles.menuItem}
+        onPress={() => onNavigate?.('booking')}
+      >
+        <Calendar size={20} color={darkTheme.text.muted} />
+        <Text style={styles.menuText}>My Bookings</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity 
+        style={styles.menuItem}
+        onPress={() => onNavigate?.('membership')}
+      >
+        <Crown size={20} color={darkTheme.text.muted} />
+        <Text style={styles.menuText}>Membership Plans</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.menuItem}>
+        <CreditCard size={20} color={darkTheme.text.muted} />
+        <Text style={styles.menuText}>Billing & Payments</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderSettingsSection = () => (
+    <View style={styles.section}>
       <Text style={styles.sectionTitle}>Settings & Preferences</Text>
       
       <TouchableOpacity style={styles.menuItem}>
@@ -200,6 +245,9 @@ export default function ProfileScreen() {
 
         {/* Menu Section */}
         {renderMenuSection()}
+        
+        {/* Settings Section */}
+        {renderSettingsSection()}
       </ScrollView>
     </SafeAreaView>
   );
