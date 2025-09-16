@@ -14,11 +14,17 @@ import { darkTheme } from '../lib/theme';
 import ChatScreen from './ChatScreen';
 import TrendingScreen from './TrendingScreen';
 import DiscoverScreen from './DiscoverScreen';
+import SpecialsScreen from './SpecialsScreen';
+import ColyScreen from './ColyScreen';
+import ProfileScreen from './ProfileScreen';
+import BusinessDetailScreen from './BusinessDetailScreen';
+import AuthScreen from './AuthScreen';
 
 const { width } = Dimensions.get('window');
 
 export default function MainScreen() {
-  const [currentView, setCurrentView] = useState<'chat' | 'trending' | 'discover' | 'specials' | 'subscription'>('chat');
+  const [currentView, setCurrentView] = useState<'chat' | 'trending' | 'discover' | 'specials' | 'subscription' | 'profile' | 'business' | 'auth'>('chat');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const renderHeader = () => (
     <View style={styles.header}>
@@ -40,7 +46,10 @@ export default function MainScreen() {
           <TouchableOpacity style={styles.headerButton}>
             <Bell size={20} color={darkTheme.neon.purple} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerButton}>
+          <TouchableOpacity 
+            style={styles.headerButton}
+            onPress={() => setCurrentView(isAuthenticated ? 'profile' : 'auth')}
+          >
             <User size={20} color={darkTheme.neon.purple} />
           </TouchableOpacity>
         </View>
@@ -57,19 +66,15 @@ export default function MainScreen() {
       case 'discover':
         return <DiscoverScreen />;
       case 'specials':
-        return (
-          <View style={styles.placeholderContainer}>
-            <Text style={styles.placeholderTitle}>Specials</Text>
-            <Text style={styles.placeholderText}>Coming soon! Special deals and offers will be available here.</Text>
-          </View>
-        );
+        return <SpecialsScreen />;
       case 'subscription':
-        return (
-          <View style={styles.placeholderContainer}>
-            <Text style={styles.placeholderTitle}>Coly</Text>
-            <Text style={styles.placeholderText}>Coming soon! Your personalized recommendations and favorites.</Text>
-          </View>
-        );
+        return <ColyScreen />;
+      case 'profile':
+        return <ProfileScreen />;
+      case 'business':
+        return <BusinessDetailScreen />;
+      case 'auth':
+        return <AuthScreen />;
       default:
         return <ChatScreen />;
     }
