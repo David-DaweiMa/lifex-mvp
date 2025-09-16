@@ -27,7 +27,7 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "G'day! I'm your AI assistant. I can help you discover amazing places in New Zealand. What are you looking for today?",
+      text: "G'day! I'm LifeX, your AI companion for discovering amazing local services in New Zealand. What can I help you find today?",
       isUser: false,
       timestamp: new Date(),
     },
@@ -126,31 +126,66 @@ export default function ChatScreen() {
 
         {/* Input Area */}
         <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              style={styles.textInput}
-              value={inputText}
-              onChangeText={setInputText}
-              placeholder="Ask me anything about places in NZ..."
-              placeholderTextColor={darkTheme.text.muted}
-              multiline
-              maxLength={500}
-              onSubmitEditing={handleSendMessage}
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.textInput}
+            value={inputText}
+            onChangeText={setInputText}
+            placeholder="Ask me anything about places in NZ..."
+            placeholderTextColor={darkTheme.text.muted}
+            multiline
+            maxLength={500}
+            onSubmitEditing={handleSendMessage}
+          />
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              (!inputText.trim() || isLoading) && styles.sendButtonDisabled,
+            ]}
+            onPress={handleSendMessage}
+            disabled={!inputText.trim() || isLoading}
+          >
+            <Send
+              size={20}
+              color={inputText.trim() && !isLoading ? darkTheme.text.primary : darkTheme.text.muted}
             />
-            <TouchableOpacity
-              style={[
-                styles.sendButton,
-                (!inputText.trim() || isLoading) && styles.sendButtonDisabled,
-              ]}
-              onPress={handleSendMessage}
-              disabled={!inputText.trim() || isLoading}
-            >
-              <Send
-                size={20}
-                color={inputText.trim() && !isLoading ? darkTheme.text.primary : darkTheme.text.muted}
-              />
-            </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
+        </View>
+        
+        {/* Quick Prompts */}
+        <View style={styles.quickPromptsContainer}>
+          <Text style={styles.quickPromptsTitle}>Quick Start</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.quickPromptsScroll}
+          >
+            {[
+              "Where's the best flat white in Ponsonby?",
+              "Kid-friendly restaurants with play areas",
+              "Cheap eats under $15 near Queen Street",
+              "24/7 plumber for blocked drains",
+              "House cleaner for weekly visits",
+              "Dog grooming with pickup service",
+              "Indoor activities for rainy Auckland days",
+              "Beginner-friendly hiking trails 1 hour from city",
+              "Weekend markets with organic produce"
+            ].map((prompt, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.quickPromptButton}
+                onPress={() => {
+                  setInputText(prompt);
+                  setTimeout(() => {
+                    handleSendMessage();
+                  }, 100);
+                }}
+              >
+                <Text style={styles.quickPromptText}>{prompt}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -265,5 +300,31 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     backgroundColor: darkTheme.background.glass,
+  },
+  quickPromptsContainer: {
+    marginTop: 12,
+  },
+  quickPromptsTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: darkTheme.text.primary,
+    marginBottom: 8,
+  },
+  quickPromptsScroll: {
+    paddingHorizontal: 4,
+    gap: 8,
+  },
+  quickPromptButton: {
+    backgroundColor: darkTheme.background.card,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: darkTheme.background.glass,
+  },
+  quickPromptText: {
+    fontSize: 12,
+    color: darkTheme.text.primary,
+    fontWeight: '500',
   },
 });
