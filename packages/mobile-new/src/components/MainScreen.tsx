@@ -11,6 +11,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MessageCircle, Zap, Camera, Tag, Heart, Bell, User } from 'lucide-react-native';
 import { darkTheme } from '../lib/theme';
+import ChatScreen from './ChatScreen';
+import TrendingScreen from './TrendingScreen';
+import DiscoverScreen from './DiscoverScreen';
 
 const { width } = Dimensions.get('window');
 
@@ -45,54 +48,32 @@ export default function MainScreen() {
     </View>
   );
 
-  const renderChatContent = () => (
-    <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-      {/* Welcome Message */}
-      <View style={styles.welcomeCard}>
-        <Text style={styles.welcomeText}>G'day! What can I help you find today?</Text>
-      </View>
-
-      {/* Quick Prompts */}
-      <View style={styles.quickPromptsSection}>
-        <Text style={styles.sectionTitle}>Quick Start</Text>
-        <View style={styles.quickPromptsGrid}>
-          {[
-            "Find coffee near me",
-            "Best restaurants in Auckland",
-            "Hair salon recommendations",
-            "Gym with personal trainer",
-            "Pet grooming services",
-            "Car repair shop"
-          ].map((prompt, index) => (
-            <TouchableOpacity key={index} style={styles.quickPromptButton}>
-              <Text style={styles.quickPromptText}>{prompt}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-
-      {/* Recent Discoveries */}
-      <View style={styles.discoveriesSection}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Recent Discoveries</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeAllText}>See all</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.discoveriesList}>
-          {[
-            "Café Supreme - Perfect for remote work",
-            "Auckland Fitness Center - Great trainers",
-            "Ponsonby Hair Studio - Excellent service"
-          ].map((discovery, index) => (
-            <View key={index} style={styles.discoveryCard}>
-              <Text style={styles.discoveryText}>{discovery}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-    </ScrollView>
-  );
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'chat':
+        return <ChatScreen />;
+      case 'trending':
+        return <TrendingScreen />;
+      case 'discover':
+        return <DiscoverScreen />;
+      case 'specials':
+        return (
+          <View style={styles.placeholderContainer}>
+            <Text style={styles.placeholderTitle}>Specials</Text>
+            <Text style={styles.placeholderText}>Coming soon! Special deals and offers will be available here.</Text>
+          </View>
+        );
+      case 'subscription':
+        return (
+          <View style={styles.placeholderContainer}>
+            <Text style={styles.placeholderTitle}>Coly</Text>
+            <Text style={styles.placeholderText}>Coming soon! Your personalized recommendations and favorites.</Text>
+          </View>
+        );
+      default:
+        return <ChatScreen />;
+    }
+  };
 
   const renderBottomNavigation = () => (
     <View style={styles.bottomNav}>
@@ -127,7 +108,7 @@ export default function MainScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={darkTheme.background.primary} />
       {renderHeader()}
-      {renderChatContent()}
+      {renderCurrentView()}
       {renderBottomNavigation()}
     </SafeAreaView>
   );
@@ -306,5 +287,23 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
     fontWeight: '500',
+  },
+  placeholderContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  placeholderTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: darkTheme.text.primary,
+    marginBottom: 12,
+  },
+  placeholderText: {
+    fontSize: 16,
+    color: darkTheme.text.secondary,
+    textAlign: 'center',
+    lineHeight: 24,
   },
 });
