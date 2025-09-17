@@ -3,15 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "packages/mobile-new",
     "packages/web", 
     "packages/shared"
   ],
   "scripts": {
     "dev": "npm run dev:web",
     "dev:web": "cd packages/web && npm run dev",
-    "dev:mobile": "cd packages/mobile-new && npx expo start",
-    "expo": "cd packages/mobile-new && npx expo start",
     "build": "npm run build:shared && npm run build:web",
     "build:shared": "cd packages/shared && npm run build",
     "build:web": "cd packages/web && npm run build",
